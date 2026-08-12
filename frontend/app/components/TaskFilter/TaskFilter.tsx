@@ -206,7 +206,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
   const renderSubmenu = () => {
     if (activeCategory === "Priority") {
       return (
-        <div className="absolute right-[calc(100%+8px)] top-[52px] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_4px_6px_-2px_#00000014,0px_2px_4px_-1px_#0000000A]">
+        <div className="absolute top-[calc(100%+20px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[#737373]">
               Priority
@@ -255,7 +255,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
 
     if (activeCategory === "Status") {
       return (
-        <div className="absolute right-[calc(100%+8px)] top-1 w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_4px_6px_-2px_#00000014,0px_2px_4px_-1px_#0000000A]">
+        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[#737373]">
               Status
@@ -300,7 +300,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
 
     if (activeCategory === "Due Date") {
       return (
-        <div className="absolute right-[calc(100%+8px)] top-[108px] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_4px_6px_-2px_#00000014,0px_2px_4px_-1px_#0000000A]">
+        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[#737373]">
               Due Date
@@ -372,54 +372,66 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 z-50 w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]">
-          {categories.map((category) => {
-            const Icon = category.icon;
-            const selected =
-              activeCategory === category.name;
+        <div className="absolute right-0 top-10 z-50">
+          <div
+            className="relative w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
+            onClick={() => {
+              setActiveCategory(null);
+            }}
+          >
+            {categories.map((category) => {
+              const Icon = category.icon;
+              const selected =
+                activeCategory === category.name;
 
-            return (
-              <button
-                key={category.name}
-                type="button"
-                onClick={() => {
-                  if (
-                    category.name === "Priority" ||
-                    category.name === "Status" ||
-                    category.name === "Due Date"
-                  ) {
-                    setActiveCategory(
-                      selected ? null : category.name,
-                    );
-                  }
-                }}
-                className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${selected
+              const hasSubmenu =
+                category.name === "Priority" ||
+                category.name === "Status" ||
+                category.name === "Due Date";
+
+              return (
+                <button
+                  key={category.name}
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+
+                    if (hasSubmenu) {
+                      setActiveCategory(
+                        selected ? null : category.name,
+                      );
+                    }
+                  }}
+                  className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${selected
                     ? "bg-[#F5F5F5]"
                     : "hover:bg-[#F5F5F5]"
-                  }`}
-              >
-                <Icon
-                  size={18}
-                  strokeWidth={1.8}
-                  className="shrink-0 text-[#171717]"
-                />
+                    }`}
+                >
+                  <Icon
+                    size={18}
+                    strokeWidth={1.8}
+                    className="shrink-0 text-[#171717]"
+                  />
 
-                <span className="text-sm font-normal text-[#171717]">
-                  {category.name}
-                </span>
+                  <span className="text-sm font-normal text-[#171717]">
+                    {category.name}
+                  </span>
 
-                <ChevronRight
-                  size={16}
-                  strokeWidth={1.8}
-                  className="ml-auto text-[#171717]"
-                />
-              </button>
-            );
-          })}
+                  {hasSubmenu && (
+                    <ChevronRight
+                      size={16}
+                      strokeWidth={1.8}
+                      className="ml-auto text-[#171717]"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {activeCategory && renderSubmenu()}
         </div>
       )}
-
-      {open && activeCategory && renderSubmenu()}
     </div>
   );
 }

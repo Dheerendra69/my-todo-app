@@ -3,15 +3,13 @@
 import { useState } from "react";
 import {
     ChevronDown,
-    ChevronRight,
     Columns3,
     Filter,
     MoreHorizontal,
-    PanelLeft,
     Plus,
-    Search,
     SignalHigh,
     SignalLow,
+    Search
 } from "lucide-react";
 import TaskFilter from "../TaskFilter/TaskFilter";
 
@@ -267,48 +265,15 @@ function TaskSection({
     );
 }
 
-function TopBar() {
-    return (
-        <header className="flex h-16 w-full items-center border-b border-[#E5E5E5] px-4">
-            <div className="flex items-center gap-2">
-                <button
-                    type="button"
-                    className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#F5F5F5]"
-                >
-                    <PanelLeft size={16} strokeWidth={2} />
-                </button>
-
-                <div className="h-[15px] w-px bg-[#E5E5E5]" />
-
-                <nav className="flex items-center gap-2 text-sm">
-                    <button
-                        type="button"
-                        className="text-[#737373] hover:text-[#171717]"
-                    >
-                        Projects
-                    </button>
-
-                    <ChevronRight
-                        size={15}
-                        strokeWidth={2}
-                        className="text-[#737373]"
-                    />
-
-                    <span className="text-[#171717]">Design Homepage</span>
-                </nav>
-            </div>
-        </header>
-    );
-}
-
 function BoardActions() {
     return (
         <div className="flex items-center gap-2">
-            <TaskFilter
-                onChange={(filters) => {
-                    console.log(filters);
-                }}
-            />
+            <button
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E5E5] bg-white hover:bg-[#F5F5F5]"
+            >
+                <Search size={14} strokeWidth={2} />
+            </button>
 
             <button
                 type="button"
@@ -318,12 +283,11 @@ function BoardActions() {
                 <span className="text-xs font-medium text-[#171717]">Fields</span>
             </button>
 
-            <button
-                type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E5E5] bg-white hover:bg-[#F5F5F5]"
-            >
-                <Filter size={15} strokeWidth={2} />
-            </button>
+            <TaskFilter
+                onChange={(filters) => {
+                    console.log(filters);
+                }}
+            />
 
             <button
                 type="button"
@@ -368,7 +332,6 @@ export default function TaskBoard() {
 
     return (
         <div className="min-h-screen w-full bg-white">
-            <TopBar />
 
             <main className="w-full px-4 py-4">
                 <div className="mx-auto w-full max-w-[992px]">
