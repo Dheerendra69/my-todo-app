@@ -1,15 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import {
   ChevronsUpDown,
   ChevronDown,
-  Grid2X2,
   BriefcaseBusiness,
-  LayoutDashboard,
   CheckSquare,
-  CalendarDays,
-  Users,
-  Settings,
 } from "lucide-react";
 
 const navigation = [
@@ -26,6 +22,8 @@ const navigation = [
 ];
 
 export default function Sidebar() {
+  const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(true);
+
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-[#E5E5E5] bg-[#FAFAFA] md:block">
       <div className="flex h-16 w-full items-center p-2">
@@ -51,42 +49,56 @@ export default function Sidebar() {
       </div>
 
       <div className="w-full p-2">
-        <button className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left">
+        <button
+          onClick={() => setIsWorkspaceOpen((prev) => !prev)}
+          className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left hover:bg-[#F5F5F5]"
+        >
           <span className="text-sm font-medium leading-5 text-[#0A0A0A]">
             Workspace
           </span>
 
-          <ChevronDown
-            size={16}
-            strokeWidth={2}
-            className="text-[#171717]"
-          />
+          {isWorkspaceOpen ? (
+            <ChevronDown
+              size={16}
+              strokeWidth={2}
+              className="text-[#171717]"
+            />
+          ) : (
+            <ChevronDown
+              size={16}
+              strokeWidth={2}
+              className="rotate-180 text-[#171717]"
+            />
+          )}
         </button>
       </div>
 
-      <nav className="w-full px-2">
-        <div className="flex w-full flex-col">
-          {navigation.map((item) => {
-            const Icon = item.icon;
+      {isWorkspaceOpen && (
+        <nav className="w-full px-2">
+          <div className="flex w-full flex-col">
+            {navigation.map((item) => {
+              const Icon = item.icon;
 
-            return (
-              <button
-                key={item.label}
-                className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left ${item.active
-                    ? "bg-[#F5F5F5] text-[#171717]"
-                    : "text-[#0A0A0A] hover:bg-[#F5F5F5]"
+              return (
+                <button
+                  key={item.label}
+                  className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left ${
+                    item.active
+                      ? "bg-[#F5F5F5] text-[#171717]"
+                      : "text-[#0A0A0A] hover:bg-[#F5F5F5]"
                   }`}
-              >
-                <Icon size={16} strokeWidth={2} />
+                >
+                  <Icon size={16} strokeWidth={2} />
 
-                <span className="text-sm font-medium leading-[100%]">
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+                  <span className="text-sm font-medium leading-[100%]">
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </aside>
   );
 }
