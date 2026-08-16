@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "../auth/AuthContext";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -51,6 +52,7 @@ export default function Sidebar({
   isOpen,
   onClose,
 }: SidebarProps) {
+  const { user, logout } = useAuth();
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<
@@ -269,15 +271,15 @@ export default function Sidebar({
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F5F5F5]">
                   <img
-                    src="/Dexter.jpeg"
-                    alt="Dexter"
+                    src={user?.avatar || "/default-avatar.jpeg"}
+                    alt={user?.name || "User"}
                     className="h-full w-full object-cover"
                   />
                 </div>
 
                 <div className="flex min-w-0 flex-1 items-center">
                   <span className="truncate text-sm font-medium leading-5 text-[#0A0A0A]">
-                    Dexter
+                    {user?.name || "User"}
                   </span>
                 </div>
 
@@ -294,19 +296,19 @@ export default function Sidebar({
                 <div className="flex h-[120px] w-full flex-col items-center justify-center gap-4 px-3">
                   <div className="h-10 w-10 overflow-hidden rounded-full bg-[#F5F5F5]">
                     <img
-                      src="/Dexter.jpeg"
-                      alt="Dexter"
+                      src={user?.avatar || "/default-avatar.jpeg"}
+                      alt={user?.name || "User"}
                       className="h-full w-full object-cover"
                     />
                   </div>
 
                   <div className="flex w-full min-w-0 flex-col items-center">
                     <span className="max-w-[109px] truncate text-sm font-normal leading-4 text-[#171717]">
-                      Dexter
+                      {user?.name || "User"}
                     </span>
 
                     <span className="max-w-[109px] truncate text-xs font-medium leading-4 text-[#6B7280]">
-                      Dexter@gmail.com
+                      {user?.email || "Guest account"}
                     </span>
                   </div>
                 </div>

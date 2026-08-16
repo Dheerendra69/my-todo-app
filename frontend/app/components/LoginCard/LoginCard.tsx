@@ -18,6 +18,33 @@ const GoogleIcon = () => (
 );
 
 export default function LoginCard() {
+    const handleGoogleLogin = () => {
+        window.location.href =
+            'http://localhost:3001/auth/google';
+    };
+
+    const handleGuestLogin = async () => {
+        const response = await fetch(
+            "http://localhost:3001/auth/guest",
+            {
+                method: "POST",
+            },
+        );
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json();
+
+        localStorage.setItem(
+            "accessToken",
+            data.accessToken,
+        );
+
+        window.location.href = "/tasks";
+    };
+
     return (
         <main className="flex min-h-screen items-center justify-center bg-white px-4 py-8 sm:px-6">
             <div className="flex w-full max-w-[1200px] flex-col items-center">
@@ -67,6 +94,7 @@ export default function LoginCard() {
                             <button
                                 type="button"
                                 className="flex h-9 w-full items-center justify-center rounded-full bg-[#171717] px-3 py-2 text-sm font-medium leading-5 text-[#FAFAFA] transition-colors hover:bg-[#262626] focus:outline-none focus:ring-2 focus:ring-[#171717] focus:ring-offset-2"
+                                onClick={handleGuestLogin}
                             >
                                 Continue as Guest
                             </button>
@@ -74,6 +102,7 @@ export default function LoginCard() {
                             <button
                                 type="button"
                                 className="flex h-9 w-full items-center justify-center gap-[6px] rounded-full border border-[#E5E5E5] bg-white px-3 py-2 text-sm font-medium leading-5 text-[#0A0A0A] transition-colors hover:bg-[#FAFAFA] focus:outline-none focus:ring-2 focus:ring-[#E5E5E5] focus:ring-offset-2"
+                                onClick={handleGoogleLogin}
                             >
                                 <span className="flex h-4 w-4 items-center justify-center">
                                     <GoogleIcon />

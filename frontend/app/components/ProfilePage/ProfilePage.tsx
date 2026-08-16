@@ -1,8 +1,28 @@
 "use client";
 
 import { Pencil } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export default function ProfilePage() {
+
+  const { user, loading, logout } = useAuth();
+
+  if (loading) {
+    return (
+      <main className="min-h-screen border-l border-[#E5E5E5] bg-white">
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-[#737373]">
+            Loading profile...
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <main className="min-h-screen border-l border-[#E5E5E5] bg-white">
       <div className="flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -21,8 +41,8 @@ export default function ProfilePage() {
 
               <div className="h-[34px] w-[34px] overflow-hidden rounded-full border border-[#E5E5E5]">
                 <img
-                  src="https://i.pravatar.cc/100?img=47"
-                  alt="Profile"
+                  src={user.avatar || "/default-avatar.jpeg"}
+                  alt={user.name}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -35,7 +55,7 @@ export default function ProfilePage() {
 
               <div className="flex items-center gap-3">
                 <span className="text-sm text-[#171717]">
-                  dexter@gmail.com
+                  {user.email || "Guest account"}
                 </span>
 
                 <button
@@ -54,7 +74,7 @@ export default function ProfilePage() {
 
               <input
                 type="text"
-                defaultValue="Dexter"
+                defaultValue={user.name}
                 className="h-9 w-full max-w-[180px] rounded-md border border-[#E5E5E5] bg-[#E5E5E5] px-3 text-sm text-[#737373] outline-none"
               />
             </div>
@@ -109,6 +129,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="h-8 shrink-0 rounded-md bg-[#DC26261A] px-3 text-xs font-medium leading-4 text-[#DC2626]"
+                onClick={logout}
               >
                 Leave Workspace
               </button>
