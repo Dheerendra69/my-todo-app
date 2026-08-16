@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import TopBar from "../TopBar/TopBar";
+import { usePathname } from "next/navigation";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -18,6 +19,8 @@ export default function AppShell({ children }: AppShellProps) {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
+
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen">
@@ -39,11 +42,12 @@ export default function AppShell({ children }: AppShellProps) {
         className={`min-h-screen transition-[margin] duration-200 ${isSidebarOpen ? "md:ml-64" : "md:ml-0"
           }`}
       >
-        <TopBar
-          isSidebarOpen={isSidebarOpen}
-          onToggleSidebar={toggleSidebar}
-        />
-
+        { pathname !== "/settings/theme" &&
+            <TopBar
+              isSidebarOpen={isSidebarOpen}
+              onToggleSidebar={toggleSidebar}
+            />
+        }
         <main className="min-h-[calc(100vh-4rem)]">
           {children}
         </main>

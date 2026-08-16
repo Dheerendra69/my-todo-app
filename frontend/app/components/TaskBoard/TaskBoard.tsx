@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import {
+    Calendar,
     ChevronDown,
     Columns3,
-    Filter,
+    GripVertical,
     MoreHorizontal,
     Plus,
     SignalHigh,
     SignalLow,
-    Search
+    Tag,
 } from "lucide-react";
-import TaskFilter from "../TaskFilter/TaskFilter";
+import BoardActions from "../BoardActions/BoardActions";
+import type { ViewMode } from "../FieldsPopover/FieldsPopOver";
 
 type Priority = "High" | "Medium" | "Low";
 
@@ -37,25 +39,27 @@ const initialSections: TaskSection[] = [
         tasks: [
             {
                 id: 1,
-                title: "Design Homepage",
+                title: "Write API Documentation",
                 priority: "High",
                 member: "Admin",
                 avatar: "https://i.pravatar.cc/100?img=47",
-                dueDate: "12 Sep 2026",
+                dueDate: "29 Jul",
             },
             {
                 id: 2,
-                title: "Develop Login Feature",
+                title: "Implement Search Function",
                 priority: "Low",
-                member: "CN",
-                dueDate: "15 Sep 2026",
+                member: "Admin",
+                avatar: "https://i.pravatar.cc/100?img=47",
+                dueDate: "29 Jul",
             },
             {
                 id: 3,
-                title: "Test Payment Gateway",
+                title: "Deploy to Production",
                 priority: "Medium",
-                member: "+",
-                dueDate: "18 Sep 2026",
+                member: "Admin",
+                avatar: "https://i.pravatar.cc/100?img=47",
+                dueDate: "29 Jul",
             },
         ],
     },
@@ -69,21 +73,15 @@ const initialSections: TaskSection[] = [
                 priority: "High",
                 member: "Admin",
                 avatar: "https://i.pravatar.cc/100?img=47",
-                dueDate: "12 Sep 2026",
+                dueDate: "29 Jul",
             },
             {
                 id: 5,
                 title: "Develop Login Feature",
                 priority: "Low",
-                member: "CN",
-                dueDate: "15 Sep 2026",
-            },
-            {
-                id: 6,
-                title: "Test Payment Gateway",
-                priority: "Medium",
-                member: "+",
-                dueDate: "18 Sep 2026",
+                member: "Admin",
+                avatar: "https://i.pravatar.cc/100?img=47",
+                dueDate: "29 Jul",
             },
         ],
     },
@@ -92,26 +90,12 @@ const initialSections: TaskSection[] = [
         title: "Completed",
         tasks: [
             {
-                id: 7,
-                title: "Design Homepage",
-                priority: "High",
-                member: "Admin",
-                avatar: "https://i.pravatar.cc/100?img=47",
-                dueDate: "12 Sep 2026",
-            },
-            {
-                id: 8,
-                title: "Develop Login Feature",
-                priority: "Low",
-                member: "CN",
-                dueDate: "15 Sep 2026",
-            },
-            {
-                id: 9,
+                id: 6,
                 title: "Test Payment Gateway",
                 priority: "Medium",
-                member: "+",
-                dueDate: "18 Sep 2026",
+                member: "Admin",
+                avatar: "https://i.pravatar.cc/100?img=47",
+                dueDate: "29 Jul",
             },
         ],
     },
@@ -132,18 +116,24 @@ const priorityStyles = {
     },
 };
 
-function PriorityBadge({ priority }: { priority: Priority }) {
+function PriorityBadge({
+    priority,
+}: {
+    priority: Priority;
+}) {
     const styles = priorityStyles[priority];
 
     return (
         <div className={`flex items-center gap-1 ${styles.text}`}>
             {priority === "Low" ? (
-                <SignalLow size={12} strokeWidth={2} className={styles.icon} />
+                <SignalLow size={12} strokeWidth={2} />
             ) : (
-                <SignalHigh size={12} strokeWidth={2} className={styles.icon} />
+                <SignalHigh size={12} strokeWidth={2} />
             )}
 
-            <span className="text-xs font-medium leading-4">{priority}</span>
+            <span className="text-xs font-medium">
+                {priority}
+            </span>
         </div>
     );
 }
@@ -166,7 +156,7 @@ function MemberAvatar({
     }
 
     return (
-        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#F0F0F0] text-[10px] font-medium text-[#171717]">
+        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#F0F0F0] text-[10px] font-medium">
             {member}
         </div>
     );
@@ -184,7 +174,10 @@ function TaskRow({ task }: { task: Task }) {
             </div>
 
             <div className="px-3 py-3">
-                <MemberAvatar member={task.member} avatar={task.avatar} />
+                <MemberAvatar
+                    member={task.member}
+                    avatar={task.avatar}
+                />
             </div>
 
             <div className="px-3 py-3 text-sm text-[#171717]">
@@ -201,11 +194,69 @@ function TaskRow({ task }: { task: Task }) {
     );
 }
 
-function TaskSection({
+function BoardTaskCard({ task }: { task: Task }) {
+    return (
+        <div className="mx-3 mb-3 rounded-md border border-[#E5E5E5] bg-white p-3">
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium leading-5 text-[#0A0A0A]">
+                    {task.title}
+                </span>
+
+                <button
+                    type="button"
+                    className="flex h-5 w-5 items-center justify-center"
+                >
+                    <MoreHorizontal size={14} strokeWidth={2} />
+                </button>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                    <MemberAvatar
+                        member={task.member}
+                        avatar={task.avatar}
+                    />
+
+                    <span className="text-xs font-medium leading-4 text-[#0A0A0A]">
+                        {task.member === "Admin"
+                            ? "Admin"
+                            : task.member}
+                    </span>
+                </div>
+
+                <div className="flex h-5 items-center gap-1 rounded-3xl bg-[#DC26261A] px-2 text-[#DC2626]">
+                    <span className="text-xs font-medium leading-4">
+                        {task.dueDate.replace("2026", "")}
+                    </span>
+                </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+                <div className="flex h-5 items-center gap-1 rounded-3xl bg-[#F5F5F5] px-2">
+                    <span className="text-xs font-medium leading-4 text-[#171717]">
+                        Deployment
+                    </span>
+                </div>
+
+                <div className="flex h-5 items-center gap-1 rounded-3xl bg-[#F5F5F5] px-2">
+                    <span className="text-xs font-medium leading-4 text-[#171717]">
+                        Deployment
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ListTaskSection({
     section,
+    collapsed,
+    onToggle,
     onAddTask,
 }: {
     section: TaskSection;
+    collapsed: boolean;
+    onToggle: () => void;
     onAddTask: (sectionId: string) => void;
 }) {
     return (
@@ -213,9 +264,17 @@ function TaskSection({
             <div className="mb-3 flex h-5 items-center gap-1">
                 <button
                     type="button"
-                    className="flex items-center justify-center"
+                    onClick={onToggle}
+                    className="flex h-5 w-5 items-center justify-center rounded hover:bg-[#F5F5F5]"
                 >
-                    <ChevronDown size={16} strokeWidth={2} />
+                    <ChevronDown
+                        size={16}
+                        strokeWidth={2}
+                        className={`
+              transition-transform duration-500 ease-in-out
+              ${collapsed ? "-rotate-90" : ""}
+            `}
+                    />
                 </button>
 
                 <span className="text-sm font-medium leading-5 text-[#171717]">
@@ -223,85 +282,145 @@ function TaskSection({
                 </span>
             </div>
 
-            <div className="w-full overflow-x-auto rounded-lg border border-[#E5E5E5]">
-                <div className="min-w-[700px]">
-                    <div className="grid grid-cols-[minmax(240px,1fr)_120px_120px_140px_48px] h-12 items-center border-b border-[#E5E5E5] bg-[#F5F5F5]">
-                        <div className="px-3 text-sm font-medium text-[#171717]">
-                            Task
-                        </div>
+            <div
+                className={`
+          grid transition-[grid-template-rows,opacity]
+          duration-500 ease-in-out
+          ${collapsed
+                        ? "grid-rows-[0fr] opacity-0"
+                        : "grid-rows-[1fr] opacity-100"
+                    }
+        `}
+            >
+                <div className="min-h-0 overflow-hidden">
+                    <div className="w-full overflow-x-auto rounded-lg border border-[#E5E5E5]">
+                        <div className="min-w-[700px]">
+                            <div className="grid h-12 grid-cols-[minmax(240px,1fr)_120px_120px_140px_48px] items-center border-b border-[#E5E5E5] bg-[#F5F5F5]">
+                                <div className="px-3 text-sm font-medium">
+                                    Task
+                                </div>
 
-                        <div className="px-3 text-sm font-medium text-[#171717]">
-                            Priority
-                        </div>
+                                <div className="px-3 text-sm font-medium">
+                                    Priority
+                                </div>
 
-                        <div className="px-3 text-sm font-medium text-[#171717]">
-                            Members
-                        </div>
+                                <div className="px-3 text-sm font-medium">
+                                    Members
+                                </div>
 
-                        <div className="px-3 text-sm font-medium text-[#171717]">
-                            Due Date
-                        </div>
+                                <div className="px-3 text-sm font-medium">
+                                    Due Date
+                                </div>
 
-                        <div className="px-3 text-sm font-medium text-[#171717]">
-                            Actions
+                                <div className="px-3 text-sm font-medium">
+                                    Actions
+                                </div>
+                            </div>
+
+                            {section.tasks.map((task) => (
+                                <TaskRow
+                                    key={task.id}
+                                    task={task}
+                                />
+                            ))}
+
+                            <button
+                                type="button"
+                                onClick={() => onAddTask(section.id)}
+                                className="flex h-12 items-center gap-1 px-3 text-sm font-medium hover:bg-[#FAFAFA]"
+                            >
+                                <Plus size={16} />
+                                Add Task
+                            </button>
                         </div>
                     </div>
-
-                    {section.tasks.map((task) => (
-                        <TaskRow key={task.id} task={task} />
-                    ))}
-
-                    <button
-                        type="button"
-                        onClick={() => onAddTask(section.id)}
-                        className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-[#171717] hover:bg-[#FAFAFA]"
-                    >
-                        <Plus size={16} strokeWidth={2} />
-                        Add Task
-                    </button>
                 </div>
             </div>
         </section>
     );
 }
 
-function BoardActions() {
+function BoardSection({
+    section,
+    onAddTask,
+}: {
+    section: TaskSection;
+    onAddTask: (sectionId: string) => void;
+}) {
     return (
-        <div className="flex items-center gap-2">
-            <button
-                type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E5E5] bg-white hover:bg-[#F5F5F5]"
-            >
-                <Search size={14} strokeWidth={2} />
-            </button>
+        <section className="w-[289px] shrink-0 overflow-hidden rounded-lg border border-[#E5E5E5] bg-[#F5F5F5]">
+            <div className="flex h-[39px] items-center justify-between px-3">
+                <div className="flex items-center gap-2">
+                    <Columns3
+                        size={14}
+                        strokeWidth={2}
+                    />
 
-            <button
-                type="button"
-                className="flex h-8 items-center gap-1.5 rounded-md border border-[#E5E5E5] bg-white px-3 hover:bg-[#F5F5F5]"
-            >
-                <Columns3 size={15} strokeWidth={1.8} />
-                <span className="text-xs font-medium text-[#171717]">Fields</span>
-            </button>
+                    <span className="text-xs font-semibold leading-[100%] text-[#171717]">
+                        {section.title}
+                    </span>
+                </div>
 
-            <TaskFilter
-                onChange={(filters) => {
-                    console.log(filters);
-                }}
-            />
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => onAddTask(section.id)}
+                        className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-[#E5E5E5]"
+                    >
+                        <Plus size={14} strokeWidth={2} />
+                    </button>
 
-            <button
-                type="button"
-                className="flex h-8 items-center gap-1 rounded-md bg-[#171717] px-3 text-[#FAFAFA] hover:bg-[#262626]"
-            >
-                <Plus size={14} strokeWidth={2} />
-                <span className="text-xs font-medium">Add Task</span>
-            </button>
-        </div>
+                    <button
+                        type="button"
+                        className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-[#E5E5E5]"
+                    >
+                        <MoreHorizontal
+                            size={14}
+                            strokeWidth={2}
+                        />
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                {section.tasks.map((task) => (
+                    <BoardTaskCard
+                        key={task.id}
+                        task={task}
+                    />
+                ))}
+            </div>
+
+            <div className="flex h-[39px] items-center px-3">
+                <button
+                    type="button"
+                    onClick={() => onAddTask(section.id)}
+                    className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-[#171717] hover:bg-white"
+                >
+                    <Plus size={12} strokeWidth={2} />
+                    <span>Add Task</span>
+                </button>
+            </div>
+        </section>
     );
 }
 
 export default function TaskBoard() {
-    const [sections, setSections] = useState<TaskSection[]>(initialSections);
+    const [sections, setSections] =
+        useState<TaskSection[]>(initialSections);
+
+    const [viewMode, setViewMode] =
+        useState<ViewMode>("list");
+
+    const [collapsedSections, setCollapsedSections] =
+        useState<Record<string, boolean>>({});
+
+    const toggleSection = (sectionId: string) => {
+        setCollapsedSections((current) => ({
+            ...current,
+            [sectionId]: !current[sectionId],
+        }));
+    };
 
     const addTask = (sectionId: string) => {
         setSections((currentSections) =>
@@ -314,8 +433,9 @@ export default function TaskBoard() {
                     id: Date.now(),
                     title: "New Task",
                     priority: "Medium",
-                    member: "+",
-                    dueDate: "18 Sep 2026",
+                    member: "Admin",
+                    avatar: "https://i.pravatar.cc/100?img=47",
+                    dueDate: "29 Jul",
                 };
 
                 return {
@@ -332,7 +452,6 @@ export default function TaskBoard() {
 
     return (
         <div className="min-h-screen w-full bg-white">
-
             <main className="w-full px-4 py-4">
                 <div className="mx-auto w-full max-w-[992px]">
                     <div className="mb-4 flex items-center justify-between gap-4">
@@ -340,18 +459,45 @@ export default function TaskBoard() {
                             Tasks
                         </h1>
 
-                        <BoardActions />
+                        <BoardActions
+                            viewMode={viewMode}
+                            onViewModeChange={setViewMode}
+                        />
                     </div>
 
-                    <div className="flex w-full flex-col gap-5">
-                        {sections.map((section) => (
-                            <TaskSection
-                                key={section.id}
-                                section={section}
-                                onAddTask={addTask}
-                            />
-                        ))}
-                    </div>
+                    {viewMode === "list" ? (
+                        <div className="flex w-full flex-col gap-5">
+                            {sections.map((section) => (
+                                <ListTaskSection
+                                    key={section.id}
+                                    section={section}
+                                    collapsed={
+                                        collapsedSections[section.id] ?? false
+                                    }
+                                    onToggle={() =>
+                                        toggleSection(section.id)
+                                    }
+                                    onAddTask={addTask}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex w-full overflow-x-auto pb-4">
+                            {sections.map((section) => (
+                                <BoardSection
+                                    key={section.id}
+                                    section={section}
+                                    collapsed={
+                                        collapsedSections[section.id] ?? false
+                                    }
+                                    onToggle={() =>
+                                        toggleSection(section.id)
+                                    }
+                                    onAddTask={addTask}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </main>
 
@@ -361,7 +507,9 @@ export default function TaskBoard() {
                 className="fixed bottom-6 right-6 flex h-10 items-center gap-2 rounded-full bg-white px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
             >
                 <Plus size={16} />
-                <span className="text-xs font-medium">Add Task</span>
+                <span className="text-xs font-medium">
+                    Add Task
+                </span>
             </button>
         </div>
     );

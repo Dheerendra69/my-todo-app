@@ -2,16 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  ArrowLeft,
   ChevronsUpDown,
   ChevronDown,
   ChevronRight,
   Check,
+  Search,
   Sun,
   Moon,
   Settings,
   CheckSquare,
   BriefcaseBusiness,
+  User,
 } from "lucide-react";
+
+import { usePathname, useRouter } from "next/navigation";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -40,6 +45,8 @@ const colorModes = [
   { name: "Black", color: "#171717" },
 ];
 
+type SettingsItem = "profile" | "theme" | "color";
+
 export default function Sidebar({
   isOpen,
   onClose,
@@ -49,6 +56,22 @@ export default function Sidebar({
   const [activeMenu, setActiveMenu] = useState<
     "theme" | "color" | null
   >(null);
+
+  // const [isSettingsView, setIsSettingsView] = useState(false);
+  // const [settingsItem, setSettingsItem] =
+  //   useState<SettingsItem>("profile");
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const isSettingsView = pathname.startsWith("/settings");
+
+  const settingsItem =
+    pathname === "/settings/theme"
+      ? "theme"
+      : pathname === "/settings/color"
+        ? "color"
+        : "profile";
 
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [colorMode, setColorMode] = useState("Blue");
@@ -120,72 +143,86 @@ export default function Sidebar({
     setActiveMenu(null);
   };
 
+  const openSettings = () => {
+    setIsProfileOpen(false);
+    setActiveMenu(null);
+    router.push("/settings/profile");
+  };
+
+  const backToApp = () => {
+    router.push("/tasks");
+  };
+
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-[#E5E5E5] bg-[#FAFAFA] transition-transform duration-200 ${isOpen
-        ? "translate-x-0"
-        : "-translate-x-full"
+      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-[#E5E5E5] bg-[#FAFAFA] transition-transform duration-200 ${isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
     >
       <div
         ref={profileRef}
         className="relative h-full w-full"
       >
-        <div className="flex h-16 w-full items-center p-2">
-          <button
-            onClick={handleProfileClick}
-            className="flex h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[#F5F5F5]"
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F5F5F5]">
-              <img
-                src="/Dexter.jpeg"
-                alt="Dexter"
-                className="h-full w-full object-cover"
-              />
+        {isSettingsView ? (
+          <>
+            <div className="flex h-[52px] w-full items-center p-2">
+              <button
+                type="button"
+                onClick={backToApp}
+                className="flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[#F5F5F5]"
+              >
+                <ArrowLeft
+                  size={16}
+                  strokeWidth={2}
+                  className="shrink-0 text-[#171717]"
+                />
+
+                <span className="text-sm font-normal leading-[100%] text-[#171717]">
+                  Back to app
+                </span>
+              </button>
             </div>
 
-            <div className="flex min-w-0 flex-1 items-center">
-              <span className="truncate text-sm font-medium leading-5 text-[#0A0A0A]">
-                Dexter
-              </span>
-            </div>
+            <div className="flex w-full flex-col gap-2 p-2">
+              <div className="flex h-8 w-full items-center gap-1 rounded-md border border-[#E5E5E5] bg-white px-3">
+                <Search
+                  size={16}
+                  strokeWidth={2}
+                  className="shrink-0 text-[#737373]"
+                />
 
-            <ChevronsUpDown
-              size={16}
-              strokeWidth={2}
-              className="shrink-0 text-[#171717]"
-            />
-          </button>
-        </div>
-
-        {isProfileOpen && (
-          <div className="absolute left-4 top-[107px] z-50 w-[240px] max-w-[calc(100vw-32px)] rounded-md border border-[#0A0A0A0D] bg-white p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
-            <div className="flex h-[120px] w-full flex-col items-center justify-center gap-4 px-3">
-              <div className="h-10 w-10 overflow-hidden rounded-full bg-[#F5F5F5]">
-                <img
-                  src="/Dexter.jpeg"
-                  alt="Dexter"
-                  className="h-full w-full object-cover"
+                <input
+                  type="text"
+                  placeholder="Search"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-normal leading-5 text-[#171717] outline-none placeholder:text-[#737373]"
                 />
               </div>
 
-              <div className="flex w-full min-w-0 flex-col items-center">
-                <span className="max-w-[109px] truncate text-sm font-normal leading-4 text-[#171717]">
-                  Dexter
-                </span>
-
-                <span className="max-w-[109px] truncate text-xs font-medium leading-4 text-[#6B7280]">
-                  Dexter@gmail.com
-                </span>
-              </div>
-            </div>
-
-            <div className="h-px w-full bg-[#0A0A0A0D]" />
-
-            <div className="relative mt-1 flex flex-col gap-1">
               <button
-                onClick={handleThemeClick}
-                className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[#F5F5F5]"
+                type="button"
+                onClick={() => router.push("/settings/profile")}
+                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem === "profile"
+                  ? "bg-[#F5F5F5]"
+                  : "hover:bg-[#F5F5F5]"
+                  }`}
+              >
+                <User
+                  size={16}
+                  strokeWidth={2}
+                  className="shrink-0 text-[#171717]"
+                />
+
+                <span className="min-w-0 flex-1 truncate text-sm font-medium leading-[100%] text-[#171717]">
+                  Profile
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push("/settings/theme")}
+                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem === "theme"
+                  ? "bg-[#F5F5F5]"
+                  : "hover:bg-[#F5F5F5]"
+                  }`}
               >
                 <Sun
                   size={16}
@@ -193,20 +230,18 @@ export default function Sidebar({
                   className="shrink-0 text-[#171717]"
                 />
 
-                <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
-                  Change Theme
+                <span className="min-w-0 flex-1 truncate text-sm font-normal leading-[100%] text-[#171717]">
+                  Theme
                 </span>
-
-                <ChevronRight
-                  size={16}
-                  strokeWidth={2}
-                  className="shrink-0 text-[#171717]"
-                />
               </button>
 
               <button
-                onClick={handleColorClick}
-                className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[#F5F5F5]"
+                type="button"
+                onClick={() => router.push("/settings/color")}
+                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem === "color"
+                  ? "bg-[#F5F5F5]"
+                  : "hover:bg-[#F5F5F5]"
+                  }`}
               >
                 <div
                   className="h-4 w-4 shrink-0 rounded-xs"
@@ -214,179 +249,271 @@ export default function Sidebar({
                     backgroundColor:
                       colorModes.find(
                         (item) => item.name === colorMode
-                      )?.color || "#9333EA",
+                      )?.color || "#171717",
                   }}
                 />
 
-                <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
-                  Color Mode
-                </span>
-
-                <ChevronRight
-                  size={16}
-                  strokeWidth={2}
-                  className="shrink-0 text-[#171717]"
-                />
-              </button>
-
-              <button className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[#F5F5F5]">
-                <Settings
-                  size={16}
-                  strokeWidth={2}
-                  className="shrink-0 text-[#171717]"
-                />
-
-                <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
-                  Settings
+                <span className="min-w-0 flex-1 truncate text-sm font-normal leading-[100%] text-[#171717]">
+                  Color
                 </span>
               </button>
             </div>
+          </>
+        ) : (
+          <>
+            <div className="flex h-16 w-full items-center p-2">
+              <button
+                type="button"
+                onClick={handleProfileClick}
+                className="flex h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[#F5F5F5]"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F5F5F5]">
+                  <img
+                    src="/Dexter.jpeg"
+                    alt="Dexter"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
 
-            {activeMenu === "theme" && (
-              <div className="absolute left-[calc(100%+14px)] top-[211px] z-[60] w-[192px] max-w-[calc(100vw-24px)] rounded-md border border-[#0A0A0A0D] bg-white p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
-                <div className="flex h-9 items-center px-3 py-2">
-                  <span className="text-sm font-medium leading-5 text-[#737373]">
-                    Theme
+                <div className="flex min-w-0 flex-1 items-center">
+                  <span className="truncate text-sm font-medium leading-5 text-[#0A0A0A]">
+                    Dexter
                   </span>
                 </div>
 
-                <button
-                  onClick={() =>
-                    handleThemeSelect("light")
-                  }
-                  className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[#F5F5F5]"
-                >
-                  <Sun
-                    size={16}
-                    strokeWidth={2}
-                    className="shrink-0 text-[#171717]"
-                  />
+                <ChevronsUpDown
+                  size={16}
+                  strokeWidth={2}
+                  className="shrink-0 text-[#171717]"
+                />
+              </button>
+            </div>
 
-                  <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
-                    Light
-                  </span>
-
-                  {theme === "light" && (
-                    <Check
-                      size={16}
-                      strokeWidth={2}
-                      className="shrink-0 text-[#171717]"
+            {isProfileOpen && (
+              <div className="absolute left-4 top-[107px] z-50 w-[240px] max-w-[calc(100vw-32px)] rounded-md border border-[#0A0A0A0D] bg-white p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
+                <div className="flex h-[120px] w-full flex-col items-center justify-center gap-4 px-3">
+                  <div className="h-10 w-10 overflow-hidden rounded-full bg-[#F5F5F5]">
+                    <img
+                      src="/Dexter.jpeg"
+                      alt="Dexter"
+                      className="h-full w-full object-cover"
                     />
-                  )}
-                </button>
+                  </div>
 
-                <button
-                  onClick={() =>
-                    handleThemeSelect("dark")
-                  }
-                  className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[#F5F5F5]"
-                >
-                  <Moon
-                    size={16}
-                    strokeWidth={2}
-                    className="shrink-0 text-[#171717]"
-                  />
+                  <div className="flex w-full min-w-0 flex-col items-center">
+                    <span className="max-w-[109px] truncate text-sm font-normal leading-4 text-[#171717]">
+                      Dexter
+                    </span>
 
-                  <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
-                    Dark
-                  </span>
-
-                  {theme === "dark" && (
-                    <Check
-                      size={16}
-                      strokeWidth={2}
-                      className="shrink-0 text-[#171717]"
-                    />
-                  )}
-                </button>
-              </div>
-            )}
-
-            {activeMenu === "color" && (
-              <div className="absolute left-[calc(100%+14px)] top-[247px] z-[60] w-[192px] max-w-[calc(100vw-24px)] rounded-md border border-[#0A0A0A0D] bg-white p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
-                <div className="flex h-9 items-center px-3 py-2">
-                  <span className="text-sm font-medium leading-5 text-[#737373]">
-                    Color Mode
-                  </span>
+                    <span className="max-w-[109px] truncate text-xs font-medium leading-4 text-[#6B7280]">
+                      Dexter@gmail.com
+                    </span>
+                  </div>
                 </div>
 
-                {colorModes.map((item) => (
+                <div className="h-px w-full bg-[#0A0A0A0D]" />
+
+                <div className="relative mt-1 flex flex-col gap-1">
                   <button
-                    key={item.name}
-                    onClick={() =>
-                      handleColorSelect(item.name)
-                    }
-                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[#F5F5F5]"
+                    type="button"
+                    onClick={handleThemeClick}
+                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[#F5F5F5]"
                   >
-                    <span
+                    <Sun
+                      size={16}
+                      strokeWidth={2}
+                      className="shrink-0 text-[#171717]"
+                    />
+
+                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
+                      Change Theme
+                    </span>
+
+                    <ChevronRight
+                      size={16}
+                      strokeWidth={2}
+                      className="shrink-0 text-[#171717]"
+                    />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleColorClick}
+                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[#F5F5F5]"
+                  >
+                    <div
                       className="h-4 w-4 shrink-0 rounded-xs"
                       style={{
-                        backgroundColor: item.color,
+                        backgroundColor:
+                          colorModes.find(
+                            (item) => item.name === colorMode
+                          )?.color || "#9333EA",
                       }}
                     />
 
                     <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
-                      {item.name}
+                      Color Mode
                     </span>
 
-                    {colorMode === item.name && (
-                      <Check
-                        size={16}
-                        strokeWidth={2}
-                        className="shrink-0 text-[#171717]"
-                      />
-                    )}
+                    <ChevronRight
+                      size={16}
+                      strokeWidth={2}
+                      className="shrink-0 text-[#171717]"
+                    />
                   </button>
-                ))}
+
+                  <button
+                    type="button"
+                    onClick={openSettings}
+                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[#F5F5F5]"
+                  >
+                    <Settings
+                      size={16}
+                      strokeWidth={2}
+                      className="shrink-0 text-[#171717]"
+                    />
+
+                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[#171717]">
+                      Settings
+                    </span>
+                  </button>
+                </div>
+
+                {activeMenu === "theme" && (
+                  <div className="absolute left-[calc(100%+14px)] top-[211px] z-[60] w-[192px] rounded-md border border-[#0A0A0A0D] bg-white p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
+                    <div className="flex h-9 items-center px-3 py-2">
+                      <span className="text-sm font-medium leading-5 text-[#737373]">
+                        Theme
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleThemeSelect("light")
+                      }
+                      className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[#F5F5F5]"
+                    >
+                      <Sun size={16} strokeWidth={2} />
+
+                      <span className="min-w-0 flex-1 text-left text-sm">
+                        Light
+                      </span>
+
+                      {theme === "light" && (
+                        <Check size={16} strokeWidth={2} />
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleThemeSelect("dark")
+                      }
+                      className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[#F5F5F5]"
+                    >
+                      <Moon size={16} strokeWidth={2} />
+
+                      <span className="min-w-0 flex-1 text-left text-sm">
+                        Dark
+                      </span>
+
+                      {theme === "dark" && (
+                        <Check size={16} strokeWidth={2} />
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {activeMenu === "color" && (
+                  <div className="absolute left-[calc(100%+14px)] top-[247px] z-[60] w-[192px] rounded-md border border-[#0A0A0A0D] bg-white p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
+                    <div className="flex h-9 items-center px-3 py-2">
+                      <span className="text-sm font-medium leading-5 text-[#737373]">
+                        Color Mode
+                      </span>
+                    </div>
+
+                    {colorModes.map((item) => (
+                      <button
+                        key={item.name}
+                        type="button"
+                        onClick={() =>
+                          handleColorSelect(item.name)
+                        }
+                        className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[#F5F5F5]"
+                      >
+                        <span
+                          className="h-4 w-4 shrink-0 rounded-xs"
+                          style={{
+                            backgroundColor: item.color,
+                          }}
+                        />
+
+                        <span className="min-w-0 flex-1 truncate text-left text-sm font-normal text-[#171717]">
+                          {item.name}
+                        </span>
+
+                        {colorMode === item.name && (
+                          <Check
+                            size={16}
+                            strokeWidth={2}
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
 
-        <div className="w-full p-2">
-          <button
-            onClick={() =>
-              setIsWorkspaceOpen((prev) => !prev)
-            }
-            className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left hover:bg-[#F5F5F5]"
-          >
-            <span className="text-sm font-medium leading-5 text-[#0A0A0A]">
-              Workspace
-            </span>
+            <div className="w-full p-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setIsWorkspaceOpen((prev) => !prev)
+                }
+                className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left hover:bg-[#F5F5F5]"
+              >
+                <span className="text-sm font-medium leading-5 text-[#0A0A0A]">
+                  Workspace
+                </span>
 
-            <ChevronDown
-              size={16}
-              strokeWidth={2}
-              className={`text-[#171717] transition-transform ${isWorkspaceOpen ? "" : "rotate-180"
-                }`}
-            />
-          </button>
-        </div>
-
-        {isWorkspaceOpen && (
-          <nav className="w-full px-2">
-            <div className="flex w-full flex-col">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <button
-                    key={item.label}
-                    className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left ${item.active
-                      ? "bg-[#F5F5F5] text-[#171717]"
-                      : "text-[#0A0A0A] hover:bg-[#F5F5F5]"
-                      }`}
-                  >
-                    <Icon size={16} strokeWidth={2} />
-
-                    <span className="text-sm font-medium leading-[100%]">
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
+                <ChevronDown
+                  size={16}
+                  strokeWidth={2}
+                  className={`text-[#171717] transition-transform ${isWorkspaceOpen ? "" : "rotate-180"
+                    }`}
+                />
+              </button>
             </div>
-          </nav>
+
+            {isWorkspaceOpen && (
+              <nav className="w-full px-2">
+                <div className="flex w-full flex-col">
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <button
+                        key={item.label}
+                        type="button"
+                        className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left ${item.active
+                          ? "bg-[#F5F5F5] text-[#171717]"
+                          : "text-[#0A0A0A] hover:bg-[#F5F5F5]"
+                          }`}
+                      >
+                        <Icon size={16} strokeWidth={2} />
+
+                        <span className="text-sm font-medium leading-[100%]">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </nav>
+            )}
+          </>
         )}
       </div>
     </aside>
