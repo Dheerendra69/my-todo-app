@@ -32,8 +32,17 @@ export class Task {
   @Column({ length: 200 })
   title: string;
 
-  @Column({ type: 'text', nullable: true })
-  description: string;
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  description: string | null;
+
+  @Column({
+    type: 'date',
+    nullable: true,
+  })
+  dueDate: Date | null;
 
   @Column({
     type: 'enum',
@@ -49,14 +58,11 @@ export class Task {
   })
   priority: TaskPriority;
 
-  @Column({ type: 'date', nullable: true })
-  dueDate: Date;
-
   @ManyToOne(() => User, (user) => user.tasks, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  assignee: User;
+  assignee: User | null;
 
   @ManyToOne(() => Project, (project) => project.tasks, {
     onDelete: 'CASCADE',

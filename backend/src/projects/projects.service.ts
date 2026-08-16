@@ -37,14 +37,19 @@ export class ProjectsService {
 
   findAll() {
     return this.projectRepository.find({
-      relations: ['owner'],
+      relations: {
+        owner: true,
+      },
     });
   }
 
   async findOne(id: string) {
     const project = await this.projectRepository.findOne({
       where: { id },
-      relations: ['owner', 'tasks'],
+      relations: {
+        owner: true,
+        tasks: true,
+      },
     });
 
     if (!project) {

@@ -34,6 +34,47 @@ export class UsersService {
     return user;
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { email },
+    });
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { googleId },
+    });
+  }
+
+  async createGoogleUser(data: {
+    name: string;
+    email: string;
+    avatar?: string;
+    googleId: string;
+  }): Promise<User> {
+    const user = this.userRepository.create({
+      name: data.name,
+      email: data.email,
+      avatar: data.avatar ?? null,
+      googleId: data.googleId,
+      isGuest: false,
+    });
+
+    return await this.userRepository.save(user);
+  }
+
+  async createGuestUser(): Promise<User> {
+    const user = this.userRepository.create({
+      name: 'Guest',
+      email: null,
+      avatar: null,
+      googleId: null,
+      isGuest: true,
+    });
+
+    return await this.userRepository.save(user);
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
 

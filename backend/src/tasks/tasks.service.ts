@@ -2,11 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import {
-  Task,
-  TaskPriority,
-  TaskStatus,
-} from '../entities/task.entity';
+import { Task, TaskPriority, TaskStatus } from '../entities/task.entity';
 import { User } from '../entities/user.entity';
 import { Project } from '../entities/project.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -64,66 +60,69 @@ export class TasksService {
   }
 
   async findAll(query: TaskQueryDto) {
-  const {
-    status,
-    priority,
-    assignee,
-    project,
-    search,
-    page = 1,
-    limit = 10,
-  } = query;
+    const {
+      status,
+      priority,
+      assignee,
+      project,
+      search,
+      page = 1,
+      limit = 10,
+    } = query;
 
-  const queryBuilder = this.taskRepository
-    .createQueryBuilder('task')
-    .leftJoinAndSelect('task.project', 'project')
-    .leftJoinAndSelect('task.assignee', 'assignee');
+    const queryBuilder = this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.project', 'project')
+      .leftJoinAndSelect('task.assignee', 'assignee');
 
-  if (status) {
-    queryBuilder.andWhere('task.status = :status', { status });
+    if (status) {
+      queryBuilder.andWhere('task.status = :status', { status });
+    }
+
+    if (priority) {
+      queryBuilder.andWhere('task.priority = :priority', { priority });
+    }
+
+    if (assignee) {
+      queryBuilder.andWhere('assignee.id = :assignee', { assignee });
+    }
+
+    if (project) {
+      queryBuilder.andWhere('project.id = :project', { project });
+    }
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+
+    queryBuilder
+      .orderBy('task.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [tasks, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: tasks,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
-
-  if (priority) {
-    queryBuilder.andWhere('task.priority = :priority', { priority });
-  }
-
-  if (assignee) {
-    queryBuilder.andWhere('assignee.id = :assignee', { assignee });
-  }
-
-  if (project) {
-    queryBuilder.andWhere('project.id = :project', { project });
-  }
-
-  if (search) {
-    queryBuilder.andWhere(
-      '(LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search))',
-      { search: `%${search}%` },
-    );
-  }
-
-  queryBuilder
-    .orderBy('task.createdAt', 'DESC')
-    .skip((page - 1) * limit)
-    .take(limit);
-
-  const [tasks, total] = await queryBuilder.getManyAndCount();
-
-  return {
-    data: tasks,
-    meta: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
-}
 
   async findOne(id: string) {
     const task = await this.taskRepository.findOne({
       where: { id },
-      relations: ['project', 'assignee'],
+      relations: {
+        project: true,
+        assignee: true,
+      },
     });
 
     if (!task) {
@@ -160,10 +159,7 @@ export class TasksService {
     return this.taskRepository.save(task);
   }
 
-  async updateAssignee(
-    id: string,
-    dto: UpdateTaskAssigneeDto,
-  ) {
+  async updateAssignee(id: string, dto: UpdateTaskAssigneeDto) {
     const task = await this.findOne(id);
 
     if (!dto.assigneeId) {

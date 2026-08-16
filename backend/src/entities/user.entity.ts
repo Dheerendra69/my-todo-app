@@ -1,33 +1,54 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Task } from './task.entity';
+
 import { Project } from './project.entity';
+import { Task } from './task.entity';
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 100 })
+  @Column({ type: 'varchar' })
   name: string;
 
-  @Column({ unique: true })
-  email: string;
+  @Column({
+    type: 'varchar',
+    unique: true,
+    nullable: true,
+  })
+  email: string | null;
 
-  @Column({ nullable: true })
-  avatar: string;
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  avatar: string | null;
 
-  @OneToMany(() => Task, (task) => task.assignee)
-  tasks: Task[];
+  @Column({
+    type: 'varchar',
+    unique: true,
+    nullable: true,
+  })
+  googleId: string | null;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isGuest: boolean;
 
   @OneToMany(() => Project, (project) => project.owner)
   projects: Project[];
+
+  @OneToMany(() => Task, (task) => task.assignee)
+  tasks: Task[];
 
   @CreateDateColumn()
   createdAt: Date;
