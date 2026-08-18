@@ -92,8 +92,8 @@ export default function FieldsPopover({
         absolute right-0 top-[calc(100%+8px)] z-50
         w-[299px]
         rounded-md
-        border border-[#E5E5E5]
-        bg-white
+        border border-[var(--border)]
+        bg-[var(--background)]
         p-4
         shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.06)]
       "
@@ -106,11 +106,11 @@ export default function FieldsPopover({
             className={`
               flex h-9 w-1/2 items-center justify-center
               gap-1 rounded-l-md
-              border border-[#E5E5E5]
+              border border-[var(--border)]
               px-3 text-sm font-medium
               ${viewMode === "list"
-                ? "bg-[#F5F5F5]"
-                : "bg-white hover:bg-[#F5F5F5]"
+                ? "bg-[var(--surface-secondary)]"
+                : "bg-[var(--background)] hover:bg-[var(--surface-secondary)]"
               }
             `}
           >
@@ -124,11 +124,11 @@ export default function FieldsPopover({
             className={`
               flex h-9 w-1/2 items-center justify-center
               gap-1 rounded-r-md
-              border border-l-0 border-[#E5E5E5]
+              border border-l-0 border-[var(--border)]
               px-3 text-sm font-medium
               ${viewMode === "board"
-                ? "bg-[#F5F5F5]"
-                : "bg-white hover:bg-[#F5F5F5]"
+                ? "bg-[var(--surface-secondary)]"
+                : "bg-[var(--background)] hover:bg-[var(--surface-secondary)]"
               }
             `}
           >
@@ -151,10 +151,10 @@ export default function FieldsPopover({
                   items-center
                   rounded-md
                   text-left
-                  hover:bg-[#F5F5F5]
+                  hover:bg-[var(--surface-secondary)]
                 "
               >
-                <span className="text-sm font-normal leading-4 text-[#171717]">
+                <span className="text-sm font-normal leading-4 text-[var(--foreground)]">
                   {field}
                 </span>
 

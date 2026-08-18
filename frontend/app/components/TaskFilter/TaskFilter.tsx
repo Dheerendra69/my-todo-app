@@ -206,9 +206,9 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
   const renderSubmenu = () => {
     if (activeCategory === "Priority") {
       return (
-        <div className="absolute top-[calc(100%+20px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute top-[calc(100%+20px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
-            <span className="text-xs font-medium text-[#737373]">
+            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Priority
             </span>
           </div>
@@ -222,7 +222,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                 key={option.name}
                 type="button"
                 onClick={() => togglePriority(option.name)}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[#F5F5F5]"
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
               >
                 <Icon
                   size={16}
@@ -242,7 +242,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                     <Check
                       size={16}
                       strokeWidth={2}
-                      className="text-[#171717]"
+                      className="text-[var(--foreground)]"
                     />
                   )}
                 </span>
@@ -255,9 +255,9 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
 
     if (activeCategory === "Status") {
       return (
-        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
-            <span className="text-xs font-medium text-[#737373]">
+            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Status
             </span>
           </div>
@@ -270,15 +270,15 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                 key={status}
                 type="button"
                 onClick={() => toggleStatus(status)}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[#F5F5F5]"
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
               >
                 <Circle
                   size={14}
                   strokeWidth={1.8}
-                  className="text-[#171717]"
+                  className="text-[var(--foreground)]"
                 />
 
-                <span className="text-sm text-[#171717]">
+                <span className="text-sm text-[var(--foreground)]">
                   {status}
                 </span>
 
@@ -287,7 +287,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                     <Check
                       size={16}
                       strokeWidth={2}
-                      className="text-[#171717]"
+                      className="text-[var(--foreground)]"
                     />
                   )}
                 </span>
@@ -300,9 +300,9 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
 
     if (activeCategory === "Due Date") {
       return (
-        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
-            <span className="text-xs font-medium text-[#737373]">
+            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Due Date
             </span>
           </div>
@@ -315,15 +315,15 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                 key={option}
                 type="button"
                 onClick={() => selectDueDate(option)}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[#F5F5F5]"
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
               >
                 <Calendar
                   size={16}
                   strokeWidth={1.8}
-                  className="text-[#171717]"
+                  className="text-[var(--foreground)]"
                 />
 
-                <span className="text-sm text-[#171717]">
+                <span className="text-sm text-[var(--foreground)]">
                   {option}
                 </span>
 
@@ -332,7 +332,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                     <Check
                       size={16}
                       strokeWidth={2}
-                      className="text-[#171717]"
+                      className="text-[var(--foreground)]"
                     />
                   )}
                 </span>
@@ -354,7 +354,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
           setOpen((value) => !value);
           setActiveCategory(null);
         }}
-        className={`flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E5E5] bg-white transition hover:bg-[#F5F5F5] ${open ? "bg-[#F5F5F5]" : ""
+        className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition hover:bg-[var(--surface-secondary)] ${open ? "bg-[var(--surface-secondary)]" : ""
           }`}
       >
         <svg
@@ -374,7 +374,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
       {open && (
         <div className="absolute right-0 top-10 z-50">
           <div
-            className="relative w-48 min-w-48 rounded-md border border-[#E5E5E5] bg-white p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
+            className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
             onClick={() => {
               setActiveCategory(null);
             }}
@@ -403,17 +403,17 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                     }
                   }}
                   className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${selected
-                    ? "bg-[#F5F5F5]"
-                    : "hover:bg-[#F5F5F5]"
+                    ? "bg-[var(--surface-secondary)]"
+                    : "hover:bg-[var(--surface-secondary)]"
                     }`}
                 >
                   <Icon
                     size={18}
                     strokeWidth={1.8}
-                    className="shrink-0 text-[#171717]"
+                    className="shrink-0 text-[var(--foreground)]"
                   />
 
-                  <span className="text-sm font-normal text-[#171717]">
+                  <span className="text-sm font-normal text-[var(--foreground)]">
                     {category.name}
                   </span>
 
@@ -421,7 +421,7 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
                     <ChevronRight
                       size={16}
                       strokeWidth={1.8}
-                      className="ml-auto text-[#171717]"
+                      className="ml-auto text-[var(--foreground)]"
                     />
                   )}
                 </button>

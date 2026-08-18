@@ -12,13 +12,13 @@ export default function TopBar({
   onToggleSidebar,
 }: TopBarProps) {
   return (
-    <header className="flex h-16 w-full items-center border-b border-[#E5E5E5] bg-white px-4">
+    <header className="flex h-16 w-full items-center border-b border-[var(--border)] bg-[var(--background)] px-4">
       <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"
           onClick={onToggleSidebar}
           aria-label={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[#F5F5F5]"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--surface-secondary)]"
         >
           <PanelLeft size={16} strokeWidth={2} />
         </button>
@@ -28,7 +28,7 @@ export default function TopBar({
         <nav className="flex min-w-0 items-center gap-2 text-sm">
           <button
             type="button"
-            className="shrink-0 text-[#737373] hover:text-[#171717]"
+            className="shrink-0 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
           >
             Projects
           </button>
@@ -36,10 +36,10 @@ export default function TopBar({
           <ChevronRight
             size={15}
             strokeWidth={2}
-            className="shrink-0 text-[#737373]"
+            className="shrink-0 text-[var(--foreground-secondary)]"
           />
 
-          <span className="truncate text-[#171717]">
+          <span className="truncate text-[var(--foreground)]">
             Design Homepage
           </span>
         </nav>

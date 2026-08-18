@@ -29,7 +29,7 @@ export default function AuthCallbackPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <p className="text-sm text-[#737373]">
+      <p className="text-sm text-[var(--foreground-secondary)]">
         Signing you in...
       </p>
     </main>

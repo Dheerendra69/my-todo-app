@@ -9,9 +9,9 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen border-l border-[#E5E5E5] bg-white">
+      <main className="min-h-screen border-l border-[var(--border)] bg-[var(--background)]">
         <div className="flex min-h-screen items-center justify-center">
-          <p className="text-sm text-[#737373]">
+          <p className="text-sm text-[var(--foreground-secondary)]">
             Loading profile...
           </p>
         </div>
@@ -19,27 +19,29 @@ export default function ProfilePage() {
     );
   }
 
+  console.log("user: ", user);
+
   if (!user) {
     return null;
   }
 
   return (
-    <main className="min-h-screen border-l border-[#E5E5E5] bg-white">
+    <main className="min-h-screen border-l border-[var(--border)] bg-[var(--background)]">
       <div className="flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="w-full max-w-[640px]">
           <div className="flex h-8 items-center px-0">
-            <h1 className="text-2xl font-medium leading-none text-[#171717]">
+            <h1 className="text-2xl font-medium leading-none text-[var(--foreground)]">
               Profile
             </h1>
           </div>
 
-          <section className="mt-10 w-full overflow-hidden rounded-lg border border-[#E5E5E5]">
-            <div className="flex min-h-[76px] items-center justify-between border-b border-[#E5E5E5] px-7">
-              <span className="text-sm font-normal text-[#171717]">
+          <section className="mt-10 w-full overflow-hidden rounded-lg border border-[var(--border)]">
+            <div className="flex min-h-[76px] items-center justify-between border-b border-[var(--border)] px-7">
+              <span className="text-sm font-normal text-[var(--foreground)]">
                 Profile picture
               </span>
 
-              <div className="h-[34px] w-[34px] overflow-hidden rounded-full border border-[#E5E5E5]">
+              <div className="h-[34px] w-[34px] overflow-hidden rounded-full border border-[var(--border)]">
                 <img
                   src={user.avatar || "/default-avatar.jpeg"}
                   alt={user.name}
@@ -48,44 +50,44 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex min-h-[86px] items-center justify-between border-b border-[#E5E5E5] px-7">
-              <span className="text-sm font-normal text-[#171717]">
+            <div className="flex min-h-[86px] items-center justify-between border-b border-[var(--border)] px-7">
+              <span className="text-sm font-normal text-[var(--foreground)]">
                 Email
               </span>
 
               <div className="flex items-center gap-3">
-                <span className="text-sm text-[#171717]">
+                <span className="text-sm text-[var(--foreground)]">
                   {user.email || "Guest account"}
                 </span>
 
                 <button
                   type="button"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[#F5F5F5]"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)]"
                 >
                   <Pencil size={13} strokeWidth={2} />
                 </button>
               </div>
             </div>
 
-            <div className="flex min-h-[72px] items-center justify-between border-b border-[#E5E5E5] px-7">
-              <span className="text-sm font-normal text-[#171717]">
+            <div className="flex min-h-[72px] items-center justify-between border-b border-[var(--border)] px-7">
+              <span className="text-sm font-normal text-[var(--foreground)]">
                 Full name
               </span>
 
               <input
                 type="text"
                 defaultValue={user.name}
-                className="h-9 w-full max-w-[180px] rounded-md border border-[#E5E5E5] bg-[#E5E5E5] px-3 text-sm text-[#737373] outline-none"
+                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[#E5E5E5] px-3 text-sm text-[var(--foreground-secondary)] outline-none"
               />
             </div>
 
-            <div className="flex min-h-[96px] items-center justify-between border-b border-[#E5E5E5] px-7">
+            <div className="flex min-h-[96px] items-center justify-between border-b border-[var(--border)] px-7">
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-normal text-[#171717]">
+                <span className="text-sm font-normal text-[var(--foreground)]">
                   Title
                 </span>
 
-                <span className="text-xs leading-4 text-[#171717]">
+                <span className="text-xs leading-4 text-[var(--foreground)]">
                   Your job title or role
                 </span>
               </div>
@@ -93,17 +95,17 @@ export default function ProfilePage() {
               <input
                 type="text"
                 defaultValue="Designer"
-                className="h-9 w-full max-w-[180px] rounded-md border border-[#E5E5E5] bg-[#E5E5E5] px-3 text-sm text-[#737373] outline-none"
+                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[#E5E5E5] px-3 text-sm text-[var(--foreground-secondary)] outline-none"
               />
             </div>
 
             <div className="flex min-h-[96px] items-center justify-between px-7">
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-normal text-[#171717]">
+                <span className="text-sm font-normal text-[var(--foreground)]">
                   Username
                 </span>
 
-                <span className="text-xs leading-4 text-[#171717]">
+                <span className="text-xs leading-4 text-[var(--foreground)]">
                   One word, like a nickname or first name
                 </span>
               </div>
@@ -111,18 +113,18 @@ export default function ProfilePage() {
               <input
                 type="text"
                 defaultValue="Dexuser"
-                className="h-9 w-full max-w-[180px] rounded-md border border-[#E5E5E5] bg-[#E5E5E5] px-3 text-sm text-[#737373] outline-none"
+                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[#E5E5E5] px-3 text-sm text-[var(--foreground-secondary)] outline-none"
               />
             </div>
           </section>
 
           <div className="mt-14">
-            <h2 className="px-0 text-base font-medium leading-6 text-[#171717]">
+            <h2 className="px-0 text-base font-medium leading-6 text-[var(--foreground)]">
               Workspace access
             </h2>
 
-            <section className="mt-7 flex min-h-[82px] w-full items-center justify-between gap-3 rounded-lg border border-[#E5E5E5] px-7 shadow-[0px_1px_1px_0px_#0000000A,0px_3px_6px_-2px_#00000005,0px_0px_0px_0.5px_#00000016]">
-              <span className="text-xs font-medium leading-4 text-[#171717]">
+            <section className="mt-7 flex min-h-[82px] w-full items-center justify-between gap-3 rounded-lg border border-[var(--border)] px-7 shadow-[0px_1px_1px_0px_#0000000A,0px_3px_6px_-2px_#00000005,0px_0px_0px_0.5px_#00000016]">
+              <span className="text-xs font-medium leading-4 text-[var(--foreground)]">
                 Remove yourself from the workspace
               </span>
 
