@@ -21,6 +21,18 @@ export class Project {
   @Column({ nullable: true })
   description: string;
 
+  @Column({
+    type: 'varchar',
+    default: 'Medium',
+  })
+  priority: string;
+
+  @Column({
+    type: 'date',
+    nullable: true,
+  })
+  dueDate: string;
+
   @ManyToOne(() => User, (user) => user.projects, {
     onDelete: 'CASCADE',
   })

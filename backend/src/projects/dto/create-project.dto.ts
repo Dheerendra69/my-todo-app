@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateProjectDto {
   @IsString()
@@ -8,6 +14,14 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsIn(['High', 'Medium', 'Low'])
+  priority?: string;
+
+  @IsOptional()
+  @IsString()
+  dueDate?: string;
 
   @IsUUID()
   ownerId: string;

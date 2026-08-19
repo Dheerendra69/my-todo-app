@@ -29,6 +29,8 @@ export class ProjectsService {
     const project = this.projectRepository.create({
       name: createProjectDto.name,
       description: createProjectDto.description,
+      priority: createProjectDto.priority,
+      dueDate: createProjectDto.dueDate,
       owner,
     });
 
@@ -75,5 +77,29 @@ export class ProjectsService {
     return {
       message: 'Project deleted successfully',
     };
+  }
+
+  async findByOwner(ownerId: string) {
+    const owner = await this.userRepository.findOne({
+      where: { id: ownerId },
+    });
+
+    if (!owner) {
+      throw new NotFoundException('Owner not found');
+    }
+
+    return this.projectRepository.find({
+      where: {
+        owner: {
+          id: ownerId,
+        },
+      },
+      relations: {
+        owner: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 }

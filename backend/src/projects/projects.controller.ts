@@ -32,15 +32,17 @@ export class ProjectsController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateProjectDto: UpdateProjectDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
     return this.projectsService.update(id, updateProjectDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
+  }
+
+  @Get('owner/:ownerId')
+  findByOwner(@Param('ownerId') ownerId: string) {
+    return this.projectsService.findByOwner(ownerId);
   }
 }
