@@ -10,14 +10,23 @@ import {
 } from "lucide-react";
 
 import BoardActions from "../BoardActions/BoardActions";
+
 import AddProjectModal, {
   type Project,
 } from "../AddProjectModal/AddProjectModal";
 
 import type { ViewMode } from "../FieldsPopover/FieldsPopOver";
+
+import {
+  type FilterState,
+} from "../TaskFilter/TaskFilter";
+
 import { useAuth } from "../auth/AuthContext";
 
-type Priority = "High" | "Medium" | "Low";
+type Priority =
+  | "High"
+  | "Medium"
+  | "Low";
 
 type BackendProject = {
   id: string;
@@ -32,6 +41,16 @@ type BackendProject = {
   };
   createdAt: string;
   updatedAt: string;
+};
+
+const initialFilters: FilterState = {
+  status: [],
+  priority: [],
+  members: [],
+  dueDate: null,
+  teams: [],
+  labels: [],
+  reporter: [],
 };
 
 const priorityStyles = {
@@ -102,23 +121,29 @@ function ProjectRow({
       </div>
 
       <div className="px-3 py-3">
-        <PriorityBadge priority={project.priority} />
+        <PriorityBadge
+          priority={project.priority}
+        />
       </div>
 
       <div className="px-3 py-3">
-        <ProjectMember project={project} />
+        <ProjectMember
+          project={project}
+        />
       </div>
 
       <div className="px-3 py-3 text-sm text-[var(--foreground)]">
         {project.dueDate
-          ? new Date(project.dueDate).toLocaleDateString(
-              "en-GB",
-              {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              },
-            )
+          ? new Date(
+            project.dueDate,
+          ).toLocaleDateString(
+            "en-GB",
+            {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            },
+          )
           : "-"}
       </div>
 
@@ -170,7 +195,9 @@ function ProjectCard({
 
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ProjectMember project={project} />
+          <ProjectMember
+            project={project}
+          />
 
           <span className="text-xs font-medium text-[var(--foreground)]">
             {project.member}
@@ -182,17 +209,22 @@ function ProjectCard({
             <span className="text-xs font-medium">
               {new Date(
                 project.dueDate,
-              ).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-              })}
+              ).toLocaleDateString(
+                "en-GB",
+                {
+                  day: "numeric",
+                  month: "short",
+                },
+              )}
             </span>
           </div>
         )}
       </div>
 
       <div className="mt-3">
-        <PriorityBadge priority={project.priority} />
+        <PriorityBadge
+          priority={project.priority}
+        />
       </div>
     </div>
   );
@@ -201,63 +233,132 @@ function ProjectCard({
 export default function ProjectBoard() {
   const { user } = useAuth();
 
-  const [projects, setProjects] =
-    useState<Project[]>([]);
+  const [
+    projects,
+    setProjects,
+  ] = useState<Project[]>([]);
 
-  const [viewMode, setViewMode] =
-    useState<ViewMode>("list");
+  const [
+    filters,
+    setFilters,
+  ] = useState<FilterState>(
+    initialFilters,
+  );
 
-  const [isAddProjectOpen, setIsAddProjectOpen] =
-    useState(false);
+  const [
+    viewMode,
+    setViewMode,
+  ] = useState<ViewMode>("list");
+
+  const [
+    isAddProjectOpen,
+    setIsAddProjectOpen,
+  ] = useState(false);
 
   useEffect(() => {
     if (!user?.id) {
       return;
     }
 
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:3001/projects/owner/${user.id}`,
-        );
+    const fetchProjects =
+      async () => {
+        try {
+          const response =
+            await fetch(
+              `http://localhost:3001/projects/owner/${user.id}`,
+            );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch projects");
+          if (!response.ok) {
+            throw new Error(
+              "Failed to fetch projects",
+            );
+          }
+
+          const data:
+            BackendProject[] =
+            await response.json();
+
+          const formattedProjects:
+            Project[] = data.map(
+              (project) => ({
+                id: project.id,
+                title: project.name,
+                description:
+                  project.description ||
+                  "",
+                priority:
+                  project.priority,
+                member:
+                  project.owner.name,
+                avatar:
+                  project.owner.avatar,
+                dueDate:
+                  project.dueDate ||
+                  "",
+              }),
+            );
+
+          setProjects(
+            formattedProjects,
+          );
+        } catch (error) {
+          console.error(
+            "Failed to fetch projects:",
+            error,
+          );
         }
-
-        const data: BackendProject[] =
-          await response.json();
-
-        const formattedProjects: Project[] =
-          data.map((project) => ({
-            id: project.id,
-            title: project.name,
-            description: project.description || "",
-            priority: project.priority,
-            member: project.owner.name,
-            avatar: project.owner.avatar,
-            dueDate: project.dueDate || "",
-          }));
-
-        setProjects(formattedProjects);
-      } catch (error) {
-        console.error(
-          "Failed to fetch projects:",
-          error,
-        );
-      }
-    };
+      };
 
     fetchProjects();
   }, [user?.id]);
 
+  const filteredProjects = projects
+    .filter((project) => {
+      if (
+        filters.priority.length ===
+        0
+      ) {
+        return true;
+      }
+
+      return filters.priority.includes(
+        project.priority,
+      );
+    })
+    .sort((a, b) => {
+      if (!filters.dueDate) {
+        return 0;
+      }
+
+      const aDate =
+        a.dueDate
+          ? new Date(
+            a.dueDate,
+          ).getTime()
+          : Number.MAX_SAFE_INTEGER;
+
+      const bDate =
+        b.dueDate
+          ? new Date(
+            b.dueDate,
+          ).getTime()
+          : Number.MAX_SAFE_INTEGER;
+
+      return filters.dueDate ===
+        "Increasing"
+        ? aDate - bDate
+        : bDate - aDate;
+    });
+
   const addProject = (
     project: Project,
   ) => {
-    setProjects((currentProjects) => [
-      ...currentProjects,
-      project,
-    ]);
+    setProjects(
+      (currentProjects) => [
+        ...currentProjects,
+        project,
+      ],
+    );
   };
 
   return (
@@ -271,10 +372,15 @@ export default function ProjectBoard() {
 
             <BoardActions
               viewMode={viewMode}
-              onViewModeChange={setViewMode}
+              onViewModeChange={
+                setViewMode
+              }
               addButtonLabel="Add Project"
               onAdd={() =>
                 setIsAddProjectOpen(true)
+              }
+              onFilterChange={
+                setFilters
               }
             />
           </div>
@@ -304,17 +410,21 @@ export default function ProjectBoard() {
                   </div>
                 </div>
 
-                {projects.map((project) => (
-                  <ProjectRow
-                    key={project.id}
-                    project={project}
-                  />
-                ))}
+                {filteredProjects.map(
+                  (project) => (
+                    <ProjectRow
+                      key={project.id}
+                      project={project}
+                    />
+                  ),
+                )}
 
                 <button
                   type="button"
                   onClick={() =>
-                    setIsAddProjectOpen(true)
+                    setIsAddProjectOpen(
+                      true,
+                    )
                   }
                   className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                 >
@@ -341,7 +451,9 @@ export default function ProjectBoard() {
                   <button
                     type="button"
                     onClick={() =>
-                      setIsAddProjectOpen(true)
+                      setIsAddProjectOpen(
+                        true,
+                      )
                     }
                     className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-[var(--background)]"
                   >
@@ -364,19 +476,23 @@ export default function ProjectBoard() {
               </div>
 
               <div className="flex flex-col">
-                {projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                  />
-                ))}
+                {filteredProjects.map(
+                  (project) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                    />
+                  ),
+                )}
               </div>
 
               <div className="flex h-[52px] items-center px-3">
                 <button
                   type="button"
                   onClick={() =>
-                    setIsAddProjectOpen(true)
+                    setIsAddProjectOpen(
+                      true,
+                    )
                   }
                   className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--background)]"
                 >
@@ -385,7 +501,9 @@ export default function ProjectBoard() {
                     strokeWidth={2}
                   />
 
-                  <span>Add Project</span>
+                  <span>
+                    Add Project
+                  </span>
                 </button>
               </div>
             </section>

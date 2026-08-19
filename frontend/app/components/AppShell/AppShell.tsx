@@ -9,21 +9,28 @@ type AppShellProps = {
   children: React.ReactNode;
 };
 
-export default function AppShell({ children }: AppShellProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+export default function AppShell({
+  children,
+}: AppShellProps) {
+  const [
+    isSidebarOpen,
+    setIsSidebarOpen,
+  ] = useState(true);
+
+  const pathname = usePathname();
 
   const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
+    setIsSidebarOpen(
+      (prev) => !prev,
+    );
   };
 
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
 
-  const pathname = usePathname();
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[var(--background)]">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={closeSidebar}
@@ -39,15 +46,20 @@ export default function AppShell({ children }: AppShellProps) {
       )}
 
       <div
-        className={`min-h-screen transition-[margin] duration-200 ${isSidebarOpen ? "md:ml-64" : "md:ml-0"
+        className={`min-h-screen transition-[margin] duration-200 ${isSidebarOpen
+          ? "md:ml-64"
+          : "md:ml-0"
           }`}
       >
-        { pathname !== "/settings/theme" &&
-            <TopBar
-              isSidebarOpen={isSidebarOpen}
-              onToggleSidebar={toggleSidebar}
-            />
-        }
+        {pathname !== "/settings/theme" && (
+          <TopBar
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={
+              toggleSidebar
+            }
+          />
+        )}
+
         <main className="min-h-[calc(100vh-4rem)]">
           {children}
         </main>

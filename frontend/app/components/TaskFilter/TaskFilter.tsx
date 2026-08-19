@@ -5,7 +5,6 @@ import {
   Calendar,
   Check,
   ChevronRight,
-  Circle,
   Signal,
   SignalHigh,
   SignalLow,
@@ -14,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
-type FilterCategory =
+export type FilterCategory =
   | "Status"
   | "Priority"
   | "Members"
@@ -23,24 +22,24 @@ type FilterCategory =
   | "Labels"
   | "Reporter";
 
-type Priority =
+export type Priority =
   | "No Priority"
   | "Urgent"
   | "High"
   | "Medium"
   | "Low";
 
-type Status =
+export type Status =
   | "To Do"
   | "Doing"
   | "Completed"
   | "On Hold";
 
-type DueDate =
+export type DueDate =
   | "Increasing"
   | "Decreasing";
 
-type FilterState = {
+export type FilterState = {
   status: Status[];
   priority: Priority[];
   members: string[];
@@ -58,67 +57,67 @@ const categories: {
   name: FilterCategory;
   icon: React.ElementType;
 }[] = [
-  {
-    name: "Status",
-    icon: Circle,
-  },
-  {
-    name: "Priority",
-    icon: Signal,
-  },
-  {
-    name: "Members",
-    icon: Users,
-  },
-  {
-    name: "Due Date",
-    icon: Calendar,
-  },
-  {
-    name: "Teams",
-    icon: Users,
-  },
-  {
-    name: "Labels",
-    icon: Tag,
-  },
-  {
-    name: "Reporter",
-    icon: Users,
-  },
-];
+    {
+      name: "Status",
+      icon: Signal,
+    },
+    {
+      name: "Priority",
+      icon: Signal,
+    },
+    {
+      name: "Members",
+      icon: Users,
+    },
+    {
+      name: "Due Date",
+      icon: Calendar,
+    },
+    {
+      name: "Teams",
+      icon: Users,
+    },
+    {
+      name: "Labels",
+      icon: Tag,
+    },
+    {
+      name: "Reporter",
+      icon: Users,
+    },
+  ];
 
 const priorityOptions: {
   name: Priority;
   color: string;
   icon: React.ElementType;
 }[] = [
-  {
-    name: "No Priority",
-    color: "#171717",
-    icon: Signal,
-  },
-  {
-    name: "Urgent",
-    color: "#EF4444",
-    icon: Signal,
-  },
-  {
-    name: "High",
-    color: "#F97316",
-    icon: SignalHigh,
-  },
-  {
-    name: "Medium",
-    color: "#EAB308",
-    icon: SignalMedium,
-  },
-  {
-    name: "Low",
-    color: "#9CA3AF",
-    icon: SignalLow,
-  },
-];
+    {
+      name: "No Priority",
+      color: "#171717",
+      icon: Signal,
+    },
+    {
+      name: "Urgent",
+      color: "#EF4444",
+      icon: Signal,
+    },
+    {
+      name: "High",
+      color: "#F97316",
+      icon: SignalHigh,
+    },
+    {
+      name: "Medium",
+      color: "#EAB308",
+      icon: SignalMedium,
+    },
+    {
+      name: "Low",
+      color: "#9CA3AF",
+      icon: SignalLow,
+    },
+  ];
 
 const statusOptions: Status[] = [
   "To Do",
@@ -137,8 +136,12 @@ export default function TaskFilter({
 }: TaskFilterProps) {
   const [open, setOpen] = useState(false);
 
-  const [activeCategory, setActiveCategory] =
-    useState<FilterCategory | null>(null);
+  const [
+    activeCategory,
+    setActiveCategory,
+  ] = useState<FilterCategory | null>(
+    null,
+  );
 
   const [filters, setFilters] =
     useState<FilterState>({
@@ -216,12 +219,12 @@ export default function TaskFilter({
 
     const nextPriority = exists
       ? filters.priority.filter(
-          (item) => item !== priority,
-        )
+        (item) => item !== priority,
+      )
       : [
-          ...filters.priority,
-          priority,
-        ];
+        ...filters.priority,
+        priority,
+      ];
 
     updateFilters({
       ...filters,
@@ -237,12 +240,12 @@ export default function TaskFilter({
 
     const nextStatus = exists
       ? filters.status.filter(
-          (item) => item !== status,
-        )
+        (item) => item !== status,
+      )
       : [
-          ...filters.status,
-          status,
-        ];
+        ...filters.status,
+        status,
+      ];
 
     updateFilters({
       ...filters,
@@ -262,17 +265,19 @@ export default function TaskFilter({
     });
   };
 
-  const renderSubmenu = (
-    category: FilterCategory,
-  ) => {
-    if (category === "Priority") {
+  const hasActiveFilters =
+    filters.status.length > 0 ||
+    filters.priority.length > 0 ||
+    filters.members.length > 0 ||
+    filters.dueDate !== null ||
+    filters.teams.length > 0 ||
+    filters.labels.length > 0 ||
+    filters.reporter.length > 0;
+
+  const renderSubmenu = () => {
+    if (activeCategory === "Priority") {
       return (
-        <div
-          className="absolute left-0 top-[calc(100%+6px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0"
-          onClick={(event) =>
-            event.stopPropagation()
-          }
-        >
+        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Priority
@@ -333,14 +338,9 @@ export default function TaskFilter({
       );
     }
 
-    if (category === "Status") {
+    if (activeCategory === "Status") {
       return (
-        <div
-          className="absolute left-0 top-[calc(100%+6px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0"
-          onClick={(event) =>
-            event.stopPropagation()
-          }
-        >
+        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Status
@@ -363,11 +363,7 @@ export default function TaskFilter({
                   }
                   className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
                 >
-                  <span className="text-sm text-[var(--foreground)]">
-                    {status}
-                  </span>
-
-                  <span className="ml-auto">
+                  <span className="flex h-4 w-4 items-center justify-center">
                     {selected && (
                       <Check
                         size={16}
@@ -375,6 +371,10 @@ export default function TaskFilter({
                         className="text-[var(--foreground)]"
                       />
                     )}
+                  </span>
+
+                  <span className="text-sm text-[var(--foreground)]">
+                    {status}
                   </span>
                 </button>
               );
@@ -384,14 +384,9 @@ export default function TaskFilter({
       );
     }
 
-    if (category === "Due Date") {
+    if (activeCategory === "Due Date") {
       return (
-        <div
-          className="absolute left-0 top-[calc(100%+6px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0"
-          onClick={(event) =>
-            event.stopPropagation()
-          }
-        >
+        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Due Date
@@ -408,9 +403,7 @@ export default function TaskFilter({
                   key={option}
                   type="button"
                   onClick={() =>
-                    selectDueDate(
-                      option,
-                    )
+                    selectDueDate(option)
                   }
                   className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
                 >
@@ -455,11 +448,10 @@ export default function TaskFilter({
           setOpen((value) => !value);
           setActiveCategory(null);
         }}
-        className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition hover:bg-[var(--surface-secondary)] ${
-          open
-            ? "bg-[var(--surface-secondary)]"
-            : ""
-        }`}
+        className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition hover:bg-[var(--surface-secondary)] ${open
+          ? "bg-[var(--surface-secondary)]"
+          : ""
+          }`}
       >
         <svg
           width="14"
@@ -473,15 +465,19 @@ export default function TaskFilter({
         >
           <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3Z" />
         </svg>
+
+        {hasActiveFilters && (
+          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[var(--background)]" />
+        )}
       </button>
 
       {open && (
         <div className="absolute right-0 top-10 z-50">
           <div
-            className="w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
-            onClick={() =>
-              setActiveCategory(null)
-            }
+            className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
+            onClick={() => {
+              setActiveCategory(null);
+            }}
           >
             {categories.map(
               (category) => {
@@ -494,65 +490,57 @@ export default function TaskFilter({
 
                 const hasSubmenu =
                   category.name ===
-                    "Priority" ||
+                  "Priority" ||
                   category.name ===
-                    "Status" ||
+                  "Status" ||
                   category.name ===
-                    "Due Date";
+                  "Due Date";
 
                 return (
-                  <div
+                  <button
                     key={category.name}
-                    className="relative"
-                  >
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
 
-                        if (hasSubmenu) {
-                          setActiveCategory(
-                            selected
-                              ? null
-                              : category.name,
-                          );
-                        }
-                      }}
-                      className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${
-                        selected
-                          ? "bg-[var(--surface-secondary)]"
-                          : "hover:bg-[var(--surface-secondary)]"
+                      if (hasSubmenu) {
+                        setActiveCategory(
+                          selected
+                            ? null
+                            : category.name,
+                        );
+                      }
+                    }}
+                    className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${selected
+                      ? "bg-[var(--surface-secondary)]"
+                      : "hover:bg-[var(--surface-secondary)]"
                       }`}
-                    >
-                      <Icon
-                        size={18}
+                  >
+                    <Icon
+                      size={18}
+                      strokeWidth={1.8}
+                      className="shrink-0 text-[var(--foreground)]"
+                    />
+
+                    <span className="text-sm font-normal text-[var(--foreground)]">
+                      {category.name}
+                    </span>
+
+                    {hasSubmenu && (
+                      <ChevronRight
+                        size={16}
                         strokeWidth={1.8}
-                        className="shrink-0 text-[var(--foreground)]"
+                        className="ml-auto text-[var(--foreground)]"
                       />
-
-                      <span className="text-sm font-normal text-[var(--foreground)]">
-                        {category.name}
-                      </span>
-
-                      {hasSubmenu && (
-                        <ChevronRight
-                          size={16}
-                          strokeWidth={1.8}
-                          className="ml-auto text-[var(--foreground)]"
-                        />
-                      )}
-                    </button>
-
-                    {selected &&
-                      hasSubmenu &&
-                      renderSubmenu(
-                        category.name,
-                      )}
-                  </div>
+                    )}
+                  </button>
                 );
               },
             )}
           </div>
+
+          {activeCategory &&
+            renderSubmenu()}
         </div>
       )}
     </div>

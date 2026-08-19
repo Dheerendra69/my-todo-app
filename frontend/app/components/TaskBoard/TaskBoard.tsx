@@ -2,21 +2,25 @@
 
 import { useEffect, useState } from "react";
 import {
-    Calendar,
     ChevronDown,
     Columns3,
-    GripVertical,
     MoreHorizontal,
     Plus,
     SignalHigh,
     SignalLow,
-    Tag,
 } from "lucide-react";
 
 import BoardActions from "../BoardActions/BoardActions";
 import AddTaskModal from "../AddTaskModal/AddTaskModal";
+
 import type { ViewMode } from "../FieldsPopover/FieldsPopOver";
+
+import {
+    type FilterState,
+} from "../TaskFilter/TaskFilter";
+
 import { useAuth } from "../auth/AuthContext";
+import { useRouter } from "next/navigation";
 
 type Priority =
     | "No Priority"
@@ -99,6 +103,16 @@ const initialSections: TaskSection[] = [
     },
 ];
 
+const initialFilters: FilterState = {
+    status: [],
+    priority: [],
+    members: [],
+    dueDate: null,
+    teams: [],
+    labels: [],
+    reporter: [],
+};
+
 const priorityLabels: Record<
     BackendTask["priority"],
     Priority
@@ -108,6 +122,16 @@ const priorityLabels: Record<
     high: "High",
     medium: "Medium",
     low: "Low",
+};
+
+const statusLabels: Record<
+    TaskStatus,
+    FilterState["status"][number]
+> = {
+    todo: "To Do",
+    doing: "Doing",
+    completed: "Completed",
+    on_hold: "On Hold",
 };
 
 const priorityStyles: Record<
@@ -158,9 +182,12 @@ function formatTask(
     return {
         id: task.id,
         title: task.title,
-        description: task.description ?? "",
+        description:
+            task.description ?? "",
         priority:
-            priorityLabels[task.priority],
+            priorityLabels[
+            task.priority
+            ],
         member:
             task.assignee?.name ??
             "Unassigned",
@@ -231,14 +258,24 @@ function MemberAvatar({
 
 function TaskRow({
     task,
+    onOpenTask,
 }: {
     task: Task;
+    onOpenTask: (
+        taskId: string,
+    ) => void;
 }) {
     return (
         <div className="grid min-w-[780px] grid-cols-[minmax(240px,1fr)_140px_120px_140px_140px] items-center border-b border-[var(--border)] last:border-b-0">
-            <div className="px-3 py-3 text-sm font-medium text-[var(--foreground)]">
+            <button
+                type="button"
+                onClick={() =>
+                    onOpenTask(task.id)
+                }
+                className="px-3 py-3 text-left text-sm font-medium text-[var(--foreground)] hover:underline"
+            >
                 {task.title}
-            </div>
+            </button>
 
             <div className="px-3 py-3">
                 <PriorityBadge
@@ -272,25 +309,32 @@ function TaskRow({
 
 function BoardTaskCard({
     task,
+    onOpenTask,
 }: {
     task: Task;
+    onOpenTask: (
+        taskId: string,
+    ) => void;
 }) {
     return (
-        <div className="mx-3 mb-3 rounded-md border border-[var(--border)] bg-[var(--background)] p-3">
+        <button
+            type="button"
+            onClick={() =>
+                onOpenTask(task.id)
+            }
+            className="mx-3 mb-3 block w-[calc(100%-24px)] rounded-md border border-[var(--border)] bg-[var(--background)] p-3 text-left"
+        >
             <div className="flex items-center justify-between">
                 <span className="text-sm font-medium leading-5 text-[var(--foreground)]">
                     {task.title}
                 </span>
 
-                <button
-                    type="button"
-                    className="flex h-5 w-5 items-center justify-center"
-                >
+                <span className="flex h-5 w-5 items-center justify-center">
                     <MoreHorizontal
                         size={14}
                         strokeWidth={2}
                     />
-                </button>
+                </span>
             </div>
 
             <div className="mt-4 flex items-center justify-between">
@@ -322,7 +366,7 @@ function BoardTaskCard({
                     priority={task.priority}
                 />
             </div>
-        </div>
+        </button>
     );
 }
 
@@ -331,12 +375,16 @@ function ListTaskSection({
     collapsed,
     onToggle,
     onAddTask,
+    onOpenTask,
 }: {
     section: TaskSection;
     collapsed: boolean;
     onToggle: () => void;
     onAddTask: (
         sectionId: TaskStatus,
+    ) => void;
+    onOpenTask: (
+        taskId: string,
     ) => void;
 }) {
     return (
@@ -364,15 +412,10 @@ function ListTaskSection({
             </div>
 
             <div
-                className={`
-                    grid transition-[grid-template-rows,opacity]
-                    duration-500
-                    ease-in-out
-                    ${collapsed
-                        ? "grid-rows-[0fr] opacity-0"
-                        : "grid-rows-[1fr] opacity-100"
-                    }
-                `}
+                className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${collapsed
+                    ? "grid-rows-[0fr] opacity-0"
+                    : "grid-rows-[1fr] opacity-100"
+                    }`}
             >
                 <div className="min-h-0 overflow-hidden">
                     <div className="w-full overflow-x-auto rounded-lg border border-[var(--border)]">
@@ -404,6 +447,9 @@ function ListTaskSection({
                                     <TaskRow
                                         key={task.id}
                                         task={task}
+                                        onOpenTask={
+                                            onOpenTask
+                                        }
                                     />
                                 ),
                             )}
@@ -411,9 +457,7 @@ function ListTaskSection({
                             <button
                                 type="button"
                                 onClick={() =>
-                                    onAddTask(
-                                        section.id,
-                                    )
+                                    onAddTask(section.id)
                                 }
                                 className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                             >
@@ -435,10 +479,14 @@ function ListTaskSection({
 function BoardSection({
     section,
     onAddTask,
+    onOpenTask,
 }: {
     section: TaskSection;
     onAddTask: (
         sectionId: TaskStatus,
+    ) => void;
+    onOpenTask: (
+        taskId: string,
     ) => void;
 }) {
     return (
@@ -487,6 +535,9 @@ function BoardSection({
                         <BoardTaskCard
                             key={task.id}
                             task={task}
+                            onOpenTask={
+                                onOpenTask
+                            }
                         />
                     ),
                 )}
@@ -514,19 +565,35 @@ function BoardSection({
 
 export default function TaskBoard() {
     const { user } = useAuth();
+    const router = useRouter();
 
-    const [sections, setSections] =
-        useState<TaskSection[]>(
-            initialSections,
-        );
 
-    const [viewMode, setViewMode] =
-        useState<ViewMode>("list");
 
-    const [collapsedSections, setCollapsedSections] =
-        useState<Record<string, boolean>>(
-            {},
-        );
+    const [
+        sections,
+        setSections,
+    ] = useState<TaskSection[]>(
+        initialSections,
+    );
+
+    const [
+        filters,
+        setFilters,
+    ] = useState<FilterState>(
+        initialFilters,
+    );
+
+    const [
+        viewMode,
+        setViewMode,
+    ] = useState<ViewMode>("list");
+
+    const [
+        collapsedSections,
+        setCollapsedSections,
+    ] = useState<
+        Record<string, boolean>
+    >({});
 
     const [
         isAddTaskOpen,
@@ -540,8 +607,10 @@ export default function TaskBoard() {
         null,
     );
 
-    const [projectId, setProjectId] =
-        useState("");
+    const [
+        projectId,
+        setProjectId,
+    ] = useState("");
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -579,9 +648,7 @@ export default function TaskBoard() {
                                         task.status ===
                                         section.id,
                                 )
-                                .map(
-                                    formatTask,
-                                ),
+                                .map(formatTask),
                         }),
                     ),
                 );
@@ -601,38 +668,107 @@ export default function TaskBoard() {
             return;
         }
 
-        const fetchProjects = async () => {
-            try {
-                const response =
-                    await fetch(
-                        `${process.env.NEXT_PUBLIC_API_URL}/projects/owner/${user.id}`,
-                    );
+        const fetchProjects =
+            async () => {
+                try {
+                    const response =
+                        await fetch(
+                            `${process.env.NEXT_PUBLIC_API_URL}/projects/owner/${user.id}`,
+                        );
 
-                if (!response.ok) {
-                    throw new Error(
-                        "Failed to fetch projects",
+                    if (!response.ok) {
+                        throw new Error(
+                            "Failed to fetch projects",
+                        );
+                    }
+
+                    const projects:
+                        BackendProject[] =
+                        await response.json();
+
+                    if (projects.length > 0) {
+                        setProjectId(
+                            projects[0].id,
+                        );
+                    }
+                } catch (error) {
+                    console.error(
+                        "Failed to fetch projects:",
+                        error,
                     );
                 }
-
-                const projects:
-                    BackendProject[] =
-                    await response.json();
-
-                if (projects.length > 0) {
-                    setProjectId(
-                        projects[0].id,
-                    );
-                }
-            } catch (error) {
-                console.error(
-                    "Failed to fetch projects:",
-                    error,
-                );
-            }
-        };
+            };
 
         fetchProjects();
     }, [user?.id]);
+
+    const filteredSections =
+        initialSections.map(
+            (sectionDefinition) => {
+                const section =
+                    sections.find(
+                        (item) =>
+                            item.id ===
+                            sectionDefinition.id,
+                    ) ?? sectionDefinition;
+
+                let filteredTasks =
+                    section.tasks.filter(
+                        (task) => {
+                            const statusMatches =
+                                filters.status.length ===
+                                0 ||
+                                filters.status.includes(
+                                    statusLabels[
+                                    task.status
+                                    ],
+                                );
+
+                            const priorityMatches =
+                                filters.priority
+                                    .length === 0 ||
+                                filters.priority.includes(
+                                    task.priority,
+                                );
+
+                            return (
+                                statusMatches &&
+                                priorityMatches
+                            );
+                        },
+                    );
+
+                if (filters.dueDate) {
+                    filteredTasks = [
+                        ...filteredTasks,
+                    ].sort((a, b) => {
+                        const aDate =
+                            a.dueDate
+                                ? new Date(
+                                    a.dueDate,
+                                ).getTime()
+                                : Number.MAX_SAFE_INTEGER;
+
+                        const bDate =
+                            b.dueDate
+                                ? new Date(
+                                    b.dueDate,
+                                ).getTime()
+                                : Number.MAX_SAFE_INTEGER;
+
+                        return filters.dueDate ===
+                            "Increasing"
+                            ? aDate - bDate
+                            : bDate - aDate;
+                    });
+                }
+
+                return {
+                    ...section,
+                    tasks: filteredTasks,
+                };
+            },
+        );
 
     const toggleSection = (
         sectionId: string,
@@ -684,8 +820,17 @@ export default function TaskBoard() {
         );
     };
 
-    const addTaskToFirstSection = () => {
-        openAddTaskModal("todo");
+    const addTaskToFirstSection =
+        () => {
+            openAddTaskModal("todo");
+        };
+
+    const openTask = (
+        taskId: string,
+    ) => {
+        router.push(
+            `/tasks/${taskId}`,
+        );
     };
 
     return (
@@ -706,26 +851,23 @@ export default function TaskBoard() {
                             onAdd={
                                 addTaskToFirstSection
                             }
+                            onFilterChange={
+                                setFilters
+                            }
                         />
                     </div>
 
                     {viewMode === "list" ? (
                         <div className="flex w-full flex-col gap-5">
-                            {sections.map(
+                            {filteredSections.map(
                                 (section) => (
                                     <ListTaskSection
-                                        key={
-                                            section.id
-                                        }
-                                        section={
-                                            section
-                                        }
+                                        key={section.id}
+                                        section={section}
                                         collapsed={
                                             collapsedSections[
-                                            section
-                                                .id
-                                            ] ??
-                                            false
+                                            section.id
+                                            ] ?? false
                                         }
                                         onToggle={() =>
                                             toggleSection(
@@ -735,23 +877,29 @@ export default function TaskBoard() {
                                         onAddTask={
                                             openAddTaskModal
                                         }
+                                        onOpenTask={(taskId) =>
+                                            router.push(
+                                                `/tasks/${taskId}`,
+                                            )
+                                        }
                                     />
                                 ),
                             )}
                         </div>
                     ) : (
                         <div className="flex w-full items-start gap-4 overflow-x-auto pb-4">
-                            {sections.map(
+                            {filteredSections.map(
                                 (section) => (
                                     <BoardSection
-                                        key={
-                                            section.id
-                                        }
-                                        section={
-                                            section
-                                        }
+                                        key={section.id}
+                                        section={section}
                                         onAddTask={
                                             openAddTaskModal
+                                        }
+                                        onOpenTask={(taskId) =>
+                                            router.push(
+                                                `/tasks/${taskId}`,
+                                            )
                                         }
                                     />
                                 ),
@@ -777,9 +925,7 @@ export default function TaskBoard() {
 
             <AddTaskModal
                 isOpen={isAddTaskOpen}
-                onClose={
-                    closeAddTaskModal
-                }
+                onClose={closeAddTaskModal}
                 projectId={projectId}
                 assigneeId={user?.id}
                 defaultStatus={

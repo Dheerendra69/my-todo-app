@@ -11,13 +11,20 @@ import FieldsPopover, {
   ViewMode,
 } from "../FieldsPopover/FieldsPopOver";
 
-import TaskFilter from "../TaskFilter/TaskFilter";
+import TaskFilter, {
+  type FilterState,
+} from "../TaskFilter/TaskFilter";
 
 type BoardActionsProps = {
   viewMode: ViewMode;
-  onViewModeChange: (mode: ViewMode) => void;
+  onViewModeChange: (
+    mode: ViewMode,
+  ) => void;
   addButtonLabel: string;
   onAdd: () => void;
+  onFilterChange?: (
+    filters: FilterState,
+  ) => void;
 };
 
 export default function BoardActions({
@@ -25,9 +32,12 @@ export default function BoardActions({
   onViewModeChange,
   addButtonLabel,
   onAdd,
+  onFilterChange,
 }: BoardActionsProps) {
-  const [isFieldsOpen, setIsFieldsOpen] =
-    useState(false);
+  const [
+    isFieldsOpen,
+    setIsFieldsOpen,
+  ] = useState(false);
 
   return (
     <div className="relative flex items-center gap-2">
@@ -45,18 +55,14 @@ export default function BoardActions({
         type="button"
         onClick={() =>
           setIsFieldsOpen(
-            (previous) => !previous,
+            (previous) =>
+              !previous,
           )
         }
-        className={`
-                    flex h-9 items-center gap-2
-                    rounded-md border px-3 text-sm
-                    ${isFieldsOpen
-            ? "border-[#D4D4D4] bg-[var(--surface-secondary)]"
-            : "border-[var(--border)] bg-[var(--background)]"
-          }
-                    hover:bg-[var(--surface-secondary)]
-                `}
+        className={`flex h-9 items-center gap-2 rounded-md border px-3 text-sm ${isFieldsOpen
+          ? "border-[#D4D4D4] bg-[var(--surface-secondary)]"
+          : "border-[var(--border)] bg-[var(--background)]"
+          } hover:bg-[var(--surface-secondary)]`}
       >
         <SlidersHorizontal
           size={15}
@@ -66,7 +72,9 @@ export default function BoardActions({
         <span>Fields</span>
       </button>
 
-      <TaskFilter />
+      <TaskFilter
+        onChange={onFilterChange}
+      />
 
       <FieldsPopover
         open={isFieldsOpen}
@@ -89,7 +97,9 @@ export default function BoardActions({
           strokeWidth={2}
         />
 
-        <span>{addButtonLabel}</span>
+        <span>
+          {addButtonLabel}
+        </span>
       </button>
     </div>
   );
