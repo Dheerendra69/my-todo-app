@@ -23,11 +23,22 @@ type FilterCategory =
   | "Labels"
   | "Reporter";
 
-type Priority = "No Priority" | "Urgent" | "High" | "Medium" | "Low";
+type Priority =
+  | "No Priority"
+  | "Urgent"
+  | "High"
+  | "Medium"
+  | "Low";
 
-type Status = "To Do" | "Doing" | "Completed" | "On Hold";
+type Status =
+  | "To Do"
+  | "Doing"
+  | "Completed"
+  | "On Hold";
 
-type DueDate = "Increasing" | "Decreasing";
+type DueDate =
+  | "Increasing"
+  | "Decreasing";
 
 type FilterState = {
   status: Status[];
@@ -47,67 +58,67 @@ const categories: {
   name: FilterCategory;
   icon: React.ElementType;
 }[] = [
-    {
-      name: "Status",
-      icon: Circle,
-    },
-    {
-      name: "Priority",
-      icon: Signal,
-    },
-    {
-      name: "Members",
-      icon: Users,
-    },
-    {
-      name: "Due Date",
-      icon: Calendar,
-    },
-    {
-      name: "Teams",
-      icon: Users,
-    },
-    {
-      name: "Labels",
-      icon: Tag,
-    },
-    {
-      name: "Reporter",
-      icon: Users,
-    },
-  ];
+  {
+    name: "Status",
+    icon: Circle,
+  },
+  {
+    name: "Priority",
+    icon: Signal,
+  },
+  {
+    name: "Members",
+    icon: Users,
+  },
+  {
+    name: "Due Date",
+    icon: Calendar,
+  },
+  {
+    name: "Teams",
+    icon: Users,
+  },
+  {
+    name: "Labels",
+    icon: Tag,
+  },
+  {
+    name: "Reporter",
+    icon: Users,
+  },
+];
 
 const priorityOptions: {
   name: Priority;
   color: string;
   icon: React.ElementType;
 }[] = [
-    {
-      name: "No Priority",
-      color: "#171717",
-      icon: Signal,
-    },
-    {
-      name: "Urgent",
-      color: "#EF4444",
-      icon: Signal,
-    },
-    {
-      name: "High",
-      color: "#F97316",
-      icon: SignalHigh,
-    },
-    {
-      name: "Medium",
-      color: "#EAB308",
-      icon: SignalMedium,
-    },
-    {
-      name: "Low",
-      color: "#9CA3AF",
-      icon: SignalLow,
-    },
-  ];
+  {
+    name: "No Priority",
+    color: "#171717",
+    icon: Signal,
+  },
+  {
+    name: "Urgent",
+    color: "#EF4444",
+    icon: Signal,
+  },
+  {
+    name: "High",
+    color: "#F97316",
+    icon: SignalHigh,
+  },
+  {
+    name: "Medium",
+    color: "#EAB308",
+    icon: SignalMedium,
+  },
+  {
+    name: "Low",
+    color: "#9CA3AF",
+    icon: SignalLow,
+  },
+];
 
 const statusOptions: Status[] = [
   "To Do",
@@ -121,61 +132,96 @@ const dueDateOptions: DueDate[] = [
   "Decreasing",
 ];
 
-export default function TaskFilter({ onChange }: TaskFilterProps) {
+export default function TaskFilter({
+  onChange,
+}: TaskFilterProps) {
   const [open, setOpen] = useState(false);
+
   const [activeCategory, setActiveCategory] =
     useState<FilterCategory | null>(null);
 
-  const [filters, setFilters] = useState<FilterState>({
-    status: [],
-    priority: [],
-    members: [],
-    dueDate: null,
-    teams: [],
-    labels: [],
-    reporter: [],
-  });
+  const [filters, setFilters] =
+    useState<FilterState>({
+      status: [],
+      priority: [],
+      members: [],
+      dueDate: null,
+      teams: [],
+      labels: [],
+      reporter: [],
+    });
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef =
+    useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (
+      event: MouseEvent,
+    ) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(
+          event.target as Node,
+        )
       ) {
         setOpen(false);
         setActiveCategory(null);
       }
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleEscape = (
+      event: KeyboardEvent,
+    ) => {
       if (event.key === "Escape") {
         setOpen(false);
         setActiveCategory(null);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside,
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    );
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside,
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
     };
   }, []);
 
-  const updateFilters = (nextFilters: FilterState) => {
+  const updateFilters = (
+    nextFilters: FilterState,
+  ) => {
     setFilters(nextFilters);
     onChange?.(nextFilters);
   };
 
-  const togglePriority = (priority: Priority) => {
-    const exists = filters.priority.includes(priority);
+  const togglePriority = (
+    priority: Priority,
+  ) => {
+    const exists =
+      filters.priority.includes(priority);
 
     const nextPriority = exists
-      ? filters.priority.filter((item) => item !== priority)
-      : [...filters.priority, priority];
+      ? filters.priority.filter(
+          (item) => item !== priority,
+        )
+      : [
+          ...filters.priority,
+          priority,
+        ];
 
     updateFilters({
       ...filters,
@@ -183,12 +229,20 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
     });
   };
 
-  const toggleStatus = (status: Status) => {
-    const exists = filters.status.includes(status);
+  const toggleStatus = (
+    status: Status,
+  ) => {
+    const exists =
+      filters.status.includes(status);
 
     const nextStatus = exists
-      ? filters.status.filter((item) => item !== status)
-      : [...filters.status, status];
+      ? filters.status.filter(
+          (item) => item !== status,
+        )
+      : [
+          ...filters.status,
+          status,
+        ];
 
     updateFilters({
       ...filters,
@@ -196,149 +250,193 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
     });
   };
 
-  const selectDueDate = (value: DueDate) => {
+  const selectDueDate = (
+    value: DueDate,
+  ) => {
     updateFilters({
       ...filters,
-      dueDate: filters.dueDate === value ? null : value,
+      dueDate:
+        filters.dueDate === value
+          ? null
+          : value,
     });
   };
 
-  const renderSubmenu = () => {
-    if (activeCategory === "Priority") {
+  const renderSubmenu = (
+    category: FilterCategory,
+  ) => {
+    if (category === "Priority") {
       return (
-        <div className="absolute top-[calc(100%+20px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
+        <div
+          className="absolute left-0 top-[calc(100%+6px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        >
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Priority
             </span>
           </div>
 
-          {priorityOptions.map((option) => {
-            const Icon = option.icon;
-            const selected = filters.priority.includes(option.name);
+          {priorityOptions.map(
+            (option) => {
+              const Icon = option.icon;
 
-            return (
-              <button
-                key={option.name}
-                type="button"
-                onClick={() => togglePriority(option.name)}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
-              >
-                <Icon
-                  size={16}
-                  strokeWidth={1.8}
-                  style={{ color: option.color }}
-                />
+              const selected =
+                filters.priority.includes(
+                  option.name,
+                );
 
-                <span
-                  className="text-sm font-normal"
-                  style={{ color: option.color }}
+              return (
+                <button
+                  key={option.name}
+                  type="button"
+                  onClick={() =>
+                    togglePriority(
+                      option.name,
+                    )
+                  }
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
                 >
-                  {option.name}
-                </span>
+                  <Icon
+                    size={16}
+                    strokeWidth={1.8}
+                    style={{
+                      color: option.color,
+                    }}
+                  />
 
-                <span className="ml-auto flex h-4 w-4 items-center justify-center">
-                  {selected && (
-                    <Check
-                      size={16}
-                      strokeWidth={2}
-                      className="text-[var(--foreground)]"
-                    />
-                  )}
-                </span>
-              </button>
-            );
-          })}
+                  <span
+                    className="text-sm font-normal"
+                    style={{
+                      color: option.color,
+                    }}
+                  >
+                    {option.name}
+                  </span>
+
+                  <span className="ml-auto flex h-4 w-4 items-center justify-center">
+                    {selected && (
+                      <Check
+                        size={16}
+                        strokeWidth={2}
+                        className="text-[var(--foreground)]"
+                      />
+                    )}
+                  </span>
+                </button>
+              );
+            },
+          )}
         </div>
       );
     }
 
-    if (activeCategory === "Status") {
+    if (category === "Status") {
       return (
-        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
+        <div
+          className="absolute left-0 top-[calc(100%+6px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        >
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Status
             </span>
           </div>
 
-          {statusOptions.map((status) => {
-            const selected = filters.status.includes(status);
+          {statusOptions.map(
+            (status) => {
+              const selected =
+                filters.status.includes(
+                  status,
+                );
 
-            return (
-              <button
-                key={status}
-                type="button"
-                onClick={() => toggleStatus(status)}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
-              >
-                <Circle
-                  size={14}
-                  strokeWidth={1.8}
-                  className="text-[var(--foreground)]"
-                />
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() =>
+                    toggleStatus(status)
+                  }
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
+                >
+                  <span className="text-sm text-[var(--foreground)]">
+                    {status}
+                  </span>
 
-                <span className="text-sm text-[var(--foreground)]">
-                  {status}
-                </span>
-
-                <span className="ml-auto">
-                  {selected && (
-                    <Check
-                      size={16}
-                      strokeWidth={2}
-                      className="text-[var(--foreground)]"
-                    />
-                  )}
-                </span>
-              </button>
-            );
-          })}
+                  <span className="ml-auto">
+                    {selected && (
+                      <Check
+                        size={16}
+                        strokeWidth={2}
+                        className="text-[var(--foreground)]"
+                      />
+                    )}
+                  </span>
+                </button>
+              );
+            },
+          )}
         </div>
       );
     }
 
-    if (activeCategory === "Due Date") {
+    if (category === "Due Date") {
       return (
-        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:top-auto md:right-[calc(100%+10px)] md:top-0">
+        <div
+          className="absolute left-0 top-[calc(100%+6px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        >
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Due Date
             </span>
           </div>
 
-          {dueDateOptions.map((option) => {
-            const selected = filters.dueDate === option;
+          {dueDateOptions.map(
+            (option) => {
+              const selected =
+                filters.dueDate === option;
 
-            return (
-              <button
-                key={option}
-                type="button"
-                onClick={() => selectDueDate(option)}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
-              >
-                <Calendar
-                  size={16}
-                  strokeWidth={1.8}
-                  className="text-[var(--foreground)]"
-                />
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() =>
+                    selectDueDate(
+                      option,
+                    )
+                  }
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
+                >
+                  <Calendar
+                    size={16}
+                    strokeWidth={1.8}
+                    className="text-[var(--foreground)]"
+                  />
 
-                <span className="text-sm text-[var(--foreground)]">
-                  {option}
-                </span>
+                  <span className="text-sm text-[var(--foreground)]">
+                    {option}
+                  </span>
 
-                <span className="ml-auto">
-                  {selected && (
-                    <Check
-                      size={16}
-                      strokeWidth={2}
-                      className="text-[var(--foreground)]"
-                    />
-                  )}
-                </span>
-              </button>
-            );
-          })}
+                  <span className="ml-auto">
+                    {selected && (
+                      <Check
+                        size={16}
+                        strokeWidth={2}
+                        className="text-[var(--foreground)]"
+                      />
+                    )}
+                  </span>
+                </button>
+              );
+            },
+          )}
         </div>
       );
     }
@@ -347,15 +445,21 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
   };
 
   return (
-    <div ref={containerRef} className="relative">
+    <div
+      ref={containerRef}
+      className="relative"
+    >
       <button
         type="button"
         onClick={() => {
           setOpen((value) => !value);
           setActiveCategory(null);
         }}
-        className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition hover:bg-[var(--surface-secondary)] ${open ? "bg-[var(--surface-secondary)]" : ""
-          }`}
+        className={`flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition hover:bg-[var(--surface-secondary)] ${
+          open
+            ? "bg-[var(--surface-secondary)]"
+            : ""
+        }`}
       >
         <svg
           width="14"
@@ -374,62 +478,81 @@ export default function TaskFilter({ onChange }: TaskFilterProps) {
       {open && (
         <div className="absolute right-0 top-10 z-50">
           <div
-            className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
-            onClick={() => {
-              setActiveCategory(null);
-            }}
+            className="w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
+            onClick={() =>
+              setActiveCategory(null)
+            }
           >
-            {categories.map((category) => {
-              const Icon = category.icon;
-              const selected =
-                activeCategory === category.name;
+            {categories.map(
+              (category) => {
+                const Icon =
+                  category.icon;
 
-              const hasSubmenu =
-                category.name === "Priority" ||
-                category.name === "Status" ||
-                category.name === "Due Date";
+                const selected =
+                  activeCategory ===
+                  category.name;
 
-              return (
-                <button
-                  key={category.name}
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
+                const hasSubmenu =
+                  category.name ===
+                    "Priority" ||
+                  category.name ===
+                    "Status" ||
+                  category.name ===
+                    "Due Date";
 
-                    if (hasSubmenu) {
-                      setActiveCategory(
-                        selected ? null : category.name,
-                      );
-                    }
-                  }}
-                  className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${selected
-                    ? "bg-[var(--surface-secondary)]"
-                    : "hover:bg-[var(--surface-secondary)]"
-                    }`}
-                >
-                  <Icon
-                    size={18}
-                    strokeWidth={1.8}
-                    className="shrink-0 text-[var(--foreground)]"
-                  />
+                return (
+                  <div
+                    key={category.name}
+                    className="relative"
+                  >
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
 
-                  <span className="text-sm font-normal text-[var(--foreground)]">
-                    {category.name}
-                  </span>
+                        if (hasSubmenu) {
+                          setActiveCategory(
+                            selected
+                              ? null
+                              : category.name,
+                          );
+                        }
+                      }}
+                      className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${
+                        selected
+                          ? "bg-[var(--surface-secondary)]"
+                          : "hover:bg-[var(--surface-secondary)]"
+                      }`}
+                    >
+                      <Icon
+                        size={18}
+                        strokeWidth={1.8}
+                        className="shrink-0 text-[var(--foreground)]"
+                      />
 
-                  {hasSubmenu && (
-                    <ChevronRight
-                      size={16}
-                      strokeWidth={1.8}
-                      className="ml-auto text-[var(--foreground)]"
-                    />
-                  )}
-                </button>
-              );
-            })}
+                      <span className="text-sm font-normal text-[var(--foreground)]">
+                        {category.name}
+                      </span>
+
+                      {hasSubmenu && (
+                        <ChevronRight
+                          size={16}
+                          strokeWidth={1.8}
+                          className="ml-auto text-[var(--foreground)]"
+                        />
+                      )}
+                    </button>
+
+                    {selected &&
+                      hasSubmenu &&
+                      renderSubmenu(
+                        category.name,
+                      )}
+                  </div>
+                );
+              },
+            )}
           </div>
-
-          {activeCategory && renderSubmenu()}
         </div>
       )}
     </div>
