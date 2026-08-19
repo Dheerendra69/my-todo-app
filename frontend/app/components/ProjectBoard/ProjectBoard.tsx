@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Columns3,
   MoreHorizontal,
@@ -15,38 +15,24 @@ import AddProjectModal, {
 } from "../AddProjectModal/AddProjectModal";
 
 import type { ViewMode } from "../FieldsPopover/FieldsPopOver";
+import { useAuth } from "../auth/AuthContext";
 
 type Priority = "High" | "Medium" | "Low";
 
-const initialProjects: Project[] = [
-  {
-    id: 1,
-    title: "Design Homepage",
-    description: "",
-    priority: "High",
-    lead: "Admin",
-    avatar: "https://i.pravatar.cc/100?img=47",
-    dueDate: "2026-07-29",
-  },
-  {
-    id: 2,
-    title: "Develop Login Feature",
-    description: "",
-    priority: "Low",
-    lead: "Admin",
-    avatar: "https://i.pravatar.cc/100?img=47",
-    dueDate: "2026-07-29",
-  },
-  {
-    id: 3,
-    title: "Test Payment Gateway",
-    description: "",
-    priority: "Medium",
-    lead: "Admin",
-    avatar: "https://i.pravatar.cc/100?img=47",
-    dueDate: "2026-07-30",
-  },
-];
+type BackendProject = {
+  id: string;
+  name: string;
+  description?: string;
+  priority: Priority;
+  dueDate?: string | null;
+  owner: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+};
 
 const priorityStyles = {
   High: "text-[#EF4444]",
@@ -61,8 +47,7 @@ function PriorityBadge({
 }) {
   return (
     <div
-      className={`flex items-center gap-1 ${priorityStyles[priority]
-        }`}
+      className={`flex items-center gap-1 ${priorityStyles[priority]}`}
     >
       {priority === "Low" ? (
         <SignalLow
@@ -83,7 +68,7 @@ function PriorityBadge({
   );
 }
 
-function ProjectLead({
+function ProjectMember({
   project,
 }: {
   project: Project;
@@ -93,18 +78,14 @@ function ProjectLead({
       {project.avatar ? (
         <img
           src={project.avatar}
-          alt={project.lead}
+          alt={project.member}
           className="h-6 w-6 rounded-full object-cover"
         />
       ) : (
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[10px]">
-          {project.lead.charAt(0)}
+          {project.member.charAt(0)}
         </div>
       )}
-
-      <span className="text-sm text-[var(--foreground)]">
-        {project.lead}
-      </span>
     </div>
   );
 }
@@ -121,26 +102,23 @@ function ProjectRow({
       </div>
 
       <div className="px-3 py-3">
-        <PriorityBadge
-          priority={project.priority}
-        />
+        <PriorityBadge priority={project.priority} />
       </div>
 
       <div className="px-3 py-3">
-        <ProjectLead project={project} />
+        <ProjectMember project={project} />
       </div>
 
       <div className="px-3 py-3 text-sm text-[var(--foreground)]">
         {project.dueDate
-          ? new Date(
-            project.dueDate,
-          ).toLocaleDateString(
-            "en-US",
-            {
-              day: "numeric",
-              month: "short",
-            },
-          )
+          ? new Date(project.dueDate).toLocaleDateString(
+              "en-GB",
+              {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              },
+            )
           : "-"}
       </div>
 
@@ -165,10 +143,10 @@ function ProjectCard({
   project: Project;
 }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
+    <div className="mx-3 mb-3 rounded-md border border-[var(--border)] bg-[var(--background)] p-3">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold text-[var(--foreground)]">
+        <div className="min-w-0">
+          <h3 className="text-sm font-medium leading-5 text-[var(--foreground)]">
             {project.title}
           </h3>
 
@@ -181,47 +159,97 @@ function ProjectCard({
 
         <button
           type="button"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+          className="flex h-5 w-5 shrink-0 items-center justify-center"
         >
-          <MoreHorizontal size={16} />
+          <MoreHorizontal
+            size={14}
+            strokeWidth={2}
+          />
         </button>
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <ProjectLead project={project} />
+        <div className="flex items-center gap-2">
+          <ProjectMember project={project} />
 
-        <PriorityBadge
-          priority={project.priority}
-        />
+          <span className="text-xs font-medium text-[var(--foreground)]">
+            {project.member}
+          </span>
+        </div>
+
+        {project.dueDate && (
+          <div className="flex h-6 items-center rounded-3xl bg-[#DC26261A] px-3 text-[#DC2626]">
+            <span className="text-xs font-medium">
+              {new Date(
+                project.dueDate,
+              ).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+              })}
+            </span>
+          </div>
+        )}
       </div>
 
-      {project.dueDate && (
-        <div className="mt-3 text-xs text-[var(--foreground-secondary)]">
-          Due{" "}
-          {new Date(
-            project.dueDate,
-          ).toLocaleDateString(
-            "en-US",
-            {
-              day: "numeric",
-              month: "short",
-            },
-          )}
-        </div>
-      )}
+      <div className="mt-3">
+        <PriorityBadge priority={project.priority} />
+      </div>
     </div>
   );
 }
 
 export default function ProjectBoard() {
+  const { user } = useAuth();
+
   const [projects, setProjects] =
-    useState<Project[]>(initialProjects);
+    useState<Project[]>([]);
 
   const [viewMode, setViewMode] =
     useState<ViewMode>("list");
 
   const [isAddProjectOpen, setIsAddProjectOpen] =
     useState(false);
+
+  useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/projects/owner/${user.id}`,
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch projects");
+        }
+
+        const data: BackendProject[] =
+          await response.json();
+
+        const formattedProjects: Project[] =
+          data.map((project) => ({
+            id: project.id,
+            title: project.name,
+            description: project.description || "",
+            priority: project.priority,
+            member: project.owner.name,
+            avatar: project.owner.avatar,
+            dueDate: project.dueDate || "",
+          }));
+
+        setProjects(formattedProjects);
+      } catch (error) {
+        console.error(
+          "Failed to fetch projects:",
+          error,
+        );
+      }
+    };
+
+    fetchProjects();
+  }, [user?.id]);
 
   const addProject = (
     project: Project,
@@ -264,7 +292,7 @@ export default function ProjectBoard() {
                   </div>
 
                   <div className="px-3 text-sm font-medium text-[var(--foreground)]">
-                    Lead
+                    Members
                   </div>
 
                   <div className="px-3 text-sm font-medium text-[var(--foreground)]">
@@ -296,27 +324,71 @@ export default function ProjectBoard() {
               </div>
             </div>
           ) : (
-            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                />
-              ))}
+            <section className="w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)]">
+              <div className="flex h-[39px] items-center justify-between px-3">
+                <div className="flex items-center gap-2">
+                  <Columns3
+                    size={14}
+                    strokeWidth={2}
+                  />
 
-              <button
-                type="button"
-                onClick={() =>
-                  setIsAddProjectOpen(true)
-                }
-                className="flex min-h-[160px] items-center justify-center rounded-lg border border-dashed border-[var(--border)] text-sm font-medium text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
-              >
-                <Plus size={16} />
-                <span className="ml-2">
-                  Add Project
-                </span>
-              </button>
-            </div>
+                  <span className="text-xs font-semibold text-[var(--foreground)]">
+                    Projects
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIsAddProjectOpen(true)
+                    }
+                    className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-[var(--background)]"
+                  >
+                    <Plus
+                      size={14}
+                      strokeWidth={2}
+                    />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-[var(--background)]"
+                  >
+                    <MoreHorizontal
+                      size={14}
+                      strokeWidth={2}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col">
+                {projects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                  />
+                ))}
+              </div>
+
+              <div className="flex h-[52px] items-center px-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsAddProjectOpen(true)
+                  }
+                  className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--background)]"
+                >
+                  <Plus
+                    size={12}
+                    strokeWidth={2}
+                  />
+
+                  <span>Add Project</span>
+                </button>
+              </div>
+            </section>
           )}
         </div>
       </main>

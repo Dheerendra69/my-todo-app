@@ -10,11 +10,12 @@ import {
     SignalLow,
     X,
 } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
-type Priority = "High" | "Medium" | "Low";
+type Priority = "Urgent" | "High" | "Medium" | "Low";
 
 export type Project = {
-    id: number;
+    id: string;
     title: string;
     description: string;
     priority: Priority;
@@ -30,6 +31,7 @@ type AddProjectModalProps = {
 };
 
 const priorities: Priority[] = [
+    "Urgent",
     "High",
     "Medium",
     "Low",
@@ -46,12 +48,19 @@ export default function AddProjectModal({
     onClose,
     onCreate,
 }: AddProjectModalProps) {
+    const { user } = useAuth();
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+
     const [priority, setPriority] =
         useState<Priority>("Medium");
-    const [lead, setLead] = useState("Admin");
-    const [dueDate, setDueDate] = useState("");
+
+    const [lead, setLead] =
+        useState("Admin");
+
+    const [dueDate, setDueDate] =
+        useState("");
 
     const [priorityOpen, setPriorityOpen] =
         useState(false);
@@ -59,32 +68,82 @@ export default function AddProjectModal({
     const [leadOpen, setLeadOpen] =
         useState(false);
 
+    const [isSubmitting, setIsSubmitting] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
     if (!isOpen) {
         return null;
     }
 
-    const handleSubmit = () => {
-        if (!title.trim()) {
-            return;
-        }
-
-        onCreate({
-            id: Date.now(),
-            title: title.trim(),
-            description: description.trim(),
-            priority,
-            lead,
-            avatar: "https://i.pravatar.cc/100?img=47",
-            dueDate,
-        });
-
+    const resetForm = () => {
         setTitle("");
         setDescription("");
         setPriority("Medium");
         setLead("Admin");
         setDueDate("");
+        setError("");
+    };
 
-        onClose();
+    const handleSubmit = async () => {
+        if (!title.trim() || !user?.id || isSubmitting) {
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            setError("");
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/projects`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        name: title.trim(),
+                        description: description.trim() || undefined,
+                        priority,
+                        dueDate: dueDate || undefined,
+                        ownerId: user.id,
+                    }),
+                },
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to create project",
+                );
+            }
+
+            onCreate({
+                id: data.id,
+                title: data.name,
+                description:
+                    data.description ?? "",
+                priority,
+                lead: user.name || lead,
+                avatar: user.avatar,
+                dueDate,
+            });
+
+            resetForm();
+            onClose();
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create project",
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -112,6 +171,7 @@ export default function AddProjectModal({
                     <button
                         type="button"
                         onClick={onClose}
+                        disabled={isSubmitting}
                         className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
                     >
                         <X size={16} />
@@ -169,9 +229,7 @@ export default function AddProjectModal({
                                 >
                                     <span
                                         className={
-                                            priorityStyles[
-                                            priority
-                                            ]
+                                            priorityStyles[priority]
                                         }
                                     >
                                         {priority === "Low" ? (
@@ -185,61 +243,42 @@ export default function AddProjectModal({
                                         {priority}
                                     </span>
 
-                                    <ChevronDown
-                                        size={14}
-                                        className="text-[var(--foreground-secondary)]"
-                                    />
+                                    <ChevronDown size={14} />
                                 </button>
 
                                 {priorityOpen && (
-                                    <div className="absolute left-0 top-[42px] z-30 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
-                                        {priorities.map(
-                                            (item) => (
-                                                <button
-                                                    key={item}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setPriority(
-                                                            item,
-                                                        );
-                                                        setPriorityOpen(
-                                                            false,
-                                                        );
-                                                    }}
-                                                    className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                    <div className="absolute left-0 top-[42px] z-30 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
+                                        {priorities.map((item) => (
+                                            <button
+                                                key={item}
+                                                type="button"
+                                                onClick={() => {
+                                                    setPriority(item);
+                                                    setPriorityOpen(false);
+                                                }}
+                                                className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                            >
+                                                <span
+                                                    className={
+                                                        priorityStyles[item]
+                                                    }
                                                 >
-                                                    <span
-                                                        className={
-                                                            priorityStyles[
-                                                            item
-                                                            ]
-                                                        }
-                                                    >
-                                                        {item ===
-                                                            "Low" ? (
-                                                            <SignalLow
-                                                                size={14}
-                                                            />
-                                                        ) : (
-                                                            <SignalHigh
-                                                                size={14}
-                                                            />
-                                                        )}
-                                                    </span>
+                                                    {item === "Low" ? (
+                                                        <SignalLow size={14} />
+                                                    ) : (
+                                                        <SignalHigh size={14} />
+                                                    )}
+                                                </span>
 
-                                                    <span className="flex-1 text-left text-sm">
-                                                        {item}
-                                                    </span>
+                                                <span className="flex-1 text-left text-sm">
+                                                    {item}
+                                                </span>
 
-                                                    {priority ===
-                                                        item && (
-                                                            <Check
-                                                                size={14}
-                                                            />
-                                                        )}
-                                                </button>
-                                            ),
-                                        )}
+                                                {priority === item && (
+                                                    <Check size={14} />
+                                                )}
+                                            </button>
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -253,18 +292,16 @@ export default function AddProjectModal({
                             <div className="relative">
                                 <Calendar
                                     size={14}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-secondary)]"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2"
                                 />
 
                                 <input
                                     type="date"
                                     value={dueDate}
                                     onChange={(event) =>
-                                        setDueDate(
-                                            event.target.value,
-                                        )
+                                        setDueDate(event.target.value)
                                     }
-                                    className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 pl-9 text-sm text-[var(--foreground)] outline-none focus:border-[var(--foreground-secondary)]"
+                                    className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 pl-9 text-sm"
                                 />
                             </div>
                         </div>
@@ -280,75 +317,91 @@ export default function AddProjectModal({
                                 type="button"
                                 onClick={() =>
                                     setLeadOpen(
-                                        (current) =>
-                                            !current,
+                                        (current) => !current,
                                     )
                                 }
                                 className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
                             >
                                 <img
-                                    src="https://i.pravatar.cc/100?img=47"
-                                    alt="Admin"
+                                    src={
+                                        user?.avatar ||
+                                        "/default-avatar.jpeg"
+                                    }
+                                    alt={user?.name || "User"}
                                     className="h-5 w-5 rounded-full object-cover"
                                 />
 
                                 <span className="flex-1 text-sm text-[var(--foreground)]">
-                                    {lead}
+                                    {user?.name || "User"}
                                 </span>
 
-                                <ChevronDown
-                                    size={14}
-                                    className="text-[var(--foreground-secondary)]"
-                                />
+                                <ChevronDown size={14} />
                             </button>
 
                             {leadOpen && (
-                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            setLead("Admin");
+                                            setLead(
+                                                user?.name || "User",
+                                            );
                                             setLeadOpen(false);
                                         }}
                                         className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-[var(--surface-secondary)]"
                                     >
                                         <img
-                                            src="https://i.pravatar.cc/100?img=47"
-                                            alt="Admin"
+                                            src={
+                                                user?.avatar ||
+                                                "/default-avatar.jpeg"
+                                            }
+                                            alt={user?.name || "User"}
                                             className="h-5 w-5 rounded-full object-cover"
                                         />
 
                                         <span className="flex-1 text-left text-sm">
-                                            Admin
+                                            {user?.name || "User"}
                                         </span>
 
-                                        {lead === "Admin" && (
-                                            <Check size={14} />
-                                        )}
+                                        <Check size={14} />
                                     </button>
                                 </div>
                             )}
                         </div>
                     </div>
+
+                    {error && (
+                        <p className="text-xs text-red-500">
+                            {error}
+                        </p>
+                    )}
                 </div>
 
                 <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] p-4">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="h-9 rounded-md px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                        disabled={isSubmitting}
+                        className="h-9 rounded-md px-3 text-sm font-medium hover:bg-[var(--surface-secondary)]"
                     >
                         Cancel
                     </button>
 
                     <button
                         type="button"
-                        disabled={!title.trim()}
+                        disabled={
+                            !title.trim() ||
+                            !user?.id ||
+                            isSubmitting
+                        }
                         onClick={handleSubmit}
                         className="flex h-9 items-center gap-1.5 rounded-md bg-[var(--foreground)] px-3 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         <Plus size={14} />
-                        Create Project
+
+                        {isSubmitting
+                            ? "Creating..."
+                            : "Create Project"}
                     </button>
                 </div>
             </div>
