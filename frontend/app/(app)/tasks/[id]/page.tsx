@@ -77,7 +77,7 @@ const priorityConfig: Record<
 > = {
   "No Priority": {
     icon: Circle,
-    className: "text-neutral-400",
+    className: "text-[var(--foreground-secondary)]",
   },
   Urgent: {
     icon: SignalHigh,
@@ -306,17 +306,13 @@ export default function TaskDetailsPage() {
             BackendTask =
             await response.json();
 
-          setTitle(
-            task.title,
-          );
+          setTitle(task.title);
 
           setDescription(
             task.description ?? "",
           );
 
-          setStatus(
-            task.status,
-          );
+          setStatus(task.status);
 
           setPriority(
             priorityToFrontend[
@@ -453,8 +449,8 @@ export default function TaskDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <span className="text-sm text-neutral-500">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-[var(--foreground)]">
+        <span className="text-sm text-[var(--foreground-secondary)]">
           Loading task...
         </span>
       </div>
@@ -463,7 +459,7 @@ export default function TaskDetailsPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--background)]">
         <p className="text-sm text-red-500">
           {error}
         </p>
@@ -475,7 +471,7 @@ export default function TaskDetailsPage() {
               "/tasks",
             )
           }
-          className="rounded-md bg-neutral-900 px-4 py-2 text-sm text-white"
+          className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)]"
         >
           Back to Tasks
         </button>
@@ -484,7 +480,7 @@ export default function TaskDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-x-auto bg-white text-neutral-900">
+    <div className="min-h-screen overflow-x-auto bg-[var(--background)] text-[var(--foreground)]">
       <div className="min-w-[1050px]">
         <div className="mx-auto w-full max-w-[1180px] px-4 py-4">
           <div className="grid grid-cols-[minmax(680px,1fr)_323px] gap-5">
@@ -500,7 +496,7 @@ export default function TaskDetailsPage() {
                         ),
                     )
                   }
-                  className="w-full bg-transparent text-2xl font-semibold tracking-[-0.4px] outline-none"
+                  className="w-full bg-transparent text-2xl font-semibold tracking-[-0.4px] text-[var(--foreground)] outline-none"
                 />
 
                 <textarea
@@ -514,21 +510,21 @@ export default function TaskDetailsPage() {
                     )
                   }
                   rows={2}
-                  className="mt-1 w-full resize-none bg-transparent text-sm leading-5 text-neutral-500 outline-none"
+                  className="mt-1 w-full resize-none bg-transparent text-sm leading-5 text-[var(--foreground-secondary)] outline-none"
                 />
               </div>
 
               <div className="flex shrink-0 items-center gap-2 pt-1">
                 <button
                   type="button"
-                  className="flex h-8 items-center gap-2 rounded-md border border-neutral-200 px-3 hover:bg-neutral-50"
+                  className="flex h-8 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                 >
                   <Lock size={14} />
                 </button>
 
                 <button
                   type="button"
-                  className="flex h-8 items-center gap-1.5 rounded-md border border-neutral-200 px-3 text-xs text-indigo-500 hover:bg-neutral-50"
+                  className="flex h-8 items-center gap-1.5 rounded-md border border-[var(--border)] px-3 text-xs text-indigo-500 hover:bg-[var(--surface-secondary)]"
                 >
                   <Eye size={14} />
 
@@ -537,7 +533,7 @@ export default function TaskDetailsPage() {
 
                 <button
                   type="button"
-                  className="flex h-8 items-center rounded-md border border-neutral-200 px-3 hover:bg-neutral-50"
+                  className="flex h-8 items-center rounded-md border border-[var(--border)] px-3 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                 >
                   <Share2 size={14} />
                 </button>
@@ -545,7 +541,7 @@ export default function TaskDetailsPage() {
                 <button
                   type="button"
                   onClick={closeTask}
-                  className="flex h-8 items-center rounded-md border border-neutral-200 bg-neutral-100 px-3 hover:bg-neutral-200"
+                  className="flex h-8 items-center rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-[var(--foreground)] hover:bg-[var(--surface)]"
                 >
                   <X size={15} />
                 </button>
@@ -555,7 +551,7 @@ export default function TaskDetailsPage() {
             <main className="min-w-[680px]">
               <div className="space-y-2">
                 <div className="flex min-h-7 items-center gap-3">
-                  <span className="w-20 text-sm font-medium text-neutral-500">
+                  <span className="w-20 text-sm font-medium text-[var(--foreground-secondary)]">
                     Properties
                   </span>
 
@@ -572,14 +568,14 @@ export default function TaskDetailsPage() {
                           className="h-6 w-6 rounded-full object-cover"
                         />
                       ) : (
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-100 text-xs">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-xs text-[var(--foreground)]">
                           {assignee?.name?.charAt(
                             0,
                           ) ?? "?"}
                         </span>
                       )}
 
-                      <span className="text-sm font-medium">
+                      <span className="text-sm font-medium text-[var(--foreground)]">
                         {assignee?.name ??
                           "Unassigned"}
                       </span>
@@ -588,7 +584,7 @@ export default function TaskDetailsPage() {
                     {dueDate && (
                       <button
                         type="button"
-                        className="flex h-5 items-center gap-1 rounded-full bg-red-100 px-2 text-xs font-medium text-red-600"
+                        className="flex h-5 items-center gap-1 rounded-full bg-red-500/10 px-2 text-xs font-medium text-red-500"
                       >
                         <Calendar
                           size={12}
@@ -603,13 +599,13 @@ export default function TaskDetailsPage() {
                 </div>
 
                 <div className="flex min-h-7 items-center gap-3">
-                  <span className="w-20 text-sm font-medium text-neutral-500">
+                  <span className="w-20 text-sm font-medium text-[var(--foreground-secondary)]">
                     Resources
                   </span>
 
                   <button
                     type="button"
-                    className="flex h-7 items-center gap-1 rounded-full px-2 text-xs font-medium text-neutral-500 hover:bg-neutral-100"
+                    className="flex h-7 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
                   >
                     <FileText
                       size={12}
@@ -621,7 +617,7 @@ export default function TaskDetailsPage() {
               </div>
 
               <section className="mt-6">
-                <div className="mb-3 flex items-center gap-1 text-sm font-medium">
+                <div className="mb-3 flex items-center gap-1 text-sm font-medium text-[var(--foreground)]">
                   <ChevronDown
                     size={16}
                   />
@@ -629,8 +625,8 @@ export default function TaskDetailsPage() {
                   Subtasks
                 </div>
 
-                <div className="overflow-hidden rounded-md border border-neutral-200">
-                  <div className="grid grid-cols-[1.2fr_1fr_1fr_1.2fr_40px] border-b border-neutral-200 text-sm font-medium">
+                <div className="overflow-hidden rounded-md border border-[var(--border)]">
+                  <div className="grid grid-cols-[1.2fr_1fr_1fr_1.2fr_40px] border-b border-[var(--border)] text-sm font-medium text-[var(--foreground)]">
                     <div className="px-3 py-4">
                       Task
                     </div>
@@ -658,7 +654,7 @@ export default function TaskDetailsPage() {
                         key={
                           subtask.id
                         }
-                        className="grid h-11 grid-cols-[1.2fr_1fr_1fr_1.2fr_40px] items-center border-b border-neutral-200 text-sm last:border-b-0"
+                        className="grid h-11 grid-cols-[1.2fr_1fr_1fr_1.2fr_40px] items-center border-b border-[var(--border)] text-sm text-[var(--foreground)] last:border-b-0"
                       >
                         <button
                           type="button"
@@ -679,7 +675,7 @@ export default function TaskDetailsPage() {
 
                         <div className="px-3">
                           {subtask.member ? (
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-100 text-[10px]">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[10px] text-[var(--foreground)]">
                               {
                                 subtask.member
                               }
@@ -687,7 +683,7 @@ export default function TaskDetailsPage() {
                           ) : (
                             <button
                               type="button"
-                              className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-100"
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--foreground)]"
                             >
                               <Plus
                                 size={12}
@@ -716,7 +712,7 @@ export default function TaskDetailsPage() {
 
                   <button
                     type="button"
-                    className="flex h-11 items-center gap-2 px-3 text-xs font-medium hover:bg-neutral-50"
+                    className="flex h-11 items-center gap-2 px-3 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                   >
                     <Plus size={15} />
 
@@ -726,16 +722,16 @@ export default function TaskDetailsPage() {
               </section>
 
               <section className="mt-6">
-                <h3 className="mb-3 text-sm font-medium">
+                <h3 className="mb-3 text-sm font-medium text-[var(--foreground)]">
                   Comments
                 </h3>
 
-                <div className="flex h-16 items-center justify-between rounded-md border border-neutral-200 px-4">
-                  <span className="text-sm text-neutral-500">
+                <div className="flex h-16 items-center justify-between rounded-md border border-[var(--border)] px-4">
+                  <span className="text-sm text-[var(--foreground-secondary)]">
                     Add a comment...
                   </span>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-[var(--foreground)]">
                     <FileText
                       size={16}
                     />
@@ -749,7 +745,7 @@ export default function TaskDetailsPage() {
             </main>
 
             <aside className="w-[323px] min-w-[323px]">
-              <section className="rounded-lg border border-neutral-200 p-3 shadow-sm">
+              <section className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 shadow-sm">
                 <div className="flex items-center justify-between">
                   <button
                     type="button"
@@ -758,7 +754,7 @@ export default function TaskDetailsPage() {
                         !showDetails,
                       )
                     }
-                    className="flex items-center gap-2 text-sm font-medium"
+                    className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]"
                   >
                     {showDetails ? (
                       <ChevronDown
@@ -773,7 +769,7 @@ export default function TaskDetailsPage() {
                     Details
                   </button>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-[var(--foreground)]">
                     <Plus size={16} />
 
                     <Settings
@@ -785,15 +781,14 @@ export default function TaskDetailsPage() {
                 {showDetails && (
                   <div className="mt-5 space-y-5">
                     <div className="grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-[var(--foreground-secondary)]">
                         Status
                       </span>
 
-                      <span className="flex items-center gap-1 text-xs font-medium text-orange-600">
+                      <span className="flex items-center gap-1 text-xs font-medium text-orange-500">
                         <Circle
                           size={12}
                           fill="currentColor"
-                          className="text-orange-500"
                         />
 
                         {
@@ -805,7 +800,7 @@ export default function TaskDetailsPage() {
                     </div>
 
                     <div className="relative grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-[var(--foreground-secondary)]">
                         Priority
                       </span>
 
@@ -816,7 +811,7 @@ export default function TaskDetailsPage() {
                             !showPriorityMenu,
                           )
                         }
-                        className="flex items-center gap-1 text-xs font-medium"
+                        className="flex items-center gap-1 text-xs font-medium text-[var(--foreground)]"
                       >
                         <PriorityBadge
                           priority={
@@ -830,8 +825,8 @@ export default function TaskDetailsPage() {
                       </button>
 
                       {showPriorityMenu && (
-                        <div className="absolute right-0 top-7 z-50 w-52 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg">
-                          <p className="px-2 py-2 text-xs text-neutral-500">
+                        <div className="absolute right-0 top-7 z-50 w-52 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--foreground)] shadow-lg">
+                          <p className="px-2 py-2 text-xs text-[var(--foreground-secondary)]">
                             Priority
                           </p>
 
@@ -860,7 +855,7 @@ export default function TaskDetailsPage() {
                                     false,
                                   );
                                 }}
-                                className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm hover:bg-neutral-100"
+                                className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm hover:bg-[var(--surface-secondary)]"
                               >
                                 <PriorityBadge
                                   priority={
@@ -882,11 +877,11 @@ export default function TaskDetailsPage() {
                     </div>
 
                     <div className="grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-[var(--foreground-secondary)]">
                         Members
                       </span>
 
-                      <span className="flex items-center gap-2 text-xs font-medium">
+                      <span className="flex items-center gap-2 text-xs font-medium text-[var(--foreground)]">
                         <UserRound
                           size={14}
                         />
@@ -897,14 +892,14 @@ export default function TaskDetailsPage() {
                     </div>
 
                     <div className="grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-[var(--foreground-secondary)]">
                         Due Date
                       </span>
 
                       {dueDate ? (
                         <button
                           type="button"
-                          className="flex items-center gap-1 rounded-full border border-neutral-200 px-2 py-1 text-xs"
+                          className="flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-1 text-xs text-[var(--foreground)]"
                         >
                           <Calendar
                             size={12}
@@ -915,7 +910,7 @@ export default function TaskDetailsPage() {
                           )}
                         </button>
                       ) : (
-                        <span className="text-xs text-neutral-400">
+                        <span className="text-xs text-[var(--foreground-secondary)]">
                           No due date
                         </span>
                       )}
@@ -924,7 +919,7 @@ export default function TaskDetailsPage() {
                 )}
               </section>
 
-              <section className="mt-5 rounded-lg border border-neutral-200 p-3 shadow-sm">
+              <section className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 shadow-sm">
                 <button
                   type="button"
                   onClick={() =>
@@ -932,7 +927,7 @@ export default function TaskDetailsPage() {
                       !showUpdates,
                     )
                   }
-                  className="flex items-center gap-2 text-sm font-medium"
+                  className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]"
                 >
                   {showUpdates ? (
                     <ChevronDown
@@ -950,7 +945,7 @@ export default function TaskDetailsPage() {
                 {showUpdates && (
                   <div className="mt-5">
                     <div className="flex gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-50">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500/10">
                         <SignalHigh
                           size={14}
                           className="text-red-500"
@@ -958,11 +953,11 @@ export default function TaskDetailsPage() {
                       </div>
 
                       <div>
-                        <p className="text-sm font-medium">
+                        <p className="text-sm font-medium text-[var(--foreground)]">
                           Task
                         </p>
 
-                        <p className="mt-1 text-xs text-neutral-500">
+                        <p className="mt-1 text-xs text-[var(--foreground-secondary)]">
                           Task details are ready to edit
                         </p>
                       </div>
@@ -976,8 +971,8 @@ export default function TaskDetailsPage() {
       </div>
 
       {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-neutral-200 bg-white px-8 shadow-lg">
-          <span className="mr-3 text-sm text-neutral-500">
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-8 shadow-lg">
+          <span className="mr-3 text-sm text-[var(--foreground-secondary)]">
             You have unsaved changes
           </span>
 
@@ -987,17 +982,15 @@ export default function TaskDetailsPage() {
               setIsDirty(false);
               setSaved(false);
             }}
-            className="rounded-md border border-neutral-200 px-4 py-2 text-sm"
+            className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
           >
             Discard
           </button>
 
           <button
             type="button"
-            onClick={
-              saveChanges
-            }
-            className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white"
+            onClick={saveChanges}
+            className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)]"
           >
             Save Changes
           </button>
@@ -1005,21 +998,21 @@ export default function TaskDetailsPage() {
       )}
 
       {saved && (
-        <div className="fixed bottom-5 right-5 z-50 rounded-md bg-neutral-900 px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed bottom-5 right-5 z-50 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] shadow-lg">
           Changes saved
         </div>
       )}
 
       {showUnsavedModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30">
-          <div className="w-[400px] rounded-xl bg-white p-6 shadow-2xl">
+          <div className="w-[400px] rounded-xl bg-[var(--surface)] p-6 text-[var(--foreground)] shadow-2xl">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-lg font-semibold">
                   Unsaved changes
                 </h2>
 
-                <p className="mt-2 text-sm leading-5 text-neutral-500">
+                <p className="mt-2 text-sm leading-5 text-[var(--foreground-secondary)]">
                   You have made changes to this task. Do you want to save them before closing?
                 </p>
               </div>
@@ -1031,7 +1024,7 @@ export default function TaskDetailsPage() {
                     false,
                   )
                 }
-                className="rounded-md p-1 hover:bg-neutral-100"
+                className="rounded-md p-1 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
               >
                 <X size={18} />
               </button>
@@ -1051,7 +1044,7 @@ export default function TaskDetailsPage() {
                     "/tasks",
                   );
                 }}
-                className="rounded-md border border-neutral-200 px-4 py-2 text-sm"
+                className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
               >
                 Discard
               </button>
@@ -1069,7 +1062,7 @@ export default function TaskDetailsPage() {
                     "/tasks",
                   );
                 }}
-                className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white"
+                className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)]"
               >
                 Save Changes
               </button>

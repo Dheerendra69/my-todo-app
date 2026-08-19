@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import {
   ArrowLeft,
   ChevronsUpDown,
@@ -16,8 +17,15 @@ import {
   User,
 } from "lucide-react";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "../auth/AuthContext";
+import {
+  usePathname,
+  useRouter,
+} from "next/navigation";
+
+import {
+  useAuth,
+} from "../auth/AuthContext";
+
 import {
   useTheme,
   ColorMode,
@@ -42,24 +50,54 @@ const navigation = [
 ];
 
 const colorModes = [
-  { name: "Amber", color: "#D97706" },
-  { name: "Blue", color: "#9333EA" },
-  { name: "Pink", color: "#DB2777" },
-  { name: "Rose", color: "#E11D48" },
-  { name: "Emerald", color: "#059669" },
-  { name: "Black", color: "#171717" },
+  {
+    name: "Amber",
+    color: "#D97706",
+  },
+  {
+    name: "Blue",
+    color: "#9333EA",
+  },
+  {
+    name: "Pink",
+    color: "#DB2777",
+  },
+  {
+    name: "Rose",
+    color: "#E11D48",
+  },
+  {
+    name: "Emerald",
+    color: "#059669",
+  },
+  {
+    name: "Black",
+    color: "#171717",
+  },
 ];
-
-type SettingsItem = "profile" | "theme" | "color";
 
 export default function Sidebar({
   isOpen,
   onClose,
 }: SidebarProps) {
-  const { user, logout } = useAuth();
-  const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(true);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<
+  const {
+    user,
+  } = useAuth();
+
+  const [
+    isWorkspaceOpen,
+    setIsWorkspaceOpen,
+  ] = useState(true);
+
+  const [
+    isProfileOpen,
+    setIsProfileOpen,
+  ] = useState(false);
+
+  const [
+    activeMenu,
+    setActiveMenu,
+  ] = useState<
     "theme" | "color" | null
   >(null);
 
@@ -70,104 +108,163 @@ export default function Sidebar({
     setColorMode,
   } = useTheme();
 
-  // const [isSettingsView, setIsSettingsView] = useState(false);
-  // const [settingsItem, setSettingsItem] =
-  //   useState<SettingsItem>("profile");
+  const router =
+    useRouter();
 
-  const router = useRouter();
-  const pathname = usePathname();
+  const pathname =
+    usePathname();
 
-  const isSettingsView = pathname.startsWith("/settings");
+  const isSettingsView =
+    pathname.startsWith(
+      "/settings",
+    );
 
-  const settingsItem = "profile";
+  const settingsItem =
+    "profile";
 
-  // const [theme, setTheme] = useState<"light" | "dark">("light");
-  // const [colorMode, setColorMode] = useState("Blue");
-
-  const profileRef = useRef<HTMLDivElement>(null);
+  const profileRef =
+    useRef<HTMLDivElement>(
+      null,
+    );
 
   useEffect(() => {
     if (!isOpen) {
-      setIsProfileOpen(false);
-      setActiveMenu(null);
+      setIsProfileOpen(
+        false,
+      );
+
+      setActiveMenu(
+        null,
+      );
     }
   }, [isOpen]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (
+      event: MouseEvent,
+    ) => {
       if (
         profileRef.current &&
-        !profileRef.current.contains(event.target as Node)
+        !profileRef.current.contains(
+          event.target as Node,
+        )
       ) {
-        setIsProfileOpen(false);
-        setActiveMenu(null);
+        setIsProfileOpen(
+          false,
+        );
+
+        setActiveMenu(
+          null,
+        );
       }
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsProfileOpen(false);
-        setActiveMenu(null);
+    const handleEscape = (
+      event: KeyboardEvent,
+    ) => {
+      if (
+        event.key ===
+        "Escape"
+      ) {
+        setIsProfileOpen(
+          false,
+        );
+
+        setActiveMenu(
+          null,
+        );
+
         onClose();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside,
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    );
 
     return () => {
       document.removeEventListener(
         "mousedown",
-        handleClickOutside
+        handleClickOutside,
       );
-      document.removeEventListener("keydown", handleEscape);
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
     };
   }, [onClose]);
 
-  const handleProfileClick = () => {
-    setIsProfileOpen((prev) => !prev);
-    setActiveMenu(null);
-  };
+  const handleProfileClick =
+    () => {
+      setIsProfileOpen(
+        (prev) => !prev,
+      );
 
-  const handleThemeClick = () => {
-    setActiveMenu((prev) =>
-      prev === "theme" ? null : "theme"
-    );
-  };
+      setActiveMenu(
+        null,
+      );
+    };
 
-  const handleColorClick = () => {
-    setActiveMenu((prev) =>
-      prev === "color" ? null : "color"
-    );
-  };
+  const handleThemeClick =
+    () => {
+      setActiveMenu(
+        (prev) =>
+          prev === "theme"
+            ? null
+            : "theme",
+      );
+    };
 
-  // const handleThemeSelect = (value: "light" | "dark") => {
-  //   setTheme(value);
-  //   setActiveMenu(null);
-  // };
+  const handleColorClick =
+    () => {
+      setActiveMenu(
+        (prev) =>
+          prev === "color"
+            ? null
+            : "color",
+      );
+    };
 
-  // const handleColorSelect = (value: string) => {
-  //   setColorMode(value);
-  //   setActiveMenu(null);
-  // };
+  const openSettings =
+    () => {
+      setIsProfileOpen(
+        false,
+      );
 
-  const openSettings = () => {
-    setIsProfileOpen(false);
-    setActiveMenu(null);
-    router.push("/settings/profile");
-  };
+      setActiveMenu(
+        null,
+      );
 
-  const backToApp = () => {
-    setActiveMenu(null);
-    router.push("/tasks");
-  };
+      router.push(
+        "/settings/profile",
+      );
+    };
+
+  const backToApp =
+    () => {
+      setActiveMenu(
+        null,
+      );
+
+      router.push(
+        "/tasks",
+      );
+    };
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-[var(--border)] bg-[var(--surface)] transition-transform duration-200 ${isOpen
-        ? "translate-x-0"
-        : "-translate-x-full"
-        }`}
+      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-[var(--border)] bg-[var(--surface)] transition-transform duration-200 ${
+        isOpen
+          ? "translate-x-0"
+          : "-translate-x-full"
+      }`}
     >
       <div
         ref={profileRef}
@@ -178,7 +275,9 @@ export default function Sidebar({
             <div className="flex h-[52px] w-full items-center p-2">
               <button
                 type="button"
-                onClick={backToApp}
+                onClick={
+                  backToApp
+                }
                 className="flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
               >
                 <ArrowLeft
@@ -210,11 +309,17 @@ export default function Sidebar({
 
               <button
                 type="button"
-                onClick={() => router.push("/settings/profile")}
-                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem === "profile"
-                  ? "bg-[var(--surface-secondary)]"
-                  : "hover:bg-[var(--surface-secondary)]"
-                  }`}
+                onClick={() =>
+                  router.push(
+                    "/settings/profile",
+                  )
+                }
+                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${
+                  settingsItem ===
+                  "profile"
+                    ? "bg-[var(--surface-secondary)]"
+                    : "hover:bg-[var(--surface-secondary)]"
+                }`}
               >
                 <User
                   size={16}
@@ -229,11 +334,10 @@ export default function Sidebar({
 
               <button
                 type="button"
-                onClick={handleThemeClick}
-                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem === "theme"
-                  ? "bg-[var(--surface-secondary)]"
-                  : "hover:bg-[var(--surface-secondary)]"
-                  }`}
+                onClick={
+                  handleThemeClick
+                }
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
               >
                 <Sun
                   size={16}
@@ -248,19 +352,21 @@ export default function Sidebar({
 
               <button
                 type="button"
-                onClick={handleColorClick}
-                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem === "color"
-                  ? "bg-[var(--surface-secondary)]"
-                  : "hover:bg-[var(--surface-secondary)]"
-                  }`}
+                onClick={
+                  handleColorClick
+                }
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
               >
                 <div
                   className="h-4 w-4 shrink-0 rounded-xs"
                   style={{
                     backgroundColor:
                       colorModes.find(
-                        (item) => item.name === colorMode
-                      )?.color || "#171717",
+                        (item) =>
+                          item.name ===
+                          colorMode,
+                      )?.color ||
+                      "#171717",
                   }}
                 />
 
@@ -275,20 +381,29 @@ export default function Sidebar({
             <div className="flex h-16 w-full items-center p-2">
               <button
                 type="button"
-                onClick={handleProfileClick}
+                onClick={
+                  handleProfileClick
+                }
                 className="flex h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--surface-secondary)]">
                   <img
-                    src={user?.avatar || "/default-avatar.jpeg"}
-                    alt={user?.name || "User"}
+                    src={
+                      user?.avatar ||
+                      "/default-avatar.jpeg"
+                    }
+                    alt={
+                      user?.name ||
+                      "User"
+                    }
                     className="h-full w-full object-cover"
                   />
                 </div>
 
                 <div className="flex min-w-0 flex-1 items-center">
-                  <span className="truncate text-sm font-medium leading-5 text-[#0A0A0A]">
-                    {user?.name || "User"}
+                  <span className="truncate text-sm font-medium leading-5 text-[var(--foreground)]">
+                    {user?.name ||
+                      "User"}
                   </span>
                 </div>
 
@@ -301,33 +416,43 @@ export default function Sidebar({
             </div>
 
             {isProfileOpen && (
-              <div className="absolute left-4 top-[107px] z-50 w-[240px] max-w-[calc(100vw-32px)] rounded-md border border-[#0A0A0A0D] bg-[var(--background)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
+              <div className="absolute left-4 top-[107px] z-50 w-[240px] max-w-[calc(100vw-32px)] rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
                 <div className="flex h-[120px] w-full flex-col items-center justify-center gap-4 px-3">
                   <div className="h-10 w-10 overflow-hidden rounded-full bg-[var(--surface-secondary)]">
                     <img
-                      src={user?.avatar || "/default-avatar.jpeg"}
-                      alt={user?.name || "User"}
+                      src={
+                        user?.avatar ||
+                        "/default-avatar.jpeg"
+                      }
+                      alt={
+                        user?.name ||
+                        "User"
+                      }
                       className="h-full w-full object-cover"
                     />
                   </div>
 
                   <div className="flex w-full min-w-0 flex-col items-center">
                     <span className="max-w-[109px] truncate text-sm font-normal leading-4 text-[var(--foreground)]">
-                      {user?.name || "User"}
+                      {user?.name ||
+                        "User"}
                     </span>
 
-                    <span className="max-w-[109px] truncate text-xs font-medium leading-4 text-[#6B7280]">
-                      {user?.email || "Guest account"}
+                    <span className="max-w-[109px] truncate text-xs font-medium leading-4 text-[var(--foreground-secondary)]">
+                      {user?.email ||
+                        "Guest account"}
                     </span>
                   </div>
                 </div>
 
-                <div className="h-px w-full bg-[#0A0A0A0D]" />
+                <div className="h-px w-full bg-[var(--border)]" />
 
                 <div className="relative mt-1 flex flex-col gap-1">
                   <button
                     type="button"
-                    onClick={handleThemeClick}
+                    onClick={
+                      handleThemeClick
+                    }
                     className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[var(--surface-secondary)]"
                   >
                     <Sun
@@ -349,7 +474,9 @@ export default function Sidebar({
 
                   <button
                     type="button"
-                    onClick={handleColorClick}
+                    onClick={
+                      handleColorClick
+                    }
                     className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[var(--surface-secondary)]"
                   >
                     <div
@@ -357,8 +484,11 @@ export default function Sidebar({
                       style={{
                         backgroundColor:
                           colorModes.find(
-                            (item) => item.name === colorMode
-                          )?.color || "#9333EA",
+                            (item) =>
+                              item.name ===
+                              colorMode,
+                          )?.color ||
+                          "#9333EA",
                       }}
                     />
 
@@ -375,7 +505,9 @@ export default function Sidebar({
 
                   <button
                     type="button"
-                    onClick={openSettings}
+                    onClick={
+                      openSettings
+                    }
                     className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[var(--surface-secondary)]"
                   >
                     <Settings
@@ -389,7 +521,6 @@ export default function Sidebar({
                     </span>
                   </button>
                 </div>
-
               </div>
             )}
 
@@ -397,19 +528,24 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={() =>
-                  setIsWorkspaceOpen((prev) => !prev)
+                  setIsWorkspaceOpen(
+                    (prev) => !prev,
+                  )
                 }
                 className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left hover:bg-[var(--surface-secondary)]"
               >
-                <span className="text-sm font-medium leading-5 text-[#0A0A0A]">
+                <span className="text-sm font-medium leading-5 text-[var(--foreground)]">
                   Workspace
                 </span>
 
                 <ChevronDown
                   size={16}
                   strokeWidth={2}
-                  className={`text-[var(--foreground)] transition-transform ${isWorkspaceOpen ? "" : "rotate-180"
-                    }`}
+                  className={`text-[var(--foreground)] transition-transform ${
+                    isWorkspaceOpen
+                      ? ""
+                      : "rotate-180"
+                  }`}
                 />
               </button>
             </div>
@@ -417,46 +553,71 @@ export default function Sidebar({
             {isWorkspaceOpen && (
               <nav className="w-full px-2">
                 <div className="flex w-full flex-col">
-                  {navigation.map((item) => {
-                    const Icon = item.icon;
-                    const isActive =
-                      pathname === item.route ||
-                      pathname.startsWith(`${item.route}/`);
+                  {navigation.map(
+                    (item) => {
+                      const Icon =
+                        item.icon;
 
-                    return (
-                      <button
-                        key={item.label}
-                        type="button"
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          setActiveMenu(null);
-                          router.push(item.route);
-                        }}
-                        className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left ${isActive
-                          ? "bg-[var(--surface-secondary)] text-[var(--foreground)]"
-                          : "text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                      const isActive =
+                        pathname ===
+                          item.route ||
+                        pathname.startsWith(
+                          `${item.route}/`,
+                        );
+
+                      return (
+                        <button
+                          key={
+                            item.label
+                          }
+                          type="button"
+                          onClick={() => {
+                            setIsProfileOpen(
+                              false,
+                            );
+
+                            setActiveMenu(
+                              null,
+                            );
+
+                            router.push(
+                              item.route,
+                            );
+                          }}
+                          className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left ${
+                            isActive
+                              ? "bg-[var(--surface-secondary)] text-[var(--foreground)]"
+                              : "text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                           }`}
-                      >
-                        <Icon size={16} strokeWidth={2} />
+                        >
+                          <Icon
+                            size={16}
+                            strokeWidth={2}
+                          />
 
-                        <span className="text-sm font-medium leading-[100%]">
-                          {item.label}
-                        </span>
-                      </button>
-                    );
-                  })}
+                          <span className="text-sm font-medium leading-[100%]">
+                            {
+                              item.label
+                            }
+                          </span>
+                        </button>
+                      );
+                    },
+                  )}
                 </div>
               </nav>
             )}
           </>
         )}
 
-        {activeMenu === "theme" && (
+        {activeMenu ===
+          "theme" && (
           <div
-            className={`absolute z-[60] w-[192px] rounded-md border border-[#0A0A0A0D] bg-[var(--background)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
-              ? "left-[calc(100%-80px)] top-[150px] md:left-[calc(100%-80px)] md:top-[150px]"
-              : "left-[calc(100%-60px)] top-[250px] md:left-[calc(100%+20px)] md:top-[250px]"
-              }`}
+            className={`absolute z-[60] w-[192px] rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${
+              isSettingsView
+                ? "left-[calc(100%-80px)] top-[150px] md:left-[calc(100%-80px)] md:top-[150px]"
+                : "left-[calc(100%-60px)] top-[250px] md:left-[calc(100%+20px)] md:top-[250px]"
+            }`}
           >
             <div className="flex h-9 items-center px-3 py-2">
               <span className="text-sm font-medium leading-5 text-[var(--foreground-secondary)]">
@@ -467,49 +628,75 @@ export default function Sidebar({
             <button
               type="button"
               onClick={() => {
-                setTheme("light");
-                setActiveMenu(null);
+                setTheme(
+                  "light",
+                );
+
+                setActiveMenu(
+                  null,
+                );
               }}
-              className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[var(--surface-secondary)]"
+              className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
             >
-              <Sun size={16} strokeWidth={2} />
+              <Sun
+                size={16}
+                strokeWidth={2}
+              />
 
               <span className="min-w-0 flex-1 text-left text-sm">
                 Light
               </span>
 
-              {theme === "light" && (
-                <Check size={16} strokeWidth={2} />
+              {theme ===
+                "light" && (
+                <Check
+                  size={16}
+                  strokeWidth={2}
+                />
               )}
             </button>
 
             <button
               type="button"
               onClick={() => {
-                setTheme("dark");
-                setActiveMenu(null);
+                setTheme(
+                  "dark",
+                );
+
+                setActiveMenu(
+                  null,
+                );
               }}
-              className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[var(--surface-secondary)]"
+              className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
             >
-              <Moon size={16} strokeWidth={2} />
+              <Moon
+                size={16}
+                strokeWidth={2}
+              />
 
               <span className="min-w-0 flex-1 text-left text-sm">
                 Dark
               </span>
 
-              {theme === "dark" && (
-                <Check size={16} strokeWidth={2} />
+              {theme ===
+                "dark" && (
+                <Check
+                  size={16}
+                  strokeWidth={2}
+                />
               )}
             </button>
           </div>
         )}
 
-        {activeMenu === "color" && (
+        {activeMenu ===
+          "color" && (
           <div
-            className={`absolute z-[60] w-[192px] rounded-md border border-[#0A0A0A0D] bg-[var(--background)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
-              ? "left-[calc(100%-80px)] top-[200px] md:left-[calc(100%-80px)] md:top-[200px]"
-              : "left-[calc(100%-60px)] top-[300px] md:left-[calc(100%+20px)] md:top-[300px]"
-              }`}
+            className={`absolute z-[60] w-[192px] rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${
+              isSettingsView
+                ? "left-[calc(100%-80px)] top-[200px] md:left-[calc(100%-80px)] md:top-[200px]"
+                : "left-[calc(100%-60px)] top-[300px] md:left-[calc(100%+20px)] md:top-[300px]"
+            }`}
           >
             <div className="flex h-9 items-center px-3 py-2">
               <span className="text-sm font-medium leading-5 text-[var(--foreground-secondary)]">
@@ -517,35 +704,48 @@ export default function Sidebar({
               </span>
             </div>
 
-            {colorModes.map((item) => (
-              <button
-                key={item.name}
-                type="button"
-                onClick={() => {
-                  setColorMode(item.name as ColorMode);
-                  setActiveMenu(null);
-                }}
-                className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 hover:bg-[var(--surface-secondary)]"
-              >
-                <span
-                  className="h-4 w-4 shrink-0 rounded-xs"
-                  style={{
-                    backgroundColor: item.color,
+            {colorModes.map(
+              (item) => (
+                <button
+                  key={
+                    item.name
+                  }
+                  type="button"
+                  onClick={() => {
+                    setColorMode(
+                      item.name as ColorMode,
+                    );
+
+                    setActiveMenu(
+                      null,
+                    );
                   }}
-                />
-
-                <span className="min-w-0 flex-1 truncate text-left text-sm font-normal text-[var(--foreground)]">
-                  {item.name}
-                </span>
-
-                {colorMode === item.name && (
-                  <Check
-                    size={16}
-                    strokeWidth={2}
+                  className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                >
+                  <span
+                    className="h-4 w-4 shrink-0 rounded-xs"
+                    style={{
+                      backgroundColor:
+                        item.color,
+                    }}
                   />
-                )}
-              </button>
-            ))}
+
+                  <span className="min-w-0 flex-1 truncate text-left text-sm font-normal">
+                    {
+                      item.name
+                    }
+                  </span>
+
+                  {colorMode ===
+                    item.name && (
+                    <Check
+                      size={16}
+                      strokeWidth={2}
+                    />
+                  )}
+                </button>
+              ),
+            )}
           </div>
         )}
       </div>
