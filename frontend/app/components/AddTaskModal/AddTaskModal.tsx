@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import {
+    useEffect,
+    useState,
+} from "react";
+
 import {
     Calendar,
     Check,
@@ -11,94 +15,350 @@ import {
     X,
 } from "lucide-react";
 
-type Priority = "High" | "Medium" | "Low";
+type Priority =
+    | "No Priority"
+    | "Urgent"
+    | "High"
+    | "Medium"
+    | "Low";
+
+type TaskStatus =
+    | "todo"
+    | "doing"
+    | "completed"
+    | "on_hold";
+
+type Status =
+    | "To Do"
+    | "Doing"
+    | "Completed"
+    | "On Hold";
+
+type CreatedTask = {
+    id: string;
+    title: string;
+    description: string;
+    priority: Priority;
+    member: string;
+    avatar?: string;
+    dueDate: string;
+    status: TaskStatus;
+};
+
+type BackendCreatedTask = {
+    id: string;
+    title: string;
+    description: string | null;
+    priority:
+    | "no_priority"
+    | "urgent"
+    | "high"
+    | "medium"
+    | "low";
+    dueDate: string | null;
+    status: TaskStatus;
+    assignee: {
+        id: string;
+        name: string;
+        avatar?: string | null;
+    } | null;
+};
 
 type AddTaskModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    onCreate: (task: {
-        id: number | string;
-        title: string;
-        description: string;
-        priority: Priority;
-        member: string;
-        dueDate: string;
-        status: string;
-    }) => void;
+    onCreate: (
+        task: CreatedTask,
+    ) => void;
+    projectId: string;
+    assigneeId?: string;
+    defaultStatus: TaskStatus;
 };
 
 const priorities: Priority[] = [
+    "No Priority",
+    "Urgent",
     "High",
     "Medium",
     "Low",
 ];
 
+const statuses: Status[] = [
+    "To Do",
+    "Doing",
+    "Completed",
+    "On Hold",
+];
+
 const priorityStyles = {
+    "No Priority": {
+        text: "text-[#9CA3AF]",
+    },
+    Urgent: {
+        text: "text-[#DC2626]",
+    },
     High: {
         text: "text-[#EF4444]",
-        icon: "text-[#EF4444]",
     },
     Medium: {
         text: "text-[#F97316]",
-        icon: "text-[#F97316]",
     },
     Low: {
         text: "text-[#9CA3AF]",
-        icon: "text-[#9CA3AF]",
     },
 };
+
+const priorityApiValues = {
+    "No Priority": "no_priority",
+    Urgent: "urgent",
+    High: "high",
+    Medium: "medium",
+    Low: "low",
+};
+
+const priorityLabels = {
+    no_priority: "No Priority",
+    urgent: "Urgent",
+    high: "High",
+    medium: "Medium",
+    low: "Low",
+} as const;
+
+const statusApiValues: Record<
+    Status,
+    TaskStatus
+> = {
+    "To Do": "todo",
+    Doing: "doing",
+    Completed: "completed",
+    "On Hold": "on_hold",
+};
+
+const statusLabels: Record<
+    TaskStatus,
+    Status
+> = {
+    todo: "To Do",
+    doing: "Doing",
+    completed: "Completed",
+    on_hold: "On Hold",
+};
+
+function formatDueDate(
+    dueDate: string | null,
+) {
+    if (!dueDate) {
+        return "";
+    }
+
+    return new Date(
+        dueDate,
+    ).toLocaleDateString(
+        "en-GB",
+        {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        },
+    );
+}
 
 export default function AddTaskModal({
     isOpen,
     onClose,
     onCreate,
+    projectId,
+    assigneeId,
+    defaultStatus,
 }: AddTaskModalProps) {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [priority, setPriority] =
-        useState<Priority>("Medium");
-    const [member, setMember] = useState("Admin");
-    const [dueDate, setDueDate] = useState("");
-    const [status, setStatus] = useState("To Do");
+    const [title, setTitle] =
+        useState("");
 
-    const [priorityOpen, setPriorityOpen] =
-        useState(false);
-    const [memberOpen, setMemberOpen] =
-        useState(false);
-    const [statusOpen, setStatusOpen] =
-        useState(false);
+    const [
+        description,
+        setDescription,
+    ] = useState("");
+
+    const [
+        priority,
+        setPriority,
+    ] = useState<Priority>(
+        "No Priority",
+    );
+
+    const [member, setMember] =
+        useState("Admin");
+
+    const [dueDate, setDueDate] =
+        useState("");
+
+    const [status, setStatus] =
+        useState<Status>("To Do");
+
+    const [
+        priorityOpen,
+        setPriorityOpen,
+    ] = useState(false);
+
+    const [
+        memberOpen,
+        setMemberOpen,
+    ] = useState(false);
+
+    const [
+        statusOpen,
+        setStatusOpen,
+    ] = useState(false);
+
+    const [
+        isSubmitting,
+        setIsSubmitting,
+    ] = useState(false);
+
+    const [error, setError] =
+        useState("");
+
+    useEffect(() => {
+        if (isOpen) {
+            setStatus(
+                statusLabels[
+                defaultStatus
+                ],
+            );
+        }
+    }, [
+        isOpen,
+        defaultStatus,
+    ]);
 
     if (!isOpen) {
         return null;
     }
 
-    const handleSubmit = () => {
-        if (!title.trim()) {
+    const resetForm = () => {
+        setTitle("");
+        setDescription("");
+        setPriority("No Priority");
+        setMember("Admin");
+        setDueDate("");
+        setStatus(
+            statusLabels[
+            defaultStatus
+            ],
+        );
+        setError("");
+    };
+
+    const handleSubmit = async () => {
+        if (
+            !title.trim() ||
+            isSubmitting
+        ) {
             return;
         }
 
-        onCreate({
-            id: Date.now(),
-            title: title.trim(),
-            description: description.trim(),
-            priority,
-            member,
-            dueDate,
-            status,
-        });
+        if (!projectId) {
+            setError(
+                "Please create a project before creating a task.",
+            );
+            return;
+        }
 
-        setTitle("");
-        setDescription("");
-        setPriority("Medium");
-        setMember("Admin");
-        setDueDate("");
-        setStatus("To Do");
+        try {
+            setIsSubmitting(true);
+            setError("");
 
-        onClose();
+            const response =
+                await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/tasks`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                        },
+                        body: JSON.stringify({
+                            title:
+                                title.trim(),
+                            description:
+                                description.trim() ||
+                                undefined,
+                            priority:
+                                priorityApiValues[
+                                priority
+                                ],
+                            status:
+                                statusApiValues[
+                                status
+                                ],
+                            dueDate:
+                                dueDate ||
+                                undefined,
+                            projectId,
+                            assigneeId:
+                                assigneeId ||
+                                undefined,
+                        }),
+                    },
+                );
+
+            const data:
+                BackendCreatedTask =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    Array.isArray(
+                        data as unknown,
+                    )
+                        ? "Failed to create task"
+                        : (
+                            data as unknown as {
+                                message?: string;
+                            }
+                        ).message ||
+                        "Failed to create task",
+                );
+            }
+
+            onCreate({
+                id: data.id,
+                title: data.title,
+                description:
+                    data.description ??
+                    "",
+                priority:
+                    priorityLabels[
+                    data.priority
+                    ],
+                member:
+                    data.assignee?.name ??
+                    member,
+                avatar:
+                    data.assignee?.avatar ??
+                    undefined,
+                dueDate: formatDueDate(
+                    data.dueDate,
+                ),
+                status: data.status,
+            });
+
+            resetForm();
+            onClose();
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create task",
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const priorityIcon =
-        priority === "Low" ? (
+        priority === "Low" ||
+            priority === "No Priority" ? (
             <SignalLow size={14} />
         ) : (
             <SignalHigh size={14} />
@@ -129,6 +389,9 @@ export default function AddTaskModal({
                     <button
                         type="button"
                         onClick={onClose}
+                        disabled={
+                            isSubmitting
+                        }
                         className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
                     >
                         <X size={16} />
@@ -143,8 +406,13 @@ export default function AddTaskModal({
 
                         <input
                             value={title}
-                            onChange={(event) =>
-                                setTitle(event.target.value)
+                            onChange={(
+                                event,
+                            ) =>
+                                setTitle(
+                                    event.target
+                                        .value,
+                                )
                             }
                             placeholder="What needs to be done?"
                             className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
@@ -157,9 +425,16 @@ export default function AddTaskModal({
                         </label>
 
                         <textarea
-                            value={description}
-                            onChange={(event) =>
-                                setDescription(event.target.value)
+                            value={
+                                description
+                            }
+                            onChange={(
+                                event,
+                            ) =>
+                                setDescription(
+                                    event.target
+                                        .value,
+                                )
                             }
                             placeholder="Add a description..."
                             rows={3}
@@ -178,7 +453,9 @@ export default function AddTaskModal({
                                     type="button"
                                     onClick={() =>
                                         setPriorityOpen(
-                                            (current) =>
+                                            (
+                                                current,
+                                            ) =>
                                                 !current,
                                         )
                                     }
@@ -188,33 +465,42 @@ export default function AddTaskModal({
                                         className={
                                             priorityStyles[
                                                 priority
-                                            ].text
+                                            ]
+                                                .text
                                         }
                                     >
-                                        {priorityIcon}
+                                        {
+                                            priorityIcon
+                                        }
                                     </span>
 
                                     <span className="flex-1 text-sm text-[var(--foreground)]">
-                                        {priority}
+                                        {
+                                            priority
+                                        }
                                     </span>
 
                                     <ChevronDown
                                         size={14}
-                                        className="text-[var(--foreground-secondary)]"
                                     />
                                 </button>
 
                                 {priorityOpen && (
                                     <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
                                         {priorities.map(
-                                            (item) => (
+                                            (
+                                                item,
+                                            ) => (
                                                 <button
-                                                    key={item}
+                                                    key={
+                                                        item
+                                                    }
                                                     type="button"
                                                     onClick={() => {
                                                         setPriority(
                                                             item,
                                                         );
+
                                                         setPriorityOpen(
                                                             false,
                                                         );
@@ -225,11 +511,14 @@ export default function AddTaskModal({
                                                         className={
                                                             priorityStyles[
                                                                 item
-                                                            ].text
+                                                            ]
+                                                                .text
                                                         }
                                                     >
                                                         {item ===
-                                                            "Low" ? (
+                                                            "Low" ||
+                                                            item ===
+                                                            "No Priority" ? (
                                                             <SignalLow
                                                                 size={
                                                                     14
@@ -245,7 +534,9 @@ export default function AddTaskModal({
                                                     </span>
 
                                                     <span className="flex-1 text-left text-sm">
-                                                        {item}
+                                                        {
+                                                            item
+                                                        }
                                                     </span>
 
                                                     {priority ===
@@ -272,18 +563,24 @@ export default function AddTaskModal({
                             <div className="relative">
                                 <Calendar
                                     size={14}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-secondary)]"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2"
                                 />
 
                                 <input
                                     type="date"
-                                    value={dueDate}
-                                    onChange={(event) =>
+                                    value={
+                                        dueDate
+                                    }
+                                    onChange={(
+                                        event,
+                                    ) =>
                                         setDueDate(
-                                            event.target.value,
+                                            event
+                                                .target
+                                                .value,
                                         )
                                     }
-                                    className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 pl-9 text-sm text-[var(--foreground)] outline-none focus:border-[var(--foreground-secondary)]"
+                                    className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 pl-9 text-sm text-[var(--foreground)]"
                                 />
                             </div>
                         </div>
@@ -299,59 +596,50 @@ export default function AddTaskModal({
                                 type="button"
                                 onClick={() =>
                                     setMemberOpen(
-                                        (current) =>
+                                        (
+                                            current,
+                                        ) =>
                                             !current,
                                     )
                                 }
                                 className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
                             >
-                                <div className="flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-[var(--surface-secondary)]">
-                                    <img
-                                        src="https://i.pravatar.cc/100?img=47"
-                                        alt="Admin"
-                                        className="h-full w-full object-cover"
-                                    />
-                                </div>
-
                                 <span className="flex-1 text-sm text-[var(--foreground)]">
                                     {member}
                                 </span>
 
                                 <ChevronDown
                                     size={14}
-                                    className="text-[var(--foreground-secondary)]"
                                 />
                             </button>
 
                             {memberOpen && (
-                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            setMember("Admin");
+                                            setMember(
+                                                "Admin",
+                                            );
+
                                             setMemberOpen(
                                                 false,
                                             );
                                         }}
-                                        className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                        className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
                                     >
-                                        <div className="h-5 w-5 overflow-hidden rounded-full">
-                                            <img
-                                                src="https://i.pravatar.cc/100?img=47"
-                                                alt="Admin"
-                                                className="h-full w-full object-cover"
-                                            />
-                                        </div>
-
-                                        <span className="flex-1 text-left text-sm">
+                                        <span className="flex-1 text-left text-sm text-[var(--foreground)]">
                                             Admin
                                         </span>
 
-                                        {member === "Admin" && (
-                                            <Check
-                                                size={14}
-                                            />
-                                        )}
+                                        {member ===
+                                            "Admin" && (
+                                                <Check
+                                                    size={
+                                                        14
+                                                    }
+                                                />
+                                            )}
                                     </button>
                                 </div>
                             )}
@@ -368,7 +656,9 @@ export default function AddTaskModal({
                                 type="button"
                                 onClick={() =>
                                     setStatusOpen(
-                                        (current) =>
+                                        (
+                                            current,
+                                        ) =>
                                             !current,
                                     )
                                 }
@@ -380,53 +670,67 @@ export default function AddTaskModal({
 
                                 <ChevronDown
                                     size={14}
-                                    className="text-[var(--foreground-secondary)]"
                                 />
                             </button>
 
                             {statusOpen && (
-                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
-                                    {[
-                                        "To Do",
-                                        "Doing",
-                                        "Completed",
-                                        "On Hold",
-                                    ].map((item) => (
-                                        <button
-                                            key={item}
-                                            type="button"
-                                            onClick={() => {
-                                                setStatus(
-                                                    item,
-                                                );
-                                                setStatusOpen(
-                                                    false,
-                                                );
-                                            }}
-                                            className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
-                                        >
-                                            <span className="flex-1 text-left text-sm">
-                                                {item}
-                                            </span>
+                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
+                                    {statuses.map(
+                                        (
+                                            item,
+                                        ) => (
+                                            <button
+                                                key={
+                                                    item
+                                                }
+                                                type="button"
+                                                onClick={() => {
+                                                    setStatus(
+                                                        item,
+                                                    );
 
-                                            {status ===
-                                                item && (
-                                                    <Check
-                                                        size={14}
-                                                    />
-                                                )}
-                                        </button>
-                                    ))}
+                                                    setStatusOpen(
+                                                        false,
+                                                    );
+                                                }}
+                                                className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                            >
+                                                <span className="flex-1 text-left text-sm text-[var(--foreground)]">
+                                                    {
+                                                        item
+                                                    }
+                                                </span>
+
+                                                {status ===
+                                                    item && (
+                                                        <Check
+                                                            size={
+                                                                14
+                                                            }
+                                                        />
+                                                    )}
+                                            </button>
+                                        ),
+                                    )}
                                 </div>
                             )}
                         </div>
                     </div>
+
+                    {error && (
+                        <p className="text-xs text-red-500">
+                            {error}
+                        </p>
+                    )}
                 </div>
 
                 <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] p-4">
                     <button
                         type="button"
                         onClick={onClose}
+                        disabled={
+                            isSubmitting
+                        }
                         className="h-9 rounded-md px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                     >
                         Cancel
@@ -434,12 +738,20 @@ export default function AddTaskModal({
 
                     <button
                         type="button"
-                        disabled={!title.trim()}
-                        onClick={handleSubmit}
+                        disabled={
+                            !title.trim() ||
+                            isSubmitting
+                        }
+                        onClick={
+                            handleSubmit
+                        }
                         className="flex h-9 items-center gap-1.5 rounded-md bg-[var(--foreground)] px-3 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         <Plus size={14} />
-                        Create Task
+
+                        {isSubmitting
+                            ? "Creating..."
+                            : "Create Task"}
                     </button>
                 </div>
             </div>
