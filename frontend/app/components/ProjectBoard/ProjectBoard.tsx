@@ -1,7 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  createPortal,
+} from "react-dom";
+
+import {
+  Check,
+  ChevronRight,
   Columns3,
   MoreHorizontal,
   Plus,
@@ -15,13 +27,17 @@ import AddProjectModal, {
   type Project,
 } from "../AddProjectModal/AddProjectModal";
 
-import type { ViewMode } from "../FieldsPopover/FieldsPopOver";
+import type {
+  ViewMode,
+} from "../FieldsPopover/FieldsPopOver";
 
 import {
   type FilterState,
 } from "../TaskFilter/TaskFilter";
 
-import { useAuth } from "../auth/AuthContext";
+import {
+  useAuth,
+} from "../auth/AuthContext";
 
 type Priority =
   | "High"
@@ -53,7 +69,16 @@ const initialFilters: FilterState = {
   reporter: [],
 };
 
-const priorityStyles = {
+const priorityOptions: Priority[] = [
+  "High",
+  "Medium",
+  "Low",
+];
+
+const priorityStyles: Record<
+  Priority,
+  string
+> = {
   High: "text-[#EF4444]",
   Medium: "text-[#F97316]",
   Low: "text-[#9CA3AF]",
@@ -109,30 +134,272 @@ function ProjectMember({
   );
 }
 
-function ProjectRow({
+function ProjectActionMenu({
   project,
+  anchorRef,
+  onClose,
+  onPriorityChange,
 }: {
   project: Project;
+  anchorRef: React.RefObject<
+    HTMLButtonElement | null
+  >;
+  onClose: () => void;
+  onPriorityChange: (
+    projectId: string,
+    priority: Priority,
+  ) => void;
 }) {
+  const [
+    activeMenu,
+    setActiveMenu,
+  ] = useState(false);
+
+  const [
+    position,
+    setPosition,
+  ] = useState({
+    top: 0,
+    left: 0,
+  });
+
+  const menuRef =
+    useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const updatePosition = () => {
+      if (!anchorRef.current) {
+        return;
+      }
+
+      const rect =
+        anchorRef.current.getBoundingClientRect();
+
+      setPosition({
+        top: rect.top,
+        left:
+          rect.right - 192,
+      });
+    };
+
+    updatePosition();
+
+    window.addEventListener(
+      "resize",
+      updatePosition,
+    );
+
+    window.addEventListener(
+      "scroll",
+      updatePosition,
+      true,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "resize",
+        updatePosition,
+      );
+
+      window.removeEventListener(
+        "scroll",
+        updatePosition,
+        true,
+      );
+    };
+  }, [anchorRef]);
+
+  useEffect(() => {
+    const handleOutsideClick = (
+      event: MouseEvent,
+    ) => {
+      const target =
+        event.target as Node;
+
+      if (
+        menuRef.current?.contains(
+          target,
+        )
+      ) {
+        return;
+      }
+
+      if (
+        anchorRef.current?.contains(
+          target,
+        )
+      ) {
+        return;
+      }
+
+      onClose();
+    };
+
+    const handleEscape = (
+      event: KeyboardEvent,
+    ) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleOutsideClick,
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick,
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
+    };
+  }, [
+    anchorRef,
+    onClose,
+  ]);
+
+  if (
+    typeof document ===
+    "undefined"
+  ) {
+    return null;
+  }
+
+  return createPortal(
+    <div
+      ref={menuRef}
+      style={{
+        position: "fixed",
+        top: position.top,
+        left: position.left,
+      }}
+      className="z-[9999] flex gap-2"
+    >
+      <div className="relative w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+        <button
+          type="button"
+          onClick={() =>
+            setActiveMenu(
+              !activeMenu,
+            )
+          }
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeMenu
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
+            }`}
+        >
+          <SignalHigh
+            size={18}
+            strokeWidth={1.8}
+          />
+
+          <span className="text-sm">
+            Priority
+          </span>
+
+          <ChevronRight
+            size={16}
+            className="ml-auto"
+          />
+        </button>
+      </div>
+
+      {activeMenu && (
+        <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+          <div className="flex h-9 items-center px-3">
+            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+              Priority
+            </span>
+          </div>
+
+          {priorityOptions.map(
+            (option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  onPriorityChange(
+                    project.id,
+                    option,
+                  );
+
+                  onClose();
+                }}
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+              >
+                <span className="flex h-4 w-4 items-center justify-center">
+                  {project.priority ===
+                    option && (
+                      <Check
+                        size={16}
+                      />
+                    )}
+                </span>
+
+                <PriorityBadge
+                  priority={
+                    option
+                  }
+                />
+              </button>
+            ),
+          )}
+        </div>
+      )}
+    </div>,
+    document.body,
+  );
+}
+
+function ProjectRow({
+  project,
+  actionOpen,
+  onOpenActions,
+  onPriorityChange,
+}: {
+  project: Project;
+  actionOpen: boolean;
+  onOpenActions: (
+    projectId: string,
+  ) => void;
+  onPriorityChange: (
+    projectId: string,
+    priority: Priority,
+  ) => void;
+}) {
+  const actionButtonRef =
+    useRef<HTMLButtonElement>(null);
+
   return (
     <div className="grid min-w-[850px] grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-[var(--border)] last:border-b-0">
       <div className="px-3 py-3 text-sm font-medium text-[var(--foreground)]">
         {project.title}
       </div>
 
-      <div className="px-3 py-3">
+      <div className="justify-self-center py-3">
         <PriorityBadge
           priority={project.priority}
         />
       </div>
 
-      <div className="px-3 py-3">
+      <div className="justify-self-center py-3">
         <ProjectMember
           project={project}
         />
       </div>
 
-      <div className="px-3 py-3 text-sm text-[var(--foreground)]">
+      <div className="justify-self-center py-3 text-sm text-[var(--foreground)]">
         {project.dueDate
           ? new Date(
             project.dueDate,
@@ -147,9 +414,17 @@ function ProjectRow({
           : "-"}
       </div>
 
-      <div className="px-3 py-3">
+      <div className="justify-self-center py-3">
         <button
+          ref={actionButtonRef}
           type="button"
+          onClick={() =>
+            onOpenActions(
+              actionOpen
+                ? ""
+                : project.id,
+            )
+          }
           className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
         >
           <MoreHorizontal
@@ -157,6 +432,19 @@ function ProjectRow({
             strokeWidth={2}
           />
         </button>
+
+        {actionOpen && (
+          <ProjectActionMenu
+            project={project}
+            anchorRef={actionButtonRef}
+            onClose={() =>
+              onOpenActions("")
+            }
+            onPriorityChange={
+              onPriorityChange
+            }
+          />
+        )}
       </div>
     </div>
   );
@@ -164,9 +452,23 @@ function ProjectRow({
 
 function ProjectCard({
   project,
+  actionOpen,
+  onOpenActions,
+  onPriorityChange,
 }: {
   project: Project;
+  actionOpen: boolean;
+  onOpenActions: (
+    projectId: string,
+  ) => void;
+  onPriorityChange: (
+    projectId: string,
+    priority: Priority,
+  ) => void;
 }) {
+  const actionButtonRef =
+    useRef<HTMLButtonElement>(null);
+
   return (
     <div className="mx-3 mb-3 rounded-md border border-[var(--border)] bg-[var(--background)] p-3">
       <div className="flex items-start justify-between gap-3">
@@ -183,7 +485,15 @@ function ProjectCard({
         </div>
 
         <button
+          ref={actionButtonRef}
           type="button"
+          onClick={() =>
+            onOpenActions(
+              actionOpen
+                ? ""
+                : project.id,
+            )
+          }
           className="flex h-5 w-5 shrink-0 items-center justify-center"
         >
           <MoreHorizontal
@@ -191,6 +501,21 @@ function ProjectCard({
             strokeWidth={2}
           />
         </button>
+
+        {actionOpen && (
+          <ProjectActionMenu
+            project={project}
+            anchorRef={
+              actionButtonRef
+            }
+            onClose={() =>
+              onOpenActions("")
+            }
+            onPriorityChange={
+              onPriorityChange
+            }
+          />
+        )}
       </div>
 
       <div className="mt-4 flex items-center justify-between">
@@ -223,7 +548,9 @@ function ProjectCard({
 
       <div className="mt-3">
         <PriorityBadge
-          priority={project.priority}
+          priority={
+            project.priority
+          }
         />
       </div>
     </div>
@@ -231,11 +558,17 @@ function ProjectCard({
 }
 
 export default function ProjectBoard() {
-  const { user } = useAuth();
+  const { user } =
+    useAuth();
 
   const [
     projects,
     setProjects,
+  ] = useState<Project[]>([]);
+
+  const [
+    originalProjects,
+    setOriginalProjects,
   ] = useState<Project[]>([]);
 
   const [
@@ -248,11 +581,35 @@ export default function ProjectBoard() {
   const [
     viewMode,
     setViewMode,
-  ] = useState<ViewMode>("list");
+  ] = useState<ViewMode>(
+    "list",
+  );
 
   const [
     isAddProjectOpen,
     setIsAddProjectOpen,
+  ] = useState(false);
+
+  const [
+    openActionProjectId,
+    setOpenActionProjectId,
+  ] = useState<
+    string | null
+  >(null);
+
+  const [
+    isDirty,
+    setIsDirty,
+  ] = useState(false);
+
+  const [
+    isSaving,
+    setIsSaving,
+  ] = useState(false);
+
+  const [
+    saved,
+    setSaved,
   ] = useState(false);
 
   useEffect(() => {
@@ -265,7 +622,7 @@ export default function ProjectBoard() {
         try {
           const response =
             await fetch(
-              `http://localhost:3001/projects/owner/${user.id}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/projects/owner/${user.id}`,
             );
 
           if (!response.ok) {
@@ -301,6 +658,12 @@ export default function ProjectBoard() {
           setProjects(
             formattedProjects,
           );
+
+          setOriginalProjects(
+            formattedProjects,
+          );
+
+          setIsDirty(false);
         } catch (error) {
           console.error(
             "Failed to fetch projects:",
@@ -312,43 +675,162 @@ export default function ProjectBoard() {
     fetchProjects();
   }, [user?.id]);
 
-  const filteredProjects = projects
-    .filter((project) => {
-      if (
-        filters.priority.length ===
-        0
-      ) {
-        return true;
-      }
+  const updateProjectPriority = (
+    projectId: string,
+    priority: Priority,
+  ) => {
+    setProjects(
+      (currentProjects) =>
+        currentProjects.map(
+          (project) => {
+            if (
+              project.id !==
+              projectId
+            ) {
+              return project;
+            }
 
-      return filters.priority.includes(
-        project.priority,
+            return {
+              ...project,
+              priority,
+            };
+          },
+        ),
+    );
+
+    setIsDirty(true);
+
+    setSaved(false);
+  };
+
+  const discardChanges = () => {
+    setProjects(
+      originalProjects,
+    );
+
+    setIsDirty(false);
+
+    setOpenActionProjectId(
+      null,
+    );
+  };
+
+  const saveChanges =
+    async () => {
+      try {
+        setIsSaving(true);
+
+        const changedProjects =
+          projects.filter(
+            (project) => {
+              const originalProject =
+                originalProjects.find(
+                  (original) =>
+                    original.id ===
+                    project.id,
+                );
+
+              return (
+                originalProject &&
+                originalProject.priority !==
+                project.priority
+              );
+            },
+          );
+
+        await Promise.all(
+          changedProjects.map(
+            async (project) => {
+              const response =
+                await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL}/projects/${project.id}`,
+                  {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type":
+                        "application/json",
+                    },
+                    body: JSON.stringify({
+                      priority:
+                        project.priority,
+                    }),
+                  },
+                );
+
+              if (!response.ok) {
+                throw new Error(
+                  `Failed to update project ${project.id}`,
+                );
+              }
+            },
+          ),
+        );
+
+        setOriginalProjects(
+          projects,
+        );
+
+        setIsDirty(false);
+
+        setSaved(true);
+
+        setTimeout(() => {
+          setSaved(false);
+        }, 2500);
+      } catch (error) {
+        console.error(
+          "Failed to save projects:",
+          error,
+        );
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+  const filteredProjects =
+    projects
+      .filter(
+        (project) => {
+          if (
+            filters.priority
+              .length === 0
+          ) {
+            return true;
+          }
+
+          return filters.priority.includes(
+            project.priority,
+          );
+        },
+      )
+      .sort(
+        (a, b) => {
+          if (
+            !filters.dueDate
+          ) {
+            return 0;
+          }
+
+          const aDate =
+            a.dueDate
+              ? new Date(
+                a.dueDate,
+              ).getTime()
+              : Number.MAX_SAFE_INTEGER;
+
+          const bDate =
+            b.dueDate
+              ? new Date(
+                b.dueDate,
+              ).getTime()
+              : Number.MAX_SAFE_INTEGER;
+
+          return filters.dueDate ===
+            "Increasing"
+            ? aDate - bDate
+            : bDate - aDate;
+        },
       );
-    })
-    .sort((a, b) => {
-      if (!filters.dueDate) {
-        return 0;
-      }
-
-      const aDate =
-        a.dueDate
-          ? new Date(
-            a.dueDate,
-          ).getTime()
-          : Number.MAX_SAFE_INTEGER;
-
-      const bDate =
-        b.dueDate
-          ? new Date(
-            b.dueDate,
-          ).getTime()
-          : Number.MAX_SAFE_INTEGER;
-
-      return filters.dueDate ===
-        "Increasing"
-        ? aDate - bDate
-        : bDate - aDate;
-    });
 
   const addProject = (
     project: Project,
@@ -359,11 +841,18 @@ export default function ProjectBoard() {
         project,
       ],
     );
+
+    setOriginalProjects(
+      (currentProjects) => [
+        ...currentProjects,
+        project,
+      ],
+    );
   };
 
   return (
     <div className="min-h-screen min-w-0 w-full bg-[var(--background)]">
-      <main className="w-full px-4 py-4">
+      <main className="w-full px-4 py-4 pb-24">
         <div className="mx-auto w-full max-w-[1036px]">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h1 className="text-base font-semibold leading-4 text-[var(--foreground)]">
@@ -371,13 +860,17 @@ export default function ProjectBoard() {
             </h1>
 
             <BoardActions
-              viewMode={viewMode}
+              viewMode={
+                viewMode
+              }
               onViewModeChange={
                 setViewMode
               }
               addButtonLabel="Add Project"
               onAdd={() =>
-                setIsAddProjectOpen(true)
+                setIsAddProjectOpen(
+                  true,
+                )
               }
               onFilterChange={
                 setFilters
@@ -385,7 +878,8 @@ export default function ProjectBoard() {
             />
           </div>
 
-          {viewMode === "list" ? (
+          {viewMode ===
+            "list" ? (
             <div className="w-full overflow-x-auto rounded-lg border border-[var(--border)]">
               <div className="min-w-[850px]">
                 <div className="grid h-12 grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-[var(--border)] bg-[var(--surface-secondary)]">
@@ -393,28 +887,46 @@ export default function ProjectBoard() {
                     Projects
                   </div>
 
-                  <div className="px-3 text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
                     Priority
                   </div>
 
-                  <div className="px-3 text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
                     Members
                   </div>
 
-                  <div className="px-3 text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
                     Due Date
                   </div>
 
-                  <div className="px-3 text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
                     Actions
                   </div>
                 </div>
-
                 {filteredProjects.map(
                   (project) => (
                     <ProjectRow
-                      key={project.id}
-                      project={project}
+                      key={
+                        project.id
+                      }
+                      project={
+                        project
+                      }
+                      actionOpen={
+                        openActionProjectId ===
+                        project.id
+                      }
+                      onOpenActions={(
+                        projectId,
+                      ) =>
+                        setOpenActionProjectId(
+                          projectId ||
+                          null,
+                        )
+                      }
+                      onPriorityChange={
+                        updateProjectPriority
+                      }
                     />
                   ),
                 )}
@@ -429,6 +941,7 @@ export default function ProjectBoard() {
                   className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                 >
                   <Plus size={16} />
+
                   Add Project
                 </button>
               </div>
@@ -479,8 +992,27 @@ export default function ProjectBoard() {
                 {filteredProjects.map(
                   (project) => (
                     <ProjectCard
-                      key={project.id}
-                      project={project}
+                      key={
+                        project.id
+                      }
+                      project={
+                        project
+                      }
+                      actionOpen={
+                        openActionProjectId ===
+                        project.id
+                      }
+                      onOpenActions={(
+                        projectId,
+                      ) =>
+                        setOpenActionProjectId(
+                          projectId ||
+                          null,
+                        )
+                      }
+                      onPriorityChange={
+                        updateProjectPriority
+                      }
                     />
                   ),
                 )}
@@ -511,10 +1043,54 @@ export default function ProjectBoard() {
         </div>
       </main>
 
+      {isDirty && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-8 shadow-lg">
+          <span className="mr-3 text-sm text-[var(--foreground-secondary)]">
+            You have unsaved changes
+          </span>
+
+          <button
+            type="button"
+            onClick={
+              discardChanges
+            }
+            disabled={
+              isSaving
+            }
+            className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:opacity-50"
+          >
+            Discard
+          </button>
+
+          <button
+            type="button"
+            onClick={
+              saveChanges
+            }
+            disabled={
+              isSaving
+            }
+            className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:opacity-50"
+          >
+            {isSaving
+              ? "Saving..."
+              : "Save Changes"}
+          </button>
+        </div>
+      )}
+
+      {saved && (
+        <div className="fixed bottom-5 right-5 z-50 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] shadow-lg">
+          Changes saved
+        </div>
+      )}
+
       <button
         type="button"
         onClick={() =>
-          setIsAddProjectOpen(true)
+          setIsAddProjectOpen(
+            true,
+          )
         }
         className="fixed bottom-6 right-6 flex h-10 items-center gap-2 rounded-full bg-[var(--background)] px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
       >
@@ -526,13 +1102,24 @@ export default function ProjectBoard() {
       </button>
 
       <AddProjectModal
-        isOpen={isAddProjectOpen}
-        onClose={() =>
-          setIsAddProjectOpen(false)
+        isOpen={
+          isAddProjectOpen
         }
-        onCreate={(project) => {
-          addProject(project);
-          setIsAddProjectOpen(false);
+        onClose={() =>
+          setIsAddProjectOpen(
+            false,
+          )
+        }
+        onCreate={(
+          project,
+        ) => {
+          addProject(
+            project,
+          );
+
+          setIsAddProjectOpen(
+            false,
+          );
         }}
       />
     </div>

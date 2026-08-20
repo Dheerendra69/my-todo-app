@@ -401,7 +401,7 @@ export default function TaskDetailsPage() {
           await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/tasks/${taskId}`,
             {
-              method: "PUT",
+              method: "PATCH",
               headers: {
                 "Content-Type":
                   "application/json",

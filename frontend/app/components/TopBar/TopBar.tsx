@@ -157,7 +157,7 @@ export default function TopBar({
               ? "Hide sidebar"
               : "Show sidebar"
           }
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--accent-color)]"
         >
           <PanelLeft
             size={16}
@@ -179,7 +179,7 @@ export default function TopBar({
                       : "/projects",
                   )
                 }
-                className="shrink-0 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
+                className="shrink-0 text-[var(--foreground-secondary)] transition-colors hover:text-[var(--accent-color)]"
               >
                 {section}
               </button>
@@ -192,7 +192,12 @@ export default function TopBar({
             </>
           )}
 
-          <span className="truncate text-[var(--foreground)]">
+          <span
+            className="truncate font-medium"
+            style={{
+              color: "var(--accent-color)",
+            }}
+          >
             {title}
           </span>
         </nav>

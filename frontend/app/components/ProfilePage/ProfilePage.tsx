@@ -4,7 +4,6 @@ import { Pencil } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 
 export default function ProfilePage() {
-
   const { user, loading, logout } = useAuth();
 
   if (loading) {
@@ -18,8 +17,6 @@ export default function ProfilePage() {
       </main>
     );
   }
-
-  console.log("user: ", user);
 
   if (!user) {
     return null;
@@ -35,7 +32,7 @@ export default function ProfilePage() {
             </h1>
           </div>
 
-          <section className="mt-10 w-full overflow-hidden rounded-lg border border-[var(--border)]">
+          <section className="mt-10 w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
             <div className="flex min-h-[76px] items-center justify-between border-b border-[var(--border)] px-7">
               <span className="text-sm font-normal text-[var(--foreground)]">
                 Profile picture
@@ -62,7 +59,7 @@ export default function ProfilePage() {
 
                 <button
                   type="button"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)]"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--accent-color)] transition-opacity hover:opacity-80"
                 >
                   <Pencil size={13} strokeWidth={2} />
                 </button>
@@ -77,7 +74,7 @@ export default function ProfilePage() {
               <input
                 type="text"
                 defaultValue={user.name}
-                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[#E5E5E5] px-3 text-sm text-[var(--foreground-secondary)] outline-none"
+                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition-shadow focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20"
               />
             </div>
 
@@ -87,7 +84,7 @@ export default function ProfilePage() {
                   Title
                 </span>
 
-                <span className="text-xs leading-4 text-[var(--foreground)]">
+                <span className="text-xs leading-4 text-[var(--foreground-secondary)]">
                   Your job title or role
                 </span>
               </div>
@@ -95,7 +92,7 @@ export default function ProfilePage() {
               <input
                 type="text"
                 defaultValue="Designer"
-                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[#E5E5E5] px-3 text-sm text-[var(--foreground-secondary)] outline-none"
+                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition-shadow focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20"
               />
             </div>
 
@@ -105,7 +102,7 @@ export default function ProfilePage() {
                   Username
                 </span>
 
-                <span className="text-xs leading-4 text-[var(--foreground)]">
+                <span className="text-xs leading-4 text-[var(--foreground-secondary)]">
                   One word, like a nickname or first name
                 </span>
               </div>
@@ -113,7 +110,7 @@ export default function ProfilePage() {
               <input
                 type="text"
                 defaultValue="Dexuser"
-                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[#E5E5E5] px-3 text-sm text-[var(--foreground-secondary)] outline-none"
+                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition-shadow focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20"
               />
             </div>
           </section>
@@ -123,14 +120,14 @@ export default function ProfilePage() {
               Workspace access
             </h2>
 
-            <section className="mt-7 flex min-h-[82px] w-full items-center justify-between gap-3 rounded-lg border border-[var(--border)] px-7 shadow-[0px_1px_1px_0px_#0000000A,0px_3px_6px_-2px_#00000005,0px_0px_0px_0.5px_#00000016]">
+            <section className="mt-7 flex min-h-[82px] w-full items-center justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-7 shadow-[0px_1px_1px_0px_#0000000A,0px_3px_6px_-2px_#00000005,0px_0px_0px_0.5px_#00000016]">
               <span className="text-xs font-medium leading-4 text-[var(--foreground)]">
                 Remove yourself from the workspace
               </span>
 
               <button
                 type="button"
-                className="h-8 shrink-0 rounded-md bg-[#DC26261A] px-3 text-xs font-medium leading-4 text-[#DC2626]"
+                className="h-8 shrink-0 rounded-md bg-[var(--accent-color)] px-3 text-xs font-medium leading-4 text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
                 onClick={logout}
               >
                 Leave Workspace

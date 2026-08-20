@@ -89,12 +89,11 @@ const categories: {
 
 const priorityOptions: {
   name: Priority;
-  color: string;
+  color?: string;
   icon: React.ElementType;
 }[] = [
     {
       name: "No Priority",
-      color: "#171717",
       icon: Signal,
     },
     {
@@ -277,7 +276,7 @@ export default function TaskFilter({
   const renderSubmenu = () => {
     if (activeCategory === "Priority") {
       return (
-        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Priority
@@ -302,21 +301,40 @@ export default function TaskFilter({
                       option.name,
                     )
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
                 >
                   <Icon
                     size={16}
                     strokeWidth={1.8}
-                    style={{
-                      color: option.color,
-                    }}
+                    style={
+                      option.color
+                        ? {
+                          color:
+                            option.color,
+                        }
+                        : undefined
+                    }
+                    className={
+                      option.color
+                        ? ""
+                        : "text-[var(--foreground)]"
+                    }
                   />
 
                   <span
-                    className="text-sm font-normal"
-                    style={{
-                      color: option.color,
-                    }}
+                    className={
+                      option.color
+                        ? "text-sm font-normal"
+                        : "text-sm font-normal text-[var(--foreground)]"
+                    }
+                    style={
+                      option.color
+                        ? {
+                          color:
+                            option.color,
+                        }
+                        : undefined
+                    }
                   >
                     {option.name}
                   </span>
@@ -340,7 +358,7 @@ export default function TaskFilter({
 
     if (activeCategory === "Status") {
       return (
-        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Status
@@ -361,19 +379,18 @@ export default function TaskFilter({
                   onClick={() =>
                     toggleStatus(status)
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
                 >
                   <span className="flex h-4 w-4 items-center justify-center">
                     {selected && (
                       <Check
                         size={16}
                         strokeWidth={2}
-                        className="text-[var(--foreground)]"
                       />
                     )}
                   </span>
 
-                  <span className="text-sm text-[var(--foreground)]">
+                  <span className="text-sm">
                     {status}
                   </span>
                 </button>
@@ -386,7 +403,7 @@ export default function TaskFilter({
 
     if (activeCategory === "Due Date") {
       return (
-        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A] md:left-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Due Date
@@ -405,15 +422,14 @@ export default function TaskFilter({
                   onClick={() =>
                     selectDueDate(option)
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
                 >
                   <Calendar
                     size={16}
                     strokeWidth={1.8}
-                    className="text-[var(--foreground)]"
                   />
 
-                  <span className="text-sm text-[var(--foreground)]">
+                  <span className="text-sm">
                     {option}
                   </span>
 
@@ -422,7 +438,6 @@ export default function TaskFilter({
                       <Check
                         size={16}
                         strokeWidth={2}
-                        className="text-[var(--foreground)]"
                       />
                     )}
                   </span>
@@ -445,12 +460,15 @@ export default function TaskFilter({
       <button
         type="button"
         onClick={() => {
-          setOpen((value) => !value);
+          setOpen(
+            (value) => !value,
+          );
+
           setActiveCategory(null);
         }}
-        className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition hover:bg-[var(--surface-secondary)] ${open
-          ? "bg-[var(--surface-secondary)]"
-          : ""
+        className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] ${open
+            ? "bg-[var(--surface-secondary)]"
+            : ""
           }`}
       >
         <svg
@@ -467,14 +485,14 @@ export default function TaskFilter({
         </svg>
 
         {hasActiveFilters && (
-          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[var(--background)]" />
+          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[var(--primary)] ring-2 ring-[var(--surface)]" />
         )}
       </button>
 
       {open && (
         <div className="absolute right-0 top-10 z-50">
           <div
-            className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-[0px_8px_16px_-4px_#00000014,0px_4px_8px_-2px_#0000000A]"
+            className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)]"
             onClick={() => {
               setActiveCategory(null);
             }}
@@ -503,7 +521,9 @@ export default function TaskFilter({
                     onClick={(event) => {
                       event.stopPropagation();
 
-                      if (hasSubmenu) {
+                      if (
+                        hasSubmenu
+                      ) {
                         setActiveCategory(
                           selected
                             ? null
@@ -511,18 +531,18 @@ export default function TaskFilter({
                         );
                       }
                     }}
-                    className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 ${selected
-                      ? "bg-[var(--surface-secondary)]"
-                      : "hover:bg-[var(--surface-secondary)]"
+                    className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] transition-colors ${selected
+                        ? "bg-[var(--surface-secondary)]"
+                        : "hover:bg-[var(--surface-secondary)]"
                       }`}
                   >
                     <Icon
                       size={18}
                       strokeWidth={1.8}
-                      className="shrink-0 text-[var(--foreground)]"
+                      className="shrink-0"
                     />
 
-                    <span className="text-sm font-normal text-[var(--foreground)]">
+                    <span className="text-sm font-normal">
                       {category.name}
                     </span>
 
@@ -530,7 +550,7 @@ export default function TaskFilter({
                       <ChevronRight
                         size={16}
                         strokeWidth={1.8}
-                        className="ml-auto text-[var(--foreground)]"
+                        className="ml-auto"
                       />
                     )}
                   </button>

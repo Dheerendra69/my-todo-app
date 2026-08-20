@@ -46,10 +46,10 @@ export default function LoginCard() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 py-8 sm:px-6">
+    <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 py-8 text-[var(--foreground)] sm:px-6">
       <div className="flex w-full max-w-[1200px] flex-col items-center">
         <div className="flex h-6 items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--foreground)]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--accent-color)]">
             <svg
               width="22"
               height="22"
@@ -59,14 +59,14 @@ export default function LoginCard() {
             >
               <path
                 d="M12 3.5 4.5 17.8l7.5 2.7 7.5-2.7L12 3.5Z"
-                stroke="var(--background)"
+                stroke="var(--accent-foreground)"
                 strokeWidth="1.7"
                 strokeLinejoin="round"
               />
 
               <path
                 d="M12 3.5v17M7.2 15.9 12 20.5l4.8-4.6"
-                stroke="var(--background)"
+                stroke="var(--accent-foreground)"
                 strokeWidth="1.7"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -80,7 +80,7 @@ export default function LoginCard() {
         </div>
 
         <div className="mt-[56px] flex w-full flex-col items-center">
-          <section className="w-full max-w-[384px] rounded-[24px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+          <section className="w-full max-w-[384px] rounded-[24px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
             <div className="flex flex-col gap-[6px] text-center">
               <h1 className="text-xl font-semibold leading-[20px] tracking-normal text-[var(--foreground)]">
                 Let&apos;s get back on track
@@ -94,7 +94,7 @@ export default function LoginCard() {
             <div className="mt-6 flex flex-col gap-3">
               <button
                 type="button"
-                className="flex h-9 w-full items-center justify-center rounded-full bg-[var(--foreground)] px-3 py-2 text-sm font-medium leading-5 text-[var(--background)] transition-colors hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--foreground)] focus:ring-offset-2"
+                className="flex h-9 w-full items-center justify-center rounded-full bg-[var(--accent-color)] px-3 py-2 text-sm font-medium leading-5 text-[var(--accent-foreground)] transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-offset-2 focus:ring-offset-[var(--surface)]"
                 onClick={handleGuestLogin}
               >
                 Continue as Guest
@@ -102,10 +102,10 @@ export default function LoginCard() {
 
               <button
                 type="button"
-                className="flex h-9 w-full items-center justify-center gap-[6px] rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium leading-5 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--border)] focus:ring-offset-2"
+                className="flex h-9 w-full items-center justify-center gap-[6px] rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium leading-5 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-offset-2 focus:ring-offset-[var(--surface)]"
                 onClick={handleGoogleLogin}
               >
-                <span className="flex h-4 w-4 items-center justify-center">
+                <span className="flex h-4 w-4 items-center justify-center text-[var(--accent-color)]">
                   <GoogleIcon />
                 </span>
 
@@ -121,21 +121,21 @@ export default function LoginCard() {
               our{" "}
               <a
                 href="/terms"
-                className="underline hover:text-[var(--foreground)]"
+                className="text-[var(--accent-color)] underline transition-opacity hover:opacity-80"
               >
                 Terms of Service
               </a>{" "}
               and{" "}
               <a
                 href="/privacy"
-                className="underline hover:text-[var(--foreground)]"
+                className="text-[var(--accent-color)] underline transition-opacity hover:opacity-80"
               >
                 Privacy
               </a>
               <br />
               <a
                 href="/privacy"
-                className="underline hover:text-[var(--foreground)]"
+                className="text-[var(--accent-color)] underline transition-opacity hover:opacity-80"
               >
                 Policy
               </a>
