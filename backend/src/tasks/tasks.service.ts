@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
 
 import { Task, TaskPriority, TaskStatus } from '../entities/task.entity';
+
 import { User } from '../entities/user.entity';
 import { Project } from '../entities/project.entity';
+
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
@@ -27,7 +31,9 @@ export class TasksService {
 
   async create(dto: CreateTaskDto) {
     const project = await this.projectRepository.findOne({
-      where: { id: dto.projectId },
+      where: {
+        id: dto.projectId,
+      },
     });
 
     if (!project) {
@@ -38,7 +44,9 @@ export class TasksService {
 
     if (dto.assigneeId) {
       assignee = await this.userRepository.findOne({
-        where: { id: dto.assigneeId },
+        where: {
+          id: dto.assigneeId,
+        },
       });
 
       if (!assignee) {
@@ -48,15 +56,17 @@ export class TasksService {
 
     const task = this.taskRepository.create({
       title: dto.title,
-      description: dto.description,
-      status: dto.status,
-      priority: dto.priority,
-      dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+      description: dto.description ?? null,
+      status: dto.status ?? TaskStatus.TODO,
+      priority: dto.priority ?? TaskPriority.NO_PRIORITY,
+      dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
       project,
-      assignee: assignee ?? undefined,
+      assignee,
     });
 
-    return this.taskRepository.save(task);
+    const savedTask = await this.taskRepository.save(task);
+
+    return this.findOne(savedTask.id);
   }
 
   async findAll(query: TaskQueryDto) {
@@ -67,7 +77,7 @@ export class TasksService {
       project,
       search,
       page = 1,
-      limit = 10,
+      limit = 100,
     } = query;
 
     const queryBuilder = this.taskRepository
@@ -76,25 +86,40 @@ export class TasksService {
       .leftJoinAndSelect('task.assignee', 'assignee');
 
     if (status) {
-      queryBuilder.andWhere('task.status = :status', { status });
+      queryBuilder.andWhere('task.status = :status', {
+        status,
+      });
     }
 
     if (priority) {
-      queryBuilder.andWhere('task.priority = :priority', { priority });
+      queryBuilder.andWhere('task.priority = :priority', {
+        priority,
+      });
     }
 
     if (assignee) {
-      queryBuilder.andWhere('assignee.id = :assignee', { assignee });
+      queryBuilder.andWhere('assignee.id = :assignee', {
+        assignee,
+      });
     }
 
     if (project) {
-      queryBuilder.andWhere('project.id = :project', { project });
+      queryBuilder.andWhere('project.id = :project', {
+        project,
+      });
     }
 
     if (search) {
       queryBuilder.andWhere(
-        '(LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search))',
-        { search: `%${search}%` },
+        `
+          (
+            LOWER(task.title) LIKE LOWER(:search)
+            OR LOWER(task.description) LIKE LOWER(:search)
+          )
+        `,
+        {
+          search: `%${search}%`,
+        },
       );
     }
 
@@ -118,7 +143,9 @@ export class TasksService {
 
   async findOne(id: string) {
     const task = await this.taskRepository.findOne({
-      where: { id },
+      where: {
+        id,
+      },
       relations: {
         project: true,
         assignee: true,
@@ -135,12 +162,61 @@ export class TasksService {
   async update(id: string, dto: UpdateTaskDto) {
     const task = await this.findOne(id);
 
-    Object.assign(task, {
-      ...dto,
-      dueDate: dto.dueDate ? new Date(dto.dueDate) : task.dueDate,
-    });
+    if (dto.title !== undefined) {
+      task.title = dto.title;
+    }
 
-    return this.taskRepository.save(task);
+    if (dto.description !== undefined) {
+      task.description = dto.description ?? null;
+    }
+
+    if (dto.status !== undefined) {
+      task.status = dto.status;
+    }
+
+    if (dto.priority !== undefined) {
+      task.priority = dto.priority;
+    }
+
+    if (dto.dueDate !== undefined) {
+      task.dueDate = dto.dueDate ? new Date(dto.dueDate) : null;
+    }
+
+    if (dto.projectId !== undefined) {
+      const project = await this.projectRepository.findOne({
+        where: {
+          id: dto.projectId,
+        },
+      });
+
+      if (!project) {
+        throw new NotFoundException('Project not found');
+      }
+
+      task.project = project;
+    }
+
+    if (dto.assigneeId !== undefined) {
+      if (dto.assigneeId === null) {
+        task.assignee = null;
+      } else {
+        const assignee = await this.userRepository.findOne({
+          where: {
+            id: dto.assigneeId,
+          },
+        });
+
+        if (!assignee) {
+          throw new NotFoundException('Assignee not found');
+        }
+
+        task.assignee = assignee;
+      }
+    }
+
+    const updatedTask = await this.taskRepository.save(task);
+
+    return this.findOne(updatedTask.id);
   }
 
   async updateStatus(id: string, dto: UpdateTaskStatusDto) {
@@ -148,7 +224,9 @@ export class TasksService {
 
     task.status = dto.status;
 
-    return this.taskRepository.save(task);
+    const updatedTask = await this.taskRepository.save(task);
+
+    return this.findOne(updatedTask.id);
   }
 
   async updatePriority(id: string, dto: UpdateTaskPriorityDto) {
@@ -156,7 +234,9 @@ export class TasksService {
 
     task.priority = dto.priority;
 
-    return this.taskRepository.save(task);
+    const updatedTask = await this.taskRepository.save(task);
+
+    return this.findOne(updatedTask.id);
   }
 
   async updateAssignee(id: string, dto: UpdateTaskAssigneeDto) {
@@ -164,11 +244,16 @@ export class TasksService {
 
     if (!dto.assigneeId) {
       task.assignee = null;
-      return this.taskRepository.save(task);
+
+      const updatedTask = await this.taskRepository.save(task);
+
+      return this.findOne(updatedTask.id);
     }
 
     const user = await this.userRepository.findOne({
-      where: { id: dto.assigneeId },
+      where: {
+        id: dto.assigneeId,
+      },
     });
 
     if (!user) {
@@ -177,7 +262,9 @@ export class TasksService {
 
     task.assignee = user;
 
-    return this.taskRepository.save(task);
+    const updatedTask = await this.taskRepository.save(task);
+
+    return this.findOne(updatedTask.id);
   }
 
   async remove(id: string) {

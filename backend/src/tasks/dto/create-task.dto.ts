@@ -6,6 +6,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
+
 import { TaskPriority, TaskStatus } from '../../entities/task.entity';
 
 export class CreateTaskDto {

@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 
 import { TasksService } from './tasks.service';
+
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
@@ -42,17 +43,29 @@ export class TasksController {
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateTaskStatusDto) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body()
+    dto: UpdateTaskStatusDto,
+  ) {
     return this.tasksService.updateStatus(id, dto);
   }
 
   @Patch(':id/priority')
-  updatePriority(@Param('id') id: string, @Body() dto: UpdateTaskPriorityDto) {
+  updatePriority(
+    @Param('id') id: string,
+    @Body()
+    dto: UpdateTaskPriorityDto,
+  ) {
     return this.tasksService.updatePriority(id, dto);
   }
 
   @Patch(':id/assignee')
-  updateAssignee(@Param('id') id: string, @Body() dto: UpdateTaskAssigneeDto) {
+  updateAssignee(
+    @Param('id') id: string,
+    @Body()
+    dto: UpdateTaskAssigneeDto,
+  ) {
     return this.tasksService.updateAssignee(id, dto);
   }
 
