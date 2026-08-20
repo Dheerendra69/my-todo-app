@@ -1346,6 +1346,11 @@ export default function TaskBoard() {
     string | null
   >(null);
 
+  const [
+    searchQuery,
+    setSearchQuery,
+  ] = useState("");
+
   useEffect(() => {
     const fetchTasks =
       async () => {
@@ -1721,33 +1726,39 @@ export default function TaskBoard() {
           ) ??
           sectionDefinition;
 
-        let filteredTasks =
-          section.tasks.filter(
-            (task) => {
-              const statusMatches =
-                filters.status
-                  .length ===
-                0 ||
-                filters.status.includes(
-                  statusLabels[
-                  task.status
-                  ],
-                );
+let filteredTasks =
+  section.tasks.filter(
+    (task) => {
+      const statusMatches =
+        filters.status.length === 0 ||
+        filters.status.includes(
+          statusLabels[
+            task.status
+          ],
+        );
 
-              const priorityMatches =
-                filters.priority
-                  .length ===
-                0 ||
-                filters.priority.includes(
-                  task.priority,
-                );
+      const priorityMatches =
+        filters.priority.length === 0 ||
+        filters.priority.includes(
+          task.priority,
+        );
 
-              return (
-                statusMatches &&
-                priorityMatches
-              );
-            },
+      const searchMatches =
+        task.title
+          .toLowerCase()
+          .includes(
+            searchQuery
+              .trim()
+              .toLowerCase(),
           );
+
+      return (
+        statusMatches &&
+        priorityMatches &&
+        searchMatches
+      );
+    },
+  );
 
         if (
           filters.dueDate
@@ -1881,20 +1892,24 @@ export default function TaskBoard() {
             </h1>
 
             <BoardActions
-              viewMode={
-                viewMode
-              }
-              onViewModeChange={
-                setViewMode
-              }
-              addButtonLabel="Add Task"
-              onAdd={
-                addTaskToFirstSection
-              }
-              onFilterChange={
-                setFilters
-              }
-            />
+  viewMode={viewMode}
+  onViewModeChange={
+    setViewMode
+  }
+  addButtonLabel="Add Task"
+  onAdd={
+    addTaskToFirstSection
+  }
+  onFilterChange={
+    setFilters
+  }
+  searchValue={
+    searchQuery
+  }
+  onSearchChange={
+    setSearchQuery
+  }
+/>
           </div>
 
           {viewMode ===

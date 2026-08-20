@@ -579,6 +579,11 @@ export default function ProjectBoard() {
   );
 
   const [
+    searchQuery,
+    setSearchQuery,
+  ] = useState("");
+
+  const [
     viewMode,
     setViewMode,
   ] = useState<ViewMode>(
@@ -787,19 +792,39 @@ export default function ProjectBoard() {
       }
     };
 
+  const normalizedSearchQuery =
+    searchQuery
+      .trim()
+      .toLowerCase();
+
   const filteredProjects =
     projects
       .filter(
         (project) => {
-          if (
-            filters.priority
-              .length === 0
-          ) {
-            return true;
-          }
+          const matchesSearch =
+            normalizedSearchQuery ===
+            "" ||
+            project.title
+              .toLowerCase()
+              .includes(
+                normalizedSearchQuery,
+              ) ||
+            project.description
+              ?.toLowerCase()
+              .includes(
+                normalizedSearchQuery,
+              );
 
-          return filters.priority.includes(
-            project.priority,
+          const matchesPriority =
+            filters.priority
+              .length === 0 ||
+            filters.priority.includes(
+              project.priority,
+            );
+
+          return (
+            matchesSearch &&
+            matchesPriority
           );
         },
       )
@@ -875,6 +900,12 @@ export default function ProjectBoard() {
               onFilterChange={
                 setFilters
               }
+              searchValue={
+                searchQuery
+              }
+              onSearchChange={
+                setSearchQuery
+              }
             />
           </div>
 
@@ -903,6 +934,7 @@ export default function ProjectBoard() {
                     Actions
                   </div>
                 </div>
+
                 {filteredProjects.map(
                   (project) => (
                     <ProjectRow
@@ -930,6 +962,13 @@ export default function ProjectBoard() {
                     />
                   ),
                 )}
+
+                {filteredProjects.length ===
+                  0 && (
+                    <div className="flex h-24 items-center justify-center text-sm text-[var(--foreground-secondary)]">
+                      No projects found.
+                    </div>
+                  )}
 
                 <button
                   type="button"
@@ -1016,6 +1055,13 @@ export default function ProjectBoard() {
                     />
                   ),
                 )}
+
+                {filteredProjects.length ===
+                  0 && (
+                    <div className="flex h-24 items-center justify-center text-sm text-[var(--foreground-secondary)]">
+                      No projects found.
+                    </div>
+                  )}
               </div>
 
               <div className="flex h-[52px] items-center px-3">
