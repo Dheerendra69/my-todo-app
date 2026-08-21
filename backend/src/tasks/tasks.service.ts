@@ -1,7 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository } from 'typeorm';
 
 import { Task, TaskPriority, TaskStatus } from '../entities/task.entity';
@@ -15,6 +13,7 @@ import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 import { UpdateTaskPriorityDto } from './dto/update-task-priority.dto';
 import { UpdateTaskAssigneeDto } from './dto/update-task-assignee.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
+import { CreateSubtaskDto } from './dto/create-subtask.dto';
 
 @Injectable()
 export class TasksService {
@@ -54,6 +53,29 @@ export class TasksService {
       }
     }
 
+    let parentTask: Task | null = null;
+
+    if (dto.parentTaskId) {
+      parentTask = await this.taskRepository.findOne({
+        where: {
+          id: dto.parentTaskId,
+        },
+        relations: {
+          project: true,
+        },
+      });
+
+      if (!parentTask) {
+        throw new NotFoundException('Parent task not found');
+      }
+
+      if (parentTask.project.id !== project.id) {
+        throw new NotFoundException(
+          'Parent task belongs to a different project',
+        );
+      }
+    }
+
     const task = this.taskRepository.create({
       title: dto.title,
       description: dto.description ?? null,
@@ -62,6 +84,7 @@ export class TasksService {
       dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
       project,
       assignee,
+      parentTask,
     });
 
     const savedTask = await this.taskRepository.save(task);
@@ -83,7 +106,9 @@ export class TasksService {
     const queryBuilder = this.taskRepository
       .createQueryBuilder('task')
       .leftJoinAndSelect('task.project', 'project')
-      .leftJoinAndSelect('task.assignee', 'assignee');
+      .leftJoinAndSelect('task.assignee', 'assignee')
+      .leftJoinAndSelect('task.parentTask', 'parentTask')
+      .where('task.parentTask IS NULL');
 
     if (status) {
       queryBuilder.andWhere('task.status = :status', {
@@ -149,6 +174,10 @@ export class TasksService {
       relations: {
         project: true,
         assignee: true,
+        parentTask: true,
+        subtasks: {
+          assignee: true,
+        },
       },
     });
 
@@ -157,6 +186,58 @@ export class TasksService {
     }
 
     return task;
+  }
+
+  async findSubtasks(taskId: string) {
+    await this.findOne(taskId);
+
+    return this.taskRepository.find({
+      where: {
+        parentTask: {
+          id: taskId,
+        },
+      },
+      relations: {
+        assignee: true,
+        project: true,
+      },
+      order: {
+        createdAt: 'ASC',
+      },
+    });
+  }
+
+  async createSubtask(taskId: string, dto: CreateSubtaskDto) {
+    const parentTask = await this.findOne(taskId);
+
+    let assignee: User | null = null;
+
+    if (dto.assigneeId) {
+      assignee = await this.userRepository.findOne({
+        where: {
+          id: dto.assigneeId,
+        },
+      });
+
+      if (!assignee) {
+        throw new NotFoundException('Assignee not found');
+      }
+    }
+
+    const subtask = this.taskRepository.create({
+      title: dto.title,
+      description: dto.description ?? null,
+      status: dto.status ?? TaskStatus.TODO,
+      priority: dto.priority ?? TaskPriority.NO_PRIORITY,
+      dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
+      project: parentTask.project,
+      assignee,
+      parentTask,
+    });
+
+    const savedSubtask = await this.taskRepository.save(subtask);
+
+    return this.findOne(savedSubtask.id);
   }
 
   async update(id: string, dto: UpdateTaskDto) {

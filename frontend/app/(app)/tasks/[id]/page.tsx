@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+
+import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
+
 
 import {
   Calendar,
@@ -18,9 +26,14 @@ import {
   Share2,
   SignalHigh,
   SignalLow,
+  Trash2,
   UserRound,
   X,
+  Check,
+  Signal,
+  SignalMedium,
 } from "lucide-react";
+import { useAuth } from "@/app/components/auth/AuthContext";
 
 type Priority =
   | "No Priority"
@@ -42,6 +55,12 @@ type BackendPriority =
   | "medium"
   | "low";
 
+type Assignee = {
+  id: string;
+  name: string;
+  avatar?: string | null;
+};
+
 type BackendTask = {
   id: string;
   title: string;
@@ -53,19 +72,7 @@ type BackendTask = {
     id: string;
     name: string;
   };
-  assignee: {
-    id: string;
-    name: string;
-    avatar?: string | null;
-  } | null;
-};
-
-type Subtask = {
-  id: number;
-  title: string;
-  priority: Priority;
-  member?: string;
-  dueDate: string;
+  assignee: Assignee | null;
 };
 
 const priorityConfig: Record<
@@ -129,27 +136,34 @@ const statusLabels: Record<
   on_hold: "On Hold",
 };
 
-const subtasks: Subtask[] = [
-  {
-    id: 1,
-    title: "Subtask 1",
-    priority: "High",
-    member: "JD",
-    dueDate: "12 Sep 2026",
-  },
-  {
-    id: 2,
-    title: "Subtask 2",
-    priority: "Low",
-    member: "CN",
-    dueDate: "15 Sep 2026",
-  },
-  {
-    id: 3,
-    title: "Subtask 3",
-    priority: "Medium",
-    dueDate: "18 Sep 2026",
-  },
+const statusOptions: {
+  value: TaskStatus;
+  label: string;
+}[] = [
+    {
+      value: "todo",
+      label: "To Do",
+    },
+    {
+      value: "doing",
+      label: "Doing",
+    },
+    {
+      value: "completed",
+      label: "Completed",
+    },
+    {
+      value: "on_hold",
+      label: "On Hold",
+    },
+  ];
+
+const priorityOptions: Priority[] = [
+  "No Priority",
+  "Urgent",
+  "High",
+  "Medium",
+  "Low",
 ];
 
 function PriorityBadge({
@@ -157,6 +171,40 @@ function PriorityBadge({
 }: {
   priority: Priority;
 }) {
+  const priorityConfig: Record<
+    Priority,
+    {
+      icon: React.ElementType;
+      className: string;
+    }
+  > = {
+    "No Priority": {
+      icon: Signal,
+      className:
+        "text-[var(--foreground-secondary)]",
+    },
+    Urgent: {
+      icon: SignalHigh,
+      className:
+        "text-red-600 dark:text-red-400",
+    },
+    High: {
+      icon: SignalHigh,
+      className:
+        "text-orange-500 dark:text-orange-400",
+    },
+    Medium: {
+      icon: SignalMedium,
+      className:
+        "text-[var(--primary)]",
+    },
+    Low: {
+      icon: SignalLow,
+      className:
+        "text-[var(--primary)] opacity-70",
+    },
+  };
+
   const config =
     priorityConfig[priority];
 
@@ -165,11 +213,16 @@ function PriorityBadge({
 
   return (
     <div
-      className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}
+      className={`flex items-center gap-1 ${config.className}`}
     >
-      <Icon size={12} />
+      <Icon
+        size={12}
+        strokeWidth={2}
+      />
 
-      {priority}
+      <span className="text-xs font-medium">
+        {priority}
+      </span>
     </div>
   );
 }
@@ -193,12 +246,673 @@ function formatDate(
   );
 }
 
+function toInputDate(
+  date: string | null,
+) {
+  if (!date) {
+    return "";
+  }
+
+  return new Date(
+    date,
+  )
+    .toISOString()
+    .split("T")[0];
+}
+
+function TaskActionMenu({
+  subtask,
+  anchorRef,
+  onClose,
+  onChange,
+  onDelete,
+}: {
+  subtask: BackendTask;
+  anchorRef: React.RefObject<
+    HTMLButtonElement | null
+  >;
+  onClose: () => void;
+  onChange: (
+    subtaskId: string,
+    changes: {
+      priority?: BackendPriority;
+      status?: TaskStatus;
+      dueDate?: string | null;
+    },
+  ) => void;
+  onDelete: (
+    subtaskId: string,
+  ) => void;
+}) {
+  const [
+    activeCategory,
+    setActiveCategory,
+  ] = useState<
+    | "Status"
+    | "Priority"
+    | "Due Date"
+    | null
+  >(null);
+
+  const [
+    priority,
+    setPriority,
+  ] = useState<Priority>(
+    priorityToFrontend[
+    subtask.priority
+    ],
+  );
+
+  const [
+    status,
+    setStatus,
+  ] = useState<TaskStatus>(
+    subtask.status,
+  );
+
+  const [
+    dueDate,
+    setDueDate,
+  ] = useState(
+    toInputDate(
+      subtask.dueDate,
+    ),
+  );
+
+  const [
+    position,
+    setPosition,
+  ] = useState({
+    top: 0,
+    left: 0,
+  });
+
+  const menuRef =
+    useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setPriority(
+      priorityToFrontend[
+      subtask.priority
+      ],
+    );
+
+    setStatus(
+      subtask.status,
+    );
+
+    setDueDate(
+      toInputDate(
+        subtask.dueDate,
+      ),
+    );
+  }, [
+    subtask.priority,
+    subtask.status,
+    subtask.dueDate,
+  ]);
+
+  useLayoutEffect(() => {
+    const updatePosition = () => {
+      if (!anchorRef.current) {
+        return;
+      }
+
+      const rect =
+        anchorRef.current.getBoundingClientRect();
+
+      setPosition({
+        top:
+          rect.top +
+          rect.height / 2 -
+          72,
+        left:
+          rect.right - 192,
+      });
+    };
+
+    updatePosition();
+
+    window.addEventListener(
+      "resize",
+      updatePosition,
+    );
+
+    window.addEventListener(
+      "scroll",
+      updatePosition,
+      true,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "resize",
+        updatePosition,
+      );
+
+      window.removeEventListener(
+        "scroll",
+        updatePosition,
+        true,
+      );
+    };
+  }, [anchorRef]);
+
+  useEffect(() => {
+    const handleOutsideClick = (
+      event: MouseEvent,
+    ) => {
+      const target =
+        event.target as Node;
+
+      if (
+        menuRef.current?.contains(
+          target,
+        )
+      ) {
+        return;
+      }
+
+      if (
+        anchorRef.current?.contains(
+          target,
+        )
+      ) {
+        return;
+      }
+
+      onClose();
+    };
+
+    const handleEscape = (
+      event: KeyboardEvent,
+    ) => {
+      if (
+        event.key ===
+        "Escape"
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleOutsideClick,
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick,
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
+    };
+  }, [
+    anchorRef,
+    onClose,
+  ]);
+
+  const updateSubtask = (
+    changes: {
+      priority?: Priority;
+      status?: TaskStatus;
+      dueDate?: string | null;
+    },
+  ) => {
+    const updatedPriority =
+      changes.priority ??
+      priority;
+
+    const updatedStatus =
+      changes.status ??
+      status;
+
+    const updatedDueDate =
+      changes.dueDate !==
+        undefined
+        ? changes.dueDate
+        : dueDate || null;
+
+    setPriority(
+      updatedPriority,
+    );
+
+    setStatus(
+      updatedStatus,
+    );
+
+    setDueDate(
+      updatedDueDate ?? "",
+    );
+
+    onChange(
+      subtask.id,
+      {
+        priority:
+          priorityToBackend[
+          updatedPriority
+          ],
+        status:
+          updatedStatus,
+        dueDate:
+          updatedDueDate,
+      },
+    );
+
+    onClose();
+  };
+
+  if (
+    typeof document ===
+    "undefined"
+  ) {
+    return null;
+  }
+
+  return createPortal(
+    <div
+      ref={menuRef}
+      style={{
+        position: "fixed",
+        top: position.top,
+        left: position.left,
+      }}
+      className="z-[9999] flex gap-2"
+    >
+      <div className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+        <button
+          type="button"
+          onClick={() =>
+            setActiveCategory(
+              activeCategory ===
+                "Status"
+                ? null
+                : "Status",
+            )
+          }
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+            "Status"
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
+            }`}
+        >
+          <Signal
+            size={18}
+            strokeWidth={1.8}
+          />
+
+          <span className="text-sm">
+            Status
+          </span>
+
+          <ChevronRight
+            size={16}
+            className="ml-auto"
+          />
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setActiveCategory(
+              activeCategory ===
+                "Priority"
+                ? null
+                : "Priority",
+            )
+          }
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+            "Priority"
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
+            }`}
+        >
+          <SignalHigh
+            size={18}
+            strokeWidth={1.8}
+          />
+
+          <span className="text-sm">
+            Priority
+          </span>
+
+          <ChevronRight
+            size={16}
+            className="ml-auto"
+          />
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setActiveCategory(
+              activeCategory ===
+                "Due Date"
+                ? null
+                : "Due Date",
+            )
+          }
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+            "Due Date"
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
+            }`}
+        >
+          <Calendar
+            size={18}
+            strokeWidth={1.8}
+          />
+
+          <span className="text-sm">
+            Due Date
+          </span>
+
+          <ChevronRight
+            size={16}
+            className="ml-auto"
+          />
+        </button>
+
+        <div className="my-1 border-t border-[var(--border)]" />
+
+        <button
+          type="button"
+          onClick={() => {
+            onDelete(
+              subtask.id,
+            );
+
+            onClose();
+          }}
+          className="flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-red-500 hover:bg-[var(--surface-secondary)]"
+        >
+          <Trash2
+            size={16}
+            strokeWidth={1.8}
+          />
+
+          <span className="text-sm">
+            Delete
+          </span>
+        </button>
+      </div>
+
+      {activeCategory ===
+        "Status" && (
+          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+            <div className="flex h-9 items-center px-3">
+              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+                Status
+              </span>
+            </div>
+
+            {statusOptions.map(
+              (option) => (
+                <button
+                  key={
+                    option.value
+                  }
+                  type="button"
+                  onClick={() =>
+                    updateSubtask({
+                      status:
+                        option.value,
+                    })
+                  }
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                >
+                  <span className="flex h-4 w-4 items-center justify-center">
+                    {status ===
+                      option.value && (
+                        <Check
+                          size={16}
+                        />
+                      )}
+                  </span>
+
+                  <span className="text-sm text-[var(--foreground)]">
+                    {option.label}
+                  </span>
+                </button>
+              ),
+            )}
+          </div>
+        )}
+
+      {activeCategory ===
+        "Priority" && (
+          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+            <div className="flex h-9 items-center px-3">
+              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+                Priority
+              </span>
+            </div>
+
+            {priorityOptions.map(
+              (option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() =>
+                    updateSubtask({
+                      priority:
+                        option,
+                    })
+                  }
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                >
+                  <span className="flex h-4 w-4 items-center justify-center">
+                    {priority ===
+                      option && (
+                        <Check
+                          size={16}
+                        />
+                      )}
+                  </span>
+
+                  <PriorityBadge
+                    priority={
+                      option
+                    }
+                  />
+                </button>
+              ),
+            )}
+          </div>
+        )}
+
+      {activeCategory ===
+        "Due Date" && (
+          <div className="absolute right-[calc(100%+10px)] top-0 w-56 rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 shadow-xl">
+            <div className="flex h-9 items-center px-2">
+              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+                Due Date
+              </span>
+            </div>
+
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(
+                event,
+              ) =>
+                setDueDate(
+                  event.target.value,
+                )
+              }
+              className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 text-sm text-[var(--foreground)] outline-none"
+            />
+
+            <button
+              type="button"
+              onClick={() =>
+                updateSubtask({
+                  dueDate:
+                    dueDate ||
+                    null,
+                })
+              }
+              className="mt-2 h-9 w-full rounded-md bg-[var(--foreground)] text-sm font-medium text-[var(--background)]"
+            >
+              Apply
+            </button>
+
+            {dueDate && (
+              <button
+                type="button"
+                onClick={() =>
+                  updateSubtask({
+                    dueDate:
+                      null,
+                  })
+                }
+                className="mt-1.5 h-8 w-full rounded-md text-left text-xs text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
+              >
+                Clear due date
+              </button>
+            )}
+          </div>
+        )}
+    </div>,
+    document.body,
+  );
+}
+
+function SubtaskRow({
+  subtask,
+  onOpenTask,
+  actionOpen,
+  onToggleActions,
+  onChange,
+  onDelete,
+}: {
+  subtask: BackendTask;
+  onOpenTask: (
+    taskId: string,
+  ) => void;
+  actionOpen: boolean;
+  onToggleActions: () => void;
+  onChange: (
+    subtaskId: string,
+    payload: Partial<{
+      priority: BackendPriority;
+      status: TaskStatus;
+      dueDate: string | null;
+    }>,
+  ) => void;
+  onDelete: (
+    subtaskId: string,
+  ) => void;
+}) {
+  const actionButtonRef =
+    useRef<HTMLButtonElement>(
+      null,
+    );
+
+  return (
+    <div className="grid min-h-11 grid-cols-[1.2fr_1fr_1fr_1.2fr_80px] items-center border-b border-[var(--border)] bg-[var(--background)] text-sm text-[var(--foreground)] last:border-b-0">
+      <button
+        type="button"
+        onClick={() =>
+          onOpenTask(
+            subtask.id,
+          )
+        }
+        className="px-3 py-3 text-left font-medium transition-colors hover:text-[var(--primary)] hover:underline"
+      >
+        {subtask.title}
+      </button>
+
+      <div className="flex items-center px-3">
+        <PriorityBadge
+          priority={
+            priorityToFrontend[
+            subtask.priority
+            ]
+          }
+        />
+      </div>
+
+      <div className="flex items-center px-3">
+        {subtask.assignee ? (
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
+            {subtask.assignee.name.charAt(
+              0,
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-[var(--foreground-secondary)]">
+            Unassigned
+          </span>
+        )}
+      </div>
+
+      <div className="px-3 text-xs text-[var(--foreground-secondary)]">
+        {formatDate(
+          subtask.dueDate,
+        ) || "-"}
+      </div>
+
+      <div className="flex items-center justify-center px-2">
+        <button
+          ref={actionButtonRef}
+          type="button"
+          onClick={(
+            event,
+          ) => {
+            event.stopPropagation();
+
+            onToggleActions();
+          }}
+          className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+        >
+          <MoreHorizontal
+            size={16}
+            strokeWidth={2}
+          />
+        </button>
+
+        {actionOpen && (
+          <TaskActionMenu
+            subtask={subtask}
+            anchorRef={
+              actionButtonRef
+            }
+            onClose={
+              onToggleActions
+            }
+            onChange={
+              onChange
+            }
+            onDelete={
+              onDelete
+            }
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function TaskDetailsPage() {
   const params =
     useParams();
 
+
+
   const router =
     useRouter();
+
+  const { user } = useAuth();
 
   const taskId =
     params.id as string;
@@ -237,13 +951,25 @@ export default function TaskDetailsPage() {
   const [
     assignee,
     setAssignee,
-  ] = useState<
-    BackendTask["assignee"]
-  >(null);
+  ] = useState<Assignee | null>(
+    null,
+  );
+
+  const [
+    subtasks,
+    setSubtasks,
+  ] = useState<BackendTask[]>(
+    [],
+  );
 
   const [
     showDetails,
     setShowDetails,
+  ] = useState(true);
+
+  const [
+    showSubtasks,
+    setShowSubtasks,
   ] = useState(true);
 
   const [
@@ -281,6 +1007,72 @@ export default function TaskDetailsPage() {
     setError,
   ] = useState("");
 
+  const [
+    showAddSubtask,
+    setShowAddSubtask,
+  ] = useState(false);
+
+  const [
+    newSubtaskTitle,
+    setNewSubtaskTitle,
+  ] = useState("");
+
+  const [
+    newSubtaskPriority,
+    setNewSubtaskPriority,
+  ] = useState<Priority>(
+    "No Priority",
+  );
+
+  const [
+    newSubtaskDueDate,
+    setNewSubtaskDueDate,
+  ] = useState("");
+
+  const [
+    newSubtaskStatus,
+    setNewSubtaskStatus,
+  ] = useState<TaskStatus>(
+    "todo",
+  );
+
+  const [
+    activeSubtaskId,
+    setActiveSubtaskId,
+  ] = useState<string | null>(
+    null,
+  );
+
+  const apiUrl =
+    process.env.NEXT_PUBLIC_API_URL;
+
+  const fetchSubtasks =
+    async () => {
+      try {
+        const response =
+          await fetch(
+            `${apiUrl}/tasks/${taskId}/subtasks`,
+          );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch subtasks",
+          );
+        }
+
+        const data:
+          BackendTask[] =
+          await response.json();
+
+        setSubtasks(data);
+      } catch (error) {
+        console.error(
+          "Failed to fetch subtasks:",
+          error,
+        );
+      }
+    };
+
   useEffect(() => {
     if (!taskId) {
       return;
@@ -293,7 +1085,7 @@ export default function TaskDetailsPage() {
 
           const response =
             await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/tasks/${taskId}`,
+              `${apiUrl}/tasks/${taskId}`,
             );
 
           if (!response.ok) {
@@ -306,13 +1098,17 @@ export default function TaskDetailsPage() {
             BackendTask =
             await response.json();
 
-          setTitle(task.title);
+          setTitle(
+            task.title,
+          );
 
           setDescription(
             task.description ?? "",
           );
 
-          setStatus(task.status);
+          setStatus(
+            task.status,
+          );
 
           setPriority(
             priorityToFrontend[
@@ -329,6 +1125,8 @@ export default function TaskDetailsPage() {
           );
 
           setIsDirty(false);
+
+          await fetchSubtasks();
         } catch (error) {
           console.error(
             "Failed to fetch task:",
@@ -399,7 +1197,7 @@ export default function TaskDetailsPage() {
 
         const response =
           await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/tasks/${taskId}`,
+            `${apiUrl}/tasks/${taskId}`,
             {
               method: "PATCH",
               headers: {
@@ -428,6 +1226,130 @@ export default function TaskDetailsPage() {
       } catch (error) {
         console.error(
           "Failed to save task:",
+          error,
+        );
+      }
+    };
+
+  const createSubtask = async () => {
+    if (!newSubtaskTitle.trim()) {
+      return;
+    }
+
+    if (!user?.id) {
+      console.error("Current user not found");
+      return;
+    }
+
+    try {
+      const payload = {
+        title: newSubtaskTitle.trim(),
+        priority: priorityToBackend[newSubtaskPriority],
+        status: newSubtaskStatus,
+        dueDate: newSubtaskDueDate || null,
+        assigneeId: user.id,
+      };
+
+      const response = await fetch(
+        `${apiUrl}/tasks/${taskId}/subtasks`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to create subtask",
+        );
+      }
+
+      setNewSubtaskTitle("");
+      setNewSubtaskPriority("No Priority");
+      setNewSubtaskStatus("todo");
+      setNewSubtaskDueDate("");
+      setShowAddSubtask(false);
+
+      await fetchSubtasks();
+    } catch (error) {
+      console.error(
+        "Failed to create subtask:",
+        error,
+      );
+    }
+  };
+
+  const updateSubtask =
+    async (
+      subtaskId: string,
+      payload: Partial<{
+        title: string;
+        priority: BackendPriority;
+        status: TaskStatus;
+        dueDate: string | null;
+      }>,
+    ) => {
+      try {
+        const response =
+          await fetch(
+            `${apiUrl}/tasks/${subtaskId}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+              body: JSON.stringify(
+                payload,
+              ),
+            },
+          );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to update subtask",
+          );
+        }
+
+        await fetchSubtasks();
+      } catch (error) {
+        console.error(
+          "Failed to update subtask:",
+          error,
+        );
+      }
+    };
+
+  const deleteSubtask =
+    async (
+      subtaskId: string,
+    ) => {
+      try {
+        const response =
+          await fetch(
+            `${apiUrl}/tasks/${subtaskId}`,
+            {
+              method: "DELETE",
+            },
+          );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to delete subtask",
+          );
+        }
+
+        setActiveSubtaskId(
+          null,
+        );
+
+        await fetchSubtasks();
+      } catch (error) {
+        console.error(
+          "Failed to delete subtask:",
           error,
         );
       }
@@ -559,12 +1481,8 @@ export default function TaskDetailsPage() {
                     <div className="flex items-center gap-1.5">
                       {assignee?.avatar ? (
                         <img
-                          src={
-                            assignee.avatar
-                          }
-                          alt={
-                            assignee.name
-                          }
+                          src={assignee.avatar}
+                          alt={assignee.name}
                           className="h-6 w-6 rounded-full object-cover"
                         />
                       ) : (
@@ -586,9 +1504,7 @@ export default function TaskDetailsPage() {
                         type="button"
                         className="flex h-5 items-center gap-1 rounded-full bg-red-500/10 px-2 text-xs font-medium text-red-500"
                       >
-                        <Calendar
-                          size={12}
-                        />
+                        <Calendar size={12} />
 
                         {formatDate(
                           dueDate,
@@ -597,127 +1513,123 @@ export default function TaskDetailsPage() {
                     )}
                   </div>
                 </div>
-
-                <div className="flex min-h-7 items-center gap-3">
-                  <span className="w-20 text-sm font-medium text-[var(--foreground-secondary)]">
-                    Resources
-                  </span>
-
-                  <button
-                    type="button"
-                    className="flex h-7 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
-                  >
-                    <FileText
-                      size={12}
-                    />
-
-                    Add document or link...
-                  </button>
-                </div>
               </div>
 
               <section className="mt-6">
-                <div className="mb-3 flex items-center gap-1 text-sm font-medium text-[var(--foreground)]">
-                  <ChevronDown
-                    size={16}
-                  />
-
-                  Subtasks
-                </div>
-
-                <div className="overflow-hidden rounded-md border border-[var(--border)]">
-                  <div className="grid grid-cols-[1.2fr_1fr_1fr_1.2fr_40px] border-b border-[var(--border)] text-sm font-medium text-[var(--foreground)]">
-                    <div className="px-3 py-4">
-                      Task
-                    </div>
-
-                    <div className="px-3 py-4">
-                      Priority
-                    </div>
-
-                    <div className="px-3 py-4">
-                      Members
-                    </div>
-
-                    <div className="px-3 py-4">
-                      Due Date
-                    </div>
-
-                    <div className="px-2 py-4">
-                      Actions
-                    </div>
-                  </div>
-
-                  {subtasks.map(
-                    (subtask) => (
-                      <div
-                        key={
-                          subtask.id
-                        }
-                        className="grid h-11 grid-cols-[1.2fr_1fr_1fr_1.2fr_40px] items-center border-b border-[var(--border)] text-sm text-[var(--foreground)] last:border-b-0"
-                      >
-                        <button
-                          type="button"
-                          className="px-3 text-left hover:underline"
-                        >
-                          {
-                            subtask.title
-                          }
-                        </button>
-
-                        <div className="px-3">
-                          <PriorityBadge
-                            priority={
-                              subtask.priority
-                            }
-                          />
-                        </div>
-
-                        <div className="px-3">
-                          {subtask.member ? (
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[10px] text-[var(--foreground)]">
-                              {
-                                subtask.member
-                              }
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--foreground)]"
-                            >
-                              <Plus
-                                size={12}
-                              />
-                            </button>
-                          )}
-                        </div>
-
-                        <div className="px-3 text-sm">
-                          {
-                            subtask.dueDate
-                          }
-                        </div>
-
-                        <button
-                          type="button"
-                          className="px-2"
-                        >
-                          <MoreHorizontal
-                            size={16}
-                          />
-                        </button>
-                      </div>
-                    ),
-                  )}
-
+                <div className="mb-3 flex items-center gap-1">
                   <button
                     type="button"
-                    className="flex h-11 items-center gap-2 px-3 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                    onClick={() =>
+                      setShowSubtasks(
+                        !showSubtasks,
+                      )
+                    }
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
                   >
-                    <Plus size={15} />
-
-                    Add Subtasks
+                    <ChevronDown
+                      size={16}
+                      strokeWidth={2}
+                      className={
+                        showSubtasks
+                          ? "rotate-0 transition-transform"
+                          : "-rotate-90 transition-transform"
+                      }
+                    />
                   </button>
+
+                  <span className="text-sm font-medium text-[var(--foreground)]">
+                    Subtasks
+                  </span>
+                </div>
+
+                <div
+                  className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${showSubtasks
+                    ? "grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-0"
+                    }`}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <div className="overflow-visible rounded-md border border-[var(--border)]">
+                      <div className="grid grid-cols-[1.2fr_1fr_1fr_1.2fr_75px] border-b border-[var(--border)] text-sm font-medium text-[var(--foreground)]">
+                        <div className="px-3 py-4">
+                          Task
+                        </div>
+
+                        <div className="px-3 py-4">
+                          Priority
+                        </div>
+
+                        <div className="px-3 py-4">
+                          Members
+                        </div>
+
+                        <div className="px-3 py-4">
+                          Due Date
+                        </div>
+
+                        <div className="px-2 py-4">
+                          Actions
+                        </div>
+                      </div>
+
+                      {subtasks.length === 0 && (
+                        <div className="px-3 py-8 text-center text-sm text-[var(--foreground-secondary)]">
+                          No subtasks yet
+                        </div>
+                      )}
+
+                      {subtasks.map(
+                        (subtask) => (
+                          <SubtaskRow
+                            key={subtask.id}
+                            subtask={subtask}
+                            onOpenTask={(
+                              subtaskId,
+                            ) =>
+                              router.push(
+                                `/tasks/${subtaskId}`,
+                              )
+                            }
+                            actionOpen={
+                              activeSubtaskId ===
+                              subtask.id
+                            }
+                            onToggleActions={() =>
+                              setActiveSubtaskId(
+                                activeSubtaskId ===
+                                  subtask.id
+                                  ? null
+                                  : subtask.id,
+                              )
+                            }
+                            onChange={
+                              updateSubtask
+                            }
+                            onDelete={
+                              deleteSubtask
+                            }
+                          />
+                        ),
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowAddSubtask(
+                            true,
+                          )
+                        }
+                        className="flex h-12 w-full items-center gap-1 border-t border-[var(--border)] px-3 text-sm font-medium text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+                      >
+                        <Plus
+                          size={16}
+                          strokeWidth={2}
+                        />
+
+                        Add Subtask
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </section>
 
@@ -732,9 +1644,7 @@ export default function TaskDetailsPage() {
                   </span>
 
                   <div className="flex items-center gap-4 text-[var(--foreground)]">
-                    <FileText
-                      size={16}
-                    />
+                    <FileText size={16} />
 
                     <SendHorizontal
                       size={16}
@@ -772,9 +1682,7 @@ export default function TaskDetailsPage() {
                   <div className="flex items-center gap-4 text-[var(--foreground)]">
                     <Plus size={16} />
 
-                    <Settings
-                      size={16}
-                    />
+                    <Settings size={16} />
                   </div>
                 </div>
 
@@ -969,6 +1877,144 @@ export default function TaskDetailsPage() {
           </div>
         </div>
       </div>
+
+      {showAddSubtask && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30">
+          <div className="w-[480px] rounded-xl bg-[var(--surface)] p-6 text-[var(--foreground)] shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">
+                Add Subtask
+              </h2>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowAddSubtask(
+                    false,
+                  )
+                }
+                className="rounded-md p-1 hover:bg-[var(--surface-secondary)]"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <input
+                value={
+                  newSubtaskTitle
+                }
+                onChange={(e) =>
+                  setNewSubtaskTitle(
+                    e.target.value,
+                  )
+                }
+                placeholder="Subtask title"
+                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+              />
+
+              <select
+                value={
+                  newSubtaskPriority
+                }
+                onChange={(e) =>
+                  setNewSubtaskPriority(
+                    e.target
+                      .value as Priority,
+                  )
+                }
+                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+              >
+                <option>
+                  No Priority
+                </option>
+
+                <option>
+                  Urgent
+                </option>
+
+                <option>
+                  High
+                </option>
+
+                <option>
+                  Medium
+                </option>
+
+                <option>
+                  Low
+                </option>
+              </select>
+
+              <select
+                value={
+                  newSubtaskStatus
+                }
+                onChange={(e) =>
+                  setNewSubtaskStatus(
+                    e.target
+                      .value as TaskStatus,
+                  )
+                }
+                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+              >
+                <option value="todo">
+                  To Do
+                </option>
+
+                <option value="doing">
+                  Doing
+                </option>
+
+                <option value="completed">
+                  Completed
+                </option>
+
+                <option value="on_hold">
+                  On Hold
+                </option>
+              </select>
+
+              <input
+                type="date"
+                value={
+                  newSubtaskDueDate
+                }
+                onChange={(e) =>
+                  setNewSubtaskDueDate(
+                    e.target.value,
+                  )
+                }
+                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+              />
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setShowAddSubtask(
+                    false,
+                  )
+                }
+                className="rounded-md border border-[var(--border)] px-4 py-2 text-sm hover:bg-[var(--surface-secondary)]"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={
+                  createSubtask
+                }
+                className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)]"
+              >
+                Create Subtask
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isDirty && (
         <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-8 shadow-lg">

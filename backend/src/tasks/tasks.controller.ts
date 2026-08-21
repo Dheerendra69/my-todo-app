@@ -17,6 +17,7 @@ import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 import { UpdateTaskPriorityDto } from './dto/update-task-priority.dto';
 import { UpdateTaskAssigneeDto } from './dto/update-task-assignee.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
+import { CreateSubtaskDto } from './dto/create-subtask.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -32,6 +33,16 @@ export class TasksController {
     return this.tasksService.findAll(query);
   }
 
+  @Get(':id/subtasks')
+  findSubtasks(@Param('id') id: string) {
+    return this.tasksService.findSubtasks(id);
+  }
+
+  @Post(':id/subtasks')
+  createSubtask(@Param('id') id: string, @Body() dto: CreateSubtaskDto) {
+    return this.tasksService.createSubtask(id, dto);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.tasksService.findOne(id);
@@ -43,29 +54,17 @@ export class TasksController {
   }
 
   @Patch(':id/status')
-  updateStatus(
-    @Param('id') id: string,
-    @Body()
-    dto: UpdateTaskStatusDto,
-  ) {
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateTaskStatusDto) {
     return this.tasksService.updateStatus(id, dto);
   }
 
   @Patch(':id/priority')
-  updatePriority(
-    @Param('id') id: string,
-    @Body()
-    dto: UpdateTaskPriorityDto,
-  ) {
+  updatePriority(@Param('id') id: string, @Body() dto: UpdateTaskPriorityDto) {
     return this.tasksService.updatePriority(id, dto);
   }
 
   @Patch(':id/assignee')
-  updateAssignee(
-    @Param('id') id: string,
-    @Body()
-    dto: UpdateTaskAssigneeDto,
-  ) {
+  updateAssignee(@Param('id') id: string, @Body() dto: UpdateTaskAssigneeDto) {
     return this.tasksService.updateAssignee(id, dto);
   }
 
