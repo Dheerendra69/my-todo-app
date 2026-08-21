@@ -7,9 +7,7 @@ import {
   useState,
 } from "react";
 
-import {
-  createPortal,
-} from "react-dom";
+import { createPortal } from "react-dom";
 
 import {
   Check,
@@ -31,18 +29,22 @@ import type {
   ViewMode,
 } from "../FieldsPopover/FieldsPopOver";
 
-import {
-  type FilterState,
+import type {
+  FilterState,
 } from "../TaskFilter/TaskFilter";
 
 import {
   useAuth,
 } from "../auth/AuthContext";
 
-type Priority =
-  | "High"
-  | "Medium"
-  | "Low";
+/*
+ * Use the same Priority type as the Project type
+ * from AddProjectModal.
+ *
+ * This prevents:
+ * "Type 'Priority' is not assignable to type 'Priority'"
+ */
+type Priority = Project["priority"];
 
 type BackendProject = {
   id: string;
@@ -75,13 +77,13 @@ const priorityOptions: Priority[] = [
   "Low",
 ];
 
-const priorityStyles: Record<
-  Priority,
-  string
+const priorityStyles: Partial<
+  Record<Priority, string>
 > = {
   High: "text-[#EF4444]",
   Medium: "text-[#F97316]",
   Low: "text-[#9CA3AF]",
+  Urgent: "text-[#DC2626]",
 };
 
 function PriorityBadge({
@@ -91,7 +93,9 @@ function PriorityBadge({
 }) {
   return (
     <div
-      className={`flex items-center gap-1 ${priorityStyles[priority]}`}
+      className={`flex items-center gap-1 ${priorityStyles[priority] ??
+        "text-[var(--foreground)]"
+        }`}
     >
       {priority === "Low" ? (
         <SignalLow
@@ -122,12 +126,12 @@ function ProjectMember({
       {project.avatar ? (
         <img
           src={project.avatar}
-          alt={project.member}
+          alt={project.lead}
           className="h-6 w-6 rounded-full object-cover"
         />
       ) : (
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[10px]">
-          {project.member.charAt(0)}
+          {project.lead.charAt(0)}
         </div>
       )}
     </div>
@@ -177,8 +181,7 @@ function ProjectActionMenu({
 
       setPosition({
         top: rect.top,
-        left:
-          rect.right - 192,
+        left: rect.right - 192,
       });
     };
 
@@ -295,8 +298,8 @@ function ProjectActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeMenu
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+              ? "bg-[var(--surface-secondary)]"
+              : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <SignalHigh
@@ -348,9 +351,7 @@ function ProjectActionMenu({
                 </span>
 
                 <PriorityBadge
-                  priority={
-                    option
-                  }
+                  priority={option}
                 />
               </button>
             ),
@@ -505,9 +506,7 @@ function ProjectCard({
         {actionOpen && (
           <ProjectActionMenu
             project={project}
-            anchorRef={
-              actionButtonRef
-            }
+            anchorRef={actionButtonRef}
             onClose={() =>
               onOpenActions("")
             }
@@ -525,7 +524,7 @@ function ProjectCard({
           />
 
           <span className="text-xs font-medium text-[var(--foreground)]">
-            {project.member}
+            {project.lead}
           </span>
         </div>
 
@@ -548,9 +547,7 @@ function ProjectCard({
 
       <div className="mt-3">
         <PriorityBadge
-          priority={
-            project.priority
-          }
+          priority={project.priority}
         />
       </div>
     </div>
@@ -558,8 +555,7 @@ function ProjectCard({
 }
 
 export default function ProjectBoard() {
-  const { user } =
-    useAuth();
+  const { user } = useAuth();
 
   const [
     projects,
@@ -650,10 +646,14 @@ export default function ProjectBoard() {
                   "",
                 priority:
                   project.priority,
-                member:
+
+                // Fixed: Project requires "lead"
+                lead:
                   project.owner.name,
+
                 avatar:
                   project.owner.avatar,
+
                 dueDate:
                   project.dueDate ||
                   "",
@@ -885,9 +885,7 @@ export default function ProjectBoard() {
             </h1>
 
             <BoardActions
-              viewMode={
-                viewMode
-              }
+              viewMode={viewMode}
               onViewModeChange={
                 setViewMode
               }
@@ -938,12 +936,8 @@ export default function ProjectBoard() {
                 {filteredProjects.map(
                   (project) => (
                     <ProjectRow
-                      key={
-                        project.id
-                      }
-                      project={
-                        project
-                      }
+                      key={project.id}
+                      project={project}
                       actionOpen={
                         openActionProjectId ===
                         project.id
@@ -980,7 +974,6 @@ export default function ProjectBoard() {
                   className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                 >
                   <Plus size={16} />
-
                   Add Project
                 </button>
               </div>
@@ -1031,12 +1024,8 @@ export default function ProjectBoard() {
                 {filteredProjects.map(
                   (project) => (
                     <ProjectCard
-                      key={
-                        project.id
-                      }
-                      project={
-                        project
-                      }
+                      key={project.id}
+                      project={project}
                       actionOpen={
                         openActionProjectId ===
                         project.id
@@ -1100,9 +1089,7 @@ export default function ProjectBoard() {
             onClick={
               discardChanges
             }
-            disabled={
-              isSaving
-            }
+            disabled={isSaving}
             className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:opacity-50"
           >
             Discard
@@ -1113,9 +1100,7 @@ export default function ProjectBoard() {
             onClick={
               saveChanges
             }
-            disabled={
-              isSaving
-            }
+            disabled={isSaving}
             className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:opacity-50"
           >
             {isSaving
@@ -1156,12 +1141,8 @@ export default function ProjectBoard() {
             false,
           )
         }
-        onCreate={(
-          project,
-        ) => {
-          addProject(
-            project,
-          );
+        onCreate={(project) => {
+          addProject(project);
 
           setIsAddProjectOpen(
             false,

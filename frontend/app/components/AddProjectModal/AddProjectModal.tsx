@@ -38,6 +38,7 @@ const priorities: Priority[] = [
 ];
 
 const priorityStyles = {
+    Urgent: "text-[#DC2626]",
     High: "text-[#EF4444]",
     Medium: "text-[#F97316]",
     Low: "text-[#9CA3AF]",
@@ -129,7 +130,7 @@ export default function AddProjectModal({
                     data.description ?? "",
                 priority,
                 lead: user.name || lead,
-                avatar: user.avatar,
+                avatar: user.avatar ?? undefined,
                 dueDate,
             });
 

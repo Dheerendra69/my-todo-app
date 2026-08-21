@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/components/auth/AuthContext";
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refreshUser } = useAuth();
@@ -20,8 +20,14 @@ export default function AuthCallbackPage() {
     localStorage.setItem("accessToken", token);
 
     const authenticate = async () => {
-      await refreshUser();
-      router.replace("/tasks");
+      try {
+        await refreshUser();
+        router.replace("/tasks");
+      } catch (error) {
+        console.error("Authentication failed:", error);
+        localStorage.removeItem("accessToken");
+        router.replace("/login");
+      }
     };
 
     authenticate();
@@ -33,5 +39,21 @@ export default function AuthCallbackPage() {
         Signing you in...
       </p>
     </main>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-[var(--foreground-secondary)]">
+            Signing you in...
+          </p>
+        </main>
+      }
+    >
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
