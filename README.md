@@ -1,1 +1,42 @@
-# my-todo-app
+# Task Management System
+
+![Task Management System](./frontend//public/Hero-Page.png)
+
+A responsive task management application built as part of the Full Stack Developer assessment, with task organization, filtering, theming, authentication, and multiple viewing options.
+
+## Features
+
+* Google OAuth authentication
+* Guest login with persistent tasks using Local Storage
+* Create, update, and delete tasks
+* Task status management: To Do, Doing, On Hold, and Completed
+* Priority management for tasks
+* Multiple task colors
+* Task search by name
+* Multi-criteria task filtering
+* Grid and list view
+* Responsive design for desktop, tablet, and mobile
+* Light and dark themes with persistent preferences
+* Task details page with expanded task information
+* User profile and logout functionality
+* Persistent theme, color, and guest-task preferences
+* Reusable UI components and REST APIs
+* Type-safe frontend and backend implementation
+
+## Tech Stack
+
+* **Frontend:** Next.js, TypeScript, Tailwind CSS
+* **Backend:** Next.js, TypeScript
+* **Database:** PostgreSQL
+* **Authentication:** Google OAuth
+* **Deployment:** Vercel (Frontend), Render (Backend & Database)
+
+## Live Demo
+
+**Frontend:** https://my-todo-app-rose-eta.vercel.app
+
+**Backend:** https://my-todo-app-aetw.onrender.com
+
+## Repository
+
+The project includes a structured codebase with meaningful commits and a README documenting the implementation.
