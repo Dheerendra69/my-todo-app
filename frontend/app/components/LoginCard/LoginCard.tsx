@@ -44,12 +44,12 @@ export default function LoginCard() {
 
   const handleGoogleLogin = () => {
     window.location.href =
-      "http://localhost:3001/auth/google";
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
   const handleGuestLogin = async () => {
     const response = await fetch(
-      "http://localhost:3001/auth/guest",
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/guest`,
       {
         method: "POST",
       },
