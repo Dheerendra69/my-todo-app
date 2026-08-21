@@ -26,17 +26,11 @@ A responsive task management application built as part of the Full Stack Develop
 ## Tech Stack
 
 * **Frontend:** Next.js, TypeScript, Tailwind CSS
-* **Backend:** Next.js, TypeScript
+* **Backend:** NestJs, TypeScript
 * **Database:** PostgreSQL
 * **Authentication:** Google OAuth
 * **Deployment:** Vercel (Frontend), Render (Backend & Database)
 
 ## Live Demo
 
-**Frontend:** https://my-todo-app-rose-eta.vercel.app
-
-**Backend:** https://my-todo-app-aetw.onrender.com
-
-## Repository
-
-The project includes a structured codebase with meaningful commits and a README documenting the implementation.
+https://my-todo-app-rose-eta.vercel.app
