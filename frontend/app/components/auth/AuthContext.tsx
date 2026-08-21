@@ -15,6 +15,8 @@ export type User = {
     email: string | null;
     avatar: string | null;
     googleId: string | null;
+    title?: string | null;
+    username?: string | null;
     isGuest: boolean;
     createdAt: string;
     updatedAt: string;

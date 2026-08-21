@@ -1,6 +1,14 @@
 "use client";
 
+import {
+  useEffect,
+} from "react";
+
 import React from "react";
+
+import {
+  useRouter,
+} from "next/navigation";
 
 const GoogleIcon = () => (
   <svg
@@ -18,6 +26,22 @@ const GoogleIcon = () => (
 );
 
 export default function LoginCard() {
+  const router =
+    useRouter();
+
+  useEffect(() => {
+    const token =
+      localStorage.getItem(
+        "accessToken",
+      );
+
+    if (token) {
+      router.replace(
+        "/tasks",
+      );
+    }
+  }, [router]);
+
   const handleGoogleLogin = () => {
     window.location.href =
       "http://localhost:3001/auth/google";
@@ -35,14 +59,17 @@ export default function LoginCard() {
       return;
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
     localStorage.setItem(
       "accessToken",
       data.accessToken,
     );
 
-    window.location.href = "/tasks";
+    router.replace(
+      "/tasks",
+    );
   };
 
   return (

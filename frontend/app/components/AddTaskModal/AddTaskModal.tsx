@@ -15,6 +15,8 @@ import {
     X,
 } from "lucide-react";
 
+import { useAuth } from "../auth/AuthContext";
+
 type Priority =
     | "No Priority"
     | "Urgent"
@@ -42,6 +44,7 @@ type CreatedTask = {
     member: string;
     avatar?: string;
     dueDate: string;
+    dueDateValue: string | null;
     status: TaskStatus;
 };
 
@@ -171,6 +174,9 @@ export default function AddTaskModal({
     assigneeId,
     defaultStatus,
 }: AddTaskModalProps) {
+    const { user } =
+        useAuth();
+
     const [title, setTitle] =
         useState("");
 
@@ -218,6 +224,9 @@ export default function AddTaskModal({
     const [error, setError] =
         useState("");
 
+    const isGuest =
+        user?.isGuest === true;
+
     useEffect(() => {
         if (isOpen) {
             setStatus(
@@ -239,13 +248,20 @@ export default function AddTaskModal({
         setTitle("");
         setDescription("");
         setPriority("No Priority");
-        setMember("Admin");
+        setMember(
+            isGuest
+                ? user?.name || "Guest"
+                : "Admin",
+        );
         setDueDate("");
         setStatus(
             statusLabels[
             defaultStatus
             ],
         );
+        setPriorityOpen(false);
+        setMemberOpen(false);
+        setStatusOpen(false);
         setError("");
     };
 
@@ -254,6 +270,41 @@ export default function AddTaskModal({
             !title.trim() ||
             isSubmitting
         ) {
+            return;
+        }
+
+        if (isGuest) {
+            const guestTask: CreatedTask = {
+                id: crypto.randomUUID(),
+                title: title.trim(),
+                description:
+                    description.trim(),
+                priority,
+                member:
+                    user?.name ||
+                    "Guest",
+                avatar:
+                    user?.avatar ||
+                    undefined,
+                dueDate:
+                    formatDueDate(
+                        dueDate || null,
+                    ),
+                dueDateValue:
+                    dueDate || null,
+                status:
+                    statusApiValues[
+                    status
+                    ],
+            };
+
+            onCreate(
+                guestTask,
+            );
+
+            resetForm();
+            onClose();
+
             return;
         }
 
@@ -308,16 +359,31 @@ export default function AddTaskModal({
 
             if (!response.ok) {
                 throw new Error(
-                    Array.isArray(
-                        data as unknown,
-                    )
-                        ? "Failed to create task"
-                        : (
-                            data as unknown as {
-                                message?: string;
-                            }
-                        ).message ||
-                        "Failed to create task",
+                    (
+                        data as unknown as {
+                            message?: string | string[];
+                        }
+                    ).message
+                        ? Array.isArray(
+                            (
+                                data as unknown as {
+                                    message?: string | string[];
+                                }
+                            ).message,
+                        )
+                            ? (
+                                data as unknown as {
+                                    message: string[];
+                                }
+                            ).message.join(
+                                ", ",
+                            )
+                            : (
+                                data as unknown as {
+                                    message: string;
+                                }
+                            ).message
+                        : "Failed to create task",
                 );
             }
 
@@ -340,6 +406,8 @@ export default function AddTaskModal({
                 dueDate: formatDueDate(
                     data.dueDate,
                 ),
+                dueDateValue:
+                    data.dueDate,
                 status: data.status,
             });
 
@@ -389,9 +457,7 @@ export default function AddTaskModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        disabled={
-                            isSubmitting
-                        }
+                        disabled={isSubmitting}
                         className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
                     >
                         <X size={16} />
@@ -406,12 +472,9 @@ export default function AddTaskModal({
 
                         <input
                             value={title}
-                            onChange={(
-                                event,
-                            ) =>
+                            onChange={(event) =>
                                 setTitle(
-                                    event.target
-                                        .value,
+                                    event.target.value,
                                 )
                             }
                             placeholder="What needs to be done?"
@@ -425,15 +488,10 @@ export default function AddTaskModal({
                         </label>
 
                         <textarea
-                            value={
-                                description
-                            }
-                            onChange={(
-                                event,
-                            ) =>
+                            value={description}
+                            onChange={(event) =>
                                 setDescription(
-                                    event.target
-                                        .value,
+                                    event.target.value,
                                 )
                             }
                             placeholder="Add a description..."
@@ -453,9 +511,7 @@ export default function AddTaskModal({
                                     type="button"
                                     onClick={() =>
                                         setPriorityOpen(
-                                            (
-                                                current,
-                                            ) =>
+                                            (current) =>
                                                 !current,
                                         )
                                     }
@@ -465,19 +521,14 @@ export default function AddTaskModal({
                                         className={
                                             priorityStyles[
                                                 priority
-                                            ]
-                                                .text
+                                            ].text
                                         }
                                     >
-                                        {
-                                            priorityIcon
-                                        }
+                                        {priorityIcon}
                                     </span>
 
                                     <span className="flex-1 text-sm text-[var(--foreground)]">
-                                        {
-                                            priority
-                                        }
+                                        {priority}
                                     </span>
 
                                     <ChevronDown
@@ -488,19 +539,14 @@ export default function AddTaskModal({
                                 {priorityOpen && (
                                     <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
                                         {priorities.map(
-                                            (
-                                                item,
-                                            ) => (
+                                            (item) => (
                                                 <button
-                                                    key={
-                                                        item
-                                                    }
+                                                    key={item}
                                                     type="button"
                                                     onClick={() => {
                                                         setPriority(
                                                             item,
                                                         );
-
                                                         setPriorityOpen(
                                                             false,
                                                         );
@@ -511,8 +557,7 @@ export default function AddTaskModal({
                                                         className={
                                                             priorityStyles[
                                                                 item
-                                                            ]
-                                                                .text
+                                                            ].text
                                                         }
                                                     >
                                                         {item ===
@@ -520,31 +565,23 @@ export default function AddTaskModal({
                                                             item ===
                                                             "No Priority" ? (
                                                             <SignalLow
-                                                                size={
-                                                                    14
-                                                                }
+                                                                size={14}
                                                             />
                                                         ) : (
                                                             <SignalHigh
-                                                                size={
-                                                                    14
-                                                                }
+                                                                size={14}
                                                             />
                                                         )}
                                                     </span>
 
                                                     <span className="flex-1 text-left text-sm">
-                                                        {
-                                                            item
-                                                        }
+                                                        {item}
                                                     </span>
 
                                                     {priority ===
                                                         item && (
                                                             <Check
-                                                                size={
-                                                                    14
-                                                                }
+                                                                size={14}
                                                             />
                                                         )}
                                                 </button>
@@ -568,16 +605,10 @@ export default function AddTaskModal({
 
                                 <input
                                     type="date"
-                                    value={
-                                        dueDate
-                                    }
-                                    onChange={(
-                                        event,
-                                    ) =>
+                                    value={dueDate}
+                                    onChange={(event) =>
                                         setDueDate(
-                                            event
-                                                .target
-                                                .value,
+                                            event.target.value,
                                         )
                                     }
                                     className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 pl-9 text-sm text-[var(--foreground)]"
@@ -595,54 +626,56 @@ export default function AddTaskModal({
                             <button
                                 type="button"
                                 onClick={() =>
+                                    !isGuest &&
                                     setMemberOpen(
-                                        (
-                                            current,
-                                        ) =>
+                                        (current) =>
                                             !current,
                                     )
                                 }
                                 className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
                             >
                                 <span className="flex-1 text-sm text-[var(--foreground)]">
-                                    {member}
+                                    {isGuest
+                                        ? user?.name ||
+                                        "Guest"
+                                        : member}
                                 </span>
 
-                                <ChevronDown
-                                    size={14}
-                                />
+                                {!isGuest && (
+                                    <ChevronDown
+                                        size={14}
+                                    />
+                                )}
                             </button>
 
-                            {memberOpen && (
-                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setMember(
-                                                "Admin",
-                                            );
+                            {!isGuest &&
+                                memberOpen && (
+                                    <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setMember(
+                                                    "Admin",
+                                                );
+                                                setMemberOpen(
+                                                    false,
+                                                );
+                                            }}
+                                            className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                        >
+                                            <span className="flex-1 text-left text-sm text-[var(--foreground)]">
+                                                Admin
+                                            </span>
 
-                                            setMemberOpen(
-                                                false,
-                                            );
-                                        }}
-                                        className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
-                                    >
-                                        <span className="flex-1 text-left text-sm text-[var(--foreground)]">
-                                            Admin
-                                        </span>
-
-                                        {member ===
-                                            "Admin" && (
-                                                <Check
-                                                    size={
-                                                        14
-                                                    }
-                                                />
-                                            )}
-                                    </button>
-                                </div>
-                            )}
+                                            {member ===
+                                                "Admin" && (
+                                                    <Check
+                                                        size={14}
+                                                    />
+                                                )}
+                                        </button>
+                                    </div>
+                                )}
                         </div>
                     </div>
 
@@ -656,9 +689,7 @@ export default function AddTaskModal({
                                 type="button"
                                 onClick={() =>
                                     setStatusOpen(
-                                        (
-                                            current,
-                                        ) =>
+                                        (current) =>
                                             !current,
                                     )
                                 }
@@ -676,19 +707,14 @@ export default function AddTaskModal({
                             {statusOpen && (
                                 <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
                                     {statuses.map(
-                                        (
-                                            item,
-                                        ) => (
+                                        (item) => (
                                             <button
-                                                key={
-                                                    item
-                                                }
+                                                key={item}
                                                 type="button"
                                                 onClick={() => {
                                                     setStatus(
                                                         item,
                                                     );
-
                                                     setStatusOpen(
                                                         false,
                                                     );
@@ -696,17 +722,13 @@ export default function AddTaskModal({
                                                 className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
                                             >
                                                 <span className="flex-1 text-left text-sm text-[var(--foreground)]">
-                                                    {
-                                                        item
-                                                    }
+                                                    {item}
                                                 </span>
 
                                                 {status ===
                                                     item && (
                                                         <Check
-                                                            size={
-                                                                14
-                                                            }
+                                                            size={14}
                                                         />
                                                     )}
                                             </button>
@@ -728,9 +750,7 @@ export default function AddTaskModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        disabled={
-                            isSubmitting
-                        }
+                        disabled={isSubmitting}
                         className="h-9 rounded-md px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
                     >
                         Cancel
@@ -742,9 +762,7 @@ export default function AddTaskModal({
                             !title.trim() ||
                             isSubmitting
                         }
-                        onClick={
-                            handleSubmit
-                        }
+                        onClick={handleSubmit}
                         className="flex h-9 items-center gap-1.5 rounded-md bg-[var(--foreground)] px-3 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         <Plus size={14} />

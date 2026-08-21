@@ -15,7 +15,9 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
+  @Column({
+    type: 'varchar',
+  })
   name: string;
 
   @Column({
@@ -43,6 +45,19 @@ export class User {
     default: false,
   })
   isGuest: boolean;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  title: string | null;
+
+  @Column({
+    type: 'varchar',
+    unique: true,
+    nullable: true,
+  })
+  username: string | null;
 
   @OneToMany(() => Project, (project) => project.owner)
   projects: Project[];

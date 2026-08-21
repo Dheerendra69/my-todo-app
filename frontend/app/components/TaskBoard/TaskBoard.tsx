@@ -106,6 +106,12 @@ type PendingChanges = Record<
   }
 >;
 
+const GUEST_TASKS_KEY =
+  "task-management-guest-tasks";
+
+const GUEST_PROJECT_ID =
+  "guest-local-project";
+
 const initialSections: TaskSection[] = [
   {
     id: "todo",
@@ -247,6 +253,30 @@ function formatTask(
     status:
       task.status,
   };
+}
+
+function createSectionsFromTasks(
+  tasks: Task[],
+): TaskSection[] {
+  return initialSections.map(
+    (section) => ({
+      ...section,
+      tasks: tasks.filter(
+        (task) =>
+          task.status ===
+          section.id,
+      ),
+    }),
+  );
+}
+
+function getAllTasks(
+  taskSections: TaskSection[],
+): Task[] {
+  return taskSections.flatMap(
+    (section) =>
+      section.tasks,
+  );
 }
 
 function PriorityBadge({
@@ -590,9 +620,9 @@ function TaskActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
-            "Status"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+              "Status"
+              ? "bg-[var(--surface-secondary)]"
+              : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <Signal
@@ -621,9 +651,9 @@ function TaskActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
-            "Priority"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+              "Priority"
+              ? "bg-[var(--surface-secondary)]"
+              : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <SignalHigh
@@ -652,9 +682,9 @@ function TaskActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
-            "Due Date"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+              "Due Date"
+              ? "bg-[var(--surface-secondary)]"
+              : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <Calendar
@@ -1071,8 +1101,8 @@ function ListTaskSection({
 
       <div
         className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${collapsed
-          ? "grid-rows-[0fr] opacity-0"
-          : "grid-rows-[1fr] opacity-100"
+            ? "grid-rows-[0fr] opacity-0"
+            : "grid-rows-[1fr] opacity-100"
           }`}
       >
         <div className="min-h-0 overflow-hidden">
@@ -1270,6 +1300,9 @@ export default function TaskBoard() {
   const router =
     useRouter();
 
+  const isGuest =
+    user?.isGuest === true;
+
   const [
     sections,
     setSections,
@@ -1352,12 +1385,66 @@ export default function TaskBoard() {
   ] = useState("");
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    if (isGuest) {
+      const storedTasks =
+        localStorage.getItem(
+          GUEST_TASKS_KEY,
+        );
+
+      let guestTasks: Task[] =
+        [];
+
+      if (storedTasks) {
+        try {
+          guestTasks =
+            JSON.parse(
+              storedTasks,
+            );
+        } catch {
+          guestTasks = [];
+        }
+      }
+
+      const guestSections =
+        createSectionsFromTasks(
+          guestTasks,
+        );
+
+      setSections(
+        guestSections,
+      );
+
+      setSavedSections(
+        guestSections,
+      );
+
+      setPendingChanges(
+        {},
+      );
+
+      setProjectId(
+        GUEST_PROJECT_ID,
+      );
+
+      return;
+    }
+
     const fetchTasks =
       async () => {
         try {
           const response =
             await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/tasks?limit=100`,
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${localStorage.getItem("token") ?? ""}`,
+                },
+              },
             );
 
           if (!response.ok) {
@@ -1378,12 +1465,19 @@ export default function TaskBoard() {
               ? result
               : result.data;
 
+          const userTasks =
+            tasks.filter(
+              (task) =>
+                task.assignee?.id ===
+                user.id,
+            );
+
           const formattedSections =
             initialSections.map(
               (section) => ({
                 ...section,
                 tasks:
-                  tasks
+                  userTasks
                     .filter(
                       (task) =>
                         task.status ===
@@ -1415,10 +1509,16 @@ export default function TaskBoard() {
       };
 
     fetchTasks();
-  }, []);
+  }, [
+    user,
+    isGuest,
+  ]);
 
   useEffect(() => {
-    if (!user?.id) {
+    if (
+      !user?.id ||
+      isGuest
+    ) {
       return;
     }
 
@@ -1428,6 +1528,12 @@ export default function TaskBoard() {
           const response =
             await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/projects/owner/${user.id}`,
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${localStorage.getItem("token") ?? ""}`,
+                },
+              },
             );
 
           if (!response.ok) {
@@ -1456,7 +1562,10 @@ export default function TaskBoard() {
       };
 
     fetchProjects();
-  }, [user?.id]);
+  }, [
+    user?.id,
+    isGuest,
+  ]);
 
   const changeTaskLocally = (
     taskId: string,
@@ -1471,16 +1580,13 @@ export default function TaskBoard() {
     setSections(
       (currentSections) => {
         const currentTask =
-          currentSections
-            .flatMap(
-              (section) =>
-                section.tasks,
-            )
-            .find(
-              (task) =>
-                task.id ===
-                taskId,
-            );
+          getAllTasks(
+            currentSections,
+          ).find(
+            (task) =>
+              task.id ===
+              taskId,
+          );
 
         if (!currentTask) {
           return currentSections;
@@ -1521,26 +1627,52 @@ export default function TaskBoard() {
             }),
           );
 
-        return withoutTask.map(
-          (section) => {
-            if (
-              section.id !==
-              updatedTask.status
-            ) {
-              return section;
-            }
+        const updatedSections =
+          withoutTask.map(
+            (section) => {
+              if (
+                section.id !==
+                updatedTask.status
+              ) {
+                return section;
+              }
 
-            return {
-              ...section,
-              tasks: [
-                ...section.tasks,
-                updatedTask,
-              ],
-            };
-          },
-        );
+              return {
+                ...section,
+                tasks: [
+                  ...section.tasks,
+                  updatedTask,
+                ],
+              };
+            },
+          );
+
+        if (isGuest) {
+          localStorage.setItem(
+            GUEST_TASKS_KEY,
+            JSON.stringify(
+              getAllTasks(
+                updatedSections,
+              ),
+            ),
+          );
+
+          setSavedSections(
+            updatedSections,
+          );
+        }
+
+        return updatedSections;
       },
     );
+
+    if (isGuest) {
+      setPendingChanges(
+        {},
+      );
+
+      return;
+    }
 
     setPendingChanges(
       (currentChanges) => {
@@ -1548,16 +1680,13 @@ export default function TaskBoard() {
           currentChanges[taskId];
 
         const currentTask =
-          sections
-            .flatMap(
-              (section) =>
-                section.tasks,
-            )
-            .find(
-              (task) =>
-                task.id ===
-                taskId,
-            );
+          getAllTasks(
+            sections,
+          ).find(
+            (task) =>
+              task.id ===
+              taskId,
+          );
 
         if (!currentTask) {
           return currentChanges;
@@ -1606,6 +1735,27 @@ export default function TaskBoard() {
 
   const saveAllChanges =
     async () => {
+      if (isGuest) {
+        localStorage.setItem(
+          GUEST_TASKS_KEY,
+          JSON.stringify(
+            getAllTasks(
+              sections,
+            ),
+          ),
+        );
+
+        setSavedSections(
+          sections,
+        );
+
+        setPendingChanges(
+          {},
+        );
+
+        return;
+      }
+
       if (
         Object.keys(
           pendingChanges,
@@ -1620,9 +1770,8 @@ export default function TaskBoard() {
         setSaveError("");
 
         const currentTasks =
-          sections.flatMap(
-            (section) =>
-              section.tasks,
+          getAllTasks(
+            sections,
           );
 
         await Promise.all(
@@ -1671,6 +1820,8 @@ export default function TaskBoard() {
                     headers: {
                       "Content-Type":
                         "application/json",
+                      Authorization:
+                        `Bearer ${localStorage.getItem("token") ?? ""}`,
                     },
                     body:
                       JSON.stringify(
@@ -1726,39 +1877,39 @@ export default function TaskBoard() {
           ) ??
           sectionDefinition;
 
-let filteredTasks =
-  section.tasks.filter(
-    (task) => {
-      const statusMatches =
-        filters.status.length === 0 ||
-        filters.status.includes(
-          statusLabels[
-            task.status
-          ],
-        );
+        let filteredTasks =
+          section.tasks.filter(
+            (task) => {
+              const statusMatches =
+                filters.status.length === 0 ||
+                filters.status.includes(
+                  statusLabels[
+                  task.status
+                  ],
+                );
 
-      const priorityMatches =
-        filters.priority.length === 0 ||
-        filters.priority.includes(
-          task.priority,
-        );
+              const priorityMatches =
+                filters.priority.length === 0 ||
+                filters.priority.includes(
+                  task.priority,
+                );
 
-      const searchMatches =
-        task.title
-          .toLowerCase()
-          .includes(
-            searchQuery
-              .trim()
-              .toLowerCase(),
+              const searchMatches =
+                task.title
+                  .toLowerCase()
+                  .includes(
+                    searchQuery
+                      .trim()
+                      .toLowerCase(),
+                  );
+
+              return (
+                statusMatches &&
+                priorityMatches &&
+                searchMatches
+              );
+            },
           );
-
-      return (
-        statusMatches &&
-        priorityMatches &&
-        searchMatches
-      );
-    },
-  );
 
         if (
           filters.dueDate
@@ -1861,6 +2012,17 @@ let filteredTasks =
             },
           );
 
+        if (isGuest) {
+          localStorage.setItem(
+            GUEST_TASKS_KEY,
+            JSON.stringify(
+              getAllTasks(
+                updatedSections,
+              ),
+            ),
+          );
+        }
+
         setSavedSections(
           updatedSections,
         );
@@ -1878,6 +2040,7 @@ let filteredTasks =
     };
 
   const hasPendingChanges =
+    !isGuest &&
     Object.keys(
       pendingChanges,
     ).length > 0;
@@ -1892,24 +2055,24 @@ let filteredTasks =
             </h1>
 
             <BoardActions
-  viewMode={viewMode}
-  onViewModeChange={
-    setViewMode
-  }
-  addButtonLabel="Add Task"
-  onAdd={
-    addTaskToFirstSection
-  }
-  onFilterChange={
-    setFilters
-  }
-  searchValue={
-    searchQuery
-  }
-  onSearchChange={
-    setSearchQuery
-  }
-/>
+              viewMode={viewMode}
+              onViewModeChange={
+                setViewMode
+              }
+              addButtonLabel="Add Task"
+              onAdd={
+                addTaskToFirstSection
+              }
+              onFilterChange={
+                setFilters
+              }
+              searchValue={
+                searchQuery
+              }
+              onSearchChange={
+                setSearchQuery
+              }
+            />
           </div>
 
           {viewMode ===
