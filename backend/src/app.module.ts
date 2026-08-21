@@ -19,15 +19,27 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
     }),
 
+    // Local
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: process.env.DB_HOST,
+    //   port: Number(process.env.DB_PORT),
+    //   username: process.env.DB_USERNAME,
+    //   password: process.env.DB_PASSWORD,
+    //   database: process.env.DB_NAME,
+    //   entities: [User, Project, Task],
+    //   synchronize: true,
+    // }),
+
+    // Production
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      url: process.env.DATABASE_URL,
       entities: [User, Project, Task],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
 
     UsersModule,

@@ -18,7 +18,13 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3001);
+  const PORT = process.env.PORT ?? 3001;
+
+  await app.listen(PORT);
+
+  console.log(`🚀 Application is running on port : ${PORT}`);
+  console.log('✅ Database connected successfully');
+  
 }
 
 bootstrap();
