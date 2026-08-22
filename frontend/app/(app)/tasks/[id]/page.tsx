@@ -22,6 +22,8 @@ import {
   MoreHorizontal,
   Plus,
   SendHorizontal,
+  SmilePlus,
+  Paperclip,
   Settings,
   Share2,
   SignalHigh,
@@ -74,6 +76,110 @@ type BackendTask = {
   };
   assignee: Assignee | null;
 };
+
+type Comment = {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    avatar?: string | null;
+  };
+};
+
+function formatCommentTime(
+  createdAt: string,
+) {
+  const seconds = Math.max(
+    0,
+    Math.floor(
+      (Date.now() -
+        new Date(createdAt).getTime()) /
+      1000,
+    ),
+  );
+
+  if (seconds < 60) {
+    return "Just now";
+  }
+
+  const minutes = Math.floor(
+    seconds / 60,
+  );
+
+  if (minutes < 60) {
+    return `${minutes} min${minutes === 1 ? "" : "s"
+      } ago`;
+  }
+
+  const hours = Math.floor(
+    minutes / 60,
+  );
+
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"
+      } ago`;
+  }
+
+  const days = Math.floor(
+    hours / 24,
+  );
+
+  if (days < 7) {
+    return `${days} day${days === 1 ? "" : "s"
+      } ago`;
+  }
+
+  const weeks = Math.floor(
+    days / 7,
+  );
+
+  if (weeks < 4) {
+    return `${weeks} week${weeks === 1 ? "" : "s"
+      } ago`;
+  }
+
+  const months = Math.floor(
+    days / 30,
+  );
+
+  if (months < 12) {
+    return `${months} month${months === 1 ? "" : "s"
+      } ago`;
+  }
+
+  const years = Math.floor(
+    days / 365,
+  );
+
+  return `${years} year${years === 1 ? "" : "s"
+    } ago`;
+}
+
+function CommentAvatar({
+  name,
+  avatar,
+}: {
+  name: string;
+  avatar?: string | null;
+}) {
+  if (avatar) {
+    return (
+      <img
+        src={avatar}
+        alt={name}
+        className="h-5 w-5 rounded-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
+      {name.charAt(0).toUpperCase()}
+    </span>
+  );
+}
 
 const priorityConfig: Record<
   Priority,
@@ -171,6 +277,110 @@ function PriorityBadge({
 }: {
   priority: Priority;
 }) {
+  type Comment = {
+    id: string;
+    content: string;
+    createdAt: string;
+    author: {
+      id: string;
+      name: string;
+      avatar?: string | null;
+    };
+  };
+
+  function formatCommentTime(
+    createdAt: string,
+  ) {
+    const seconds = Math.max(
+      0,
+      Math.floor(
+        (Date.now() -
+          new Date(createdAt).getTime()) /
+        1000,
+      ),
+    );
+
+    if (seconds < 60) {
+      return "Just now";
+    }
+
+    const minutes = Math.floor(
+      seconds / 60,
+    );
+
+    if (minutes < 60) {
+      return `${minutes} min${minutes === 1 ? "" : "s"
+        } ago`;
+    }
+
+    const hours = Math.floor(
+      minutes / 60,
+    );
+
+    if (hours < 24) {
+      return `${hours} hour${hours === 1 ? "" : "s"
+        } ago`;
+    }
+
+    const days = Math.floor(
+      hours / 24,
+    );
+
+    if (days < 7) {
+      return `${days} day${days === 1 ? "" : "s"
+        } ago`;
+    }
+
+    const weeks = Math.floor(
+      days / 7,
+    );
+
+    if (weeks < 4) {
+      return `${weeks} week${weeks === 1 ? "" : "s"
+        } ago`;
+    }
+
+    const months = Math.floor(
+      days / 30,
+    );
+
+    if (months < 12) {
+      return `${months} month${months === 1 ? "" : "s"
+        } ago`;
+    }
+
+    const years = Math.floor(
+      days / 365,
+    );
+
+    return `${years} year${years === 1 ? "" : "s"
+      } ago`;
+  }
+
+  function CommentAvatar({
+    name,
+    avatar,
+  }: {
+    name: string;
+    avatar?: string | null;
+  }) {
+    if (avatar) {
+      return (
+        <img
+          src={avatar}
+          alt={name}
+          className="h-5 w-5 rounded-full object-cover"
+        />
+      );
+    }
+
+    return (
+      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
+        {name.charAt(0).toUpperCase()}
+      </span>
+    );
+  }
+
   const priorityConfig: Record<
     Priority,
     {
@@ -963,6 +1173,25 @@ export default function TaskDetailsPage() {
   );
 
   const [
+    comments,
+    setComments,
+  ] = useState<Comment[]>(
+    [],
+  );
+
+  const [
+    newComment,
+    setNewComment,
+  ] = useState("");
+
+  const [
+    commentMenuId,
+    setCommentMenuId,
+  ] = useState<string | null>(
+    null,
+  );
+
+  const [
     showDetails,
     setShowDetails,
   ] = useState(true);
@@ -1355,6 +1584,37 @@ export default function TaskDetailsPage() {
       }
     };
 
+  const addComment = () => {
+    const content =
+      newComment.trim();
+
+    if (!content || !user?.id) {
+      return;
+    }
+
+    setComments(
+      (currentComments) => [
+        ...currentComments,
+        {
+          id: crypto.randomUUID(),
+          content,
+          createdAt:
+            new Date().toISOString(),
+          author: {
+            id: user.id,
+            name:
+              user.name ??
+              "You",
+            avatar:
+              user.avatar ?? null,
+          },
+        },
+      ],
+    );
+
+    setNewComment("");
+  };
+
   const closeTask = () => {
     if (isDirty) {
       setShowUnsavedModal(
@@ -1633,22 +1893,197 @@ export default function TaskDetailsPage() {
                 </div>
               </section>
 
-              <section className="mt-6">
-                <h3 className="mb-3 text-sm font-medium text-[var(--foreground)]">
+              <section className="mt-6 min-w-[680px]">
+                <h3 className="mb-5 h-5 text-sm font-medium text-[var(--foreground)]">
                   Comments
                 </h3>
 
-                <div className="flex h-16 items-center justify-between rounded-md border border-[var(--border)] px-4">
-                  <span className="text-sm text-[var(--foreground-secondary)]">
-                    Add a comment...
-                  </span>
+                <div className="space-y-5">
+                  {comments.map(
+                    (comment) => (
+                      <div
+                        key={comment.id}
+                        className="h-[135px] overflow-visible rounded-md border border-[var(--border)] bg-[var(--background)]"
+                      >
+                        <div className="h-[86px] rounded-t-md border-b border-[var(--border)] p-4">
+                          <div className="flex h-full flex-col gap-2">
+                            <div className="flex h-[21px] items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <CommentAvatar
+                                  name={
+                                    comment.author
+                                      .name
+                                  }
+                                  avatar={
+                                    comment.author
+                                      .avatar
+                                  }
+                                />
 
-                  <div className="flex items-center gap-4 text-[var(--foreground)]">
-                    <FileText size={16} />
+                                <span className="text-xs font-medium text-[var(--foreground)]">
+                                  {
+                                    comment.author
+                                      .name
+                                  }
+                                </span>
+                              </div>
 
-                    <SendHorizontal
-                      size={16}
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-[var(--foreground-secondary)]">
+                                  {formatCommentTime(
+                                    comment.createdAt,
+                                  )}
+                                </span>
+
+                                <button
+                                  type="button"
+                                  className="flex h-4 w-4 items-center justify-center text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
+                                  aria-label="Add reaction"
+                                >
+                                  <SmilePlus
+                                    size={16}
+                                    strokeWidth={1.8}
+                                  />
+                                </button>
+
+                                <div className="relative">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setCommentMenuId(
+                                        commentMenuId ===
+                                          comment.id
+                                          ? null
+                                          : comment.id,
+                                      )
+                                    }
+                                    className="flex h-5 w-5 items-center justify-center text-[var(--foreground)]"
+                                    aria-label="Comment actions"
+                                  >
+                                    <MoreHorizontal
+                                      size={16}
+                                      strokeWidth={2}
+                                    />
+                                  </button>
+
+                                  {commentMenuId ===
+                                    comment.id && (
+                                      <div className="absolute right-0 top-6 z-20 w-24 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setComments(
+                                              (currentComments) =>
+                                                currentComments.filter(
+                                                  (
+                                                    currentComment,
+                                                  ) =>
+                                                    currentComment.id !==
+                                                    comment.id,
+                                                ),
+                                            );
+
+                                            setCommentMenuId(
+                                              null,
+                                            );
+                                          }}
+                                          className="flex h-8 w-full items-center rounded px-2 text-xs text-red-500 hover:bg-[var(--surface-secondary)]"
+                                        >
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <p className="text-base leading-6 text-[var(--foreground)]">
+                              {comment.content}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex h-[48px] items-center gap-2 px-4 py-3">
+                          <CommentAvatar
+                            name={
+                              user?.name ??
+                              "You"
+                            }
+                            avatar={
+                              user?.avatar
+                            }
+                          />
+
+                          <button
+                            type="button"
+                            className="text-sm text-neutral-400 transition-colors hover:text-[var(--foreground)]"
+                          >
+                            Leave a reply
+                          </button>
+
+                          <Paperclip
+                            size={16}
+                            strokeWidth={1.8}
+                            className="ml-auto text-[var(--foreground-secondary)]"
+                          />
+
+                          <SendHorizontal
+                            size={16}
+                            strokeWidth={1.8}
+                            className="text-[var(--foreground-secondary)]"
+                          />
+                        </div>
+                      </div>
+                    ),
+                  )}
+
+                  <div className="flex h-16 items-center gap-3 rounded-md border border-[var(--border)] bg-[var(--background)] px-4">
+                    <input
+                      type="text"
+                      value={newComment}
+                      onChange={(event) =>
+                        setNewComment(
+                          event.target.value,
+                        )
+                      }
+                      onKeyDown={(event) => {
+                        if (
+                          event.key === "Enter" &&
+                          !event.shiftKey
+                        ) {
+                          event.preventDefault();
+                          addComment();
+                        }
+                      }}
+                      placeholder="Add a comment..."
+                      className="min-w-0 flex-1 bg-transparent text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)]"
                     />
+
+                    <button
+                      type="button"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--foreground)]"
+                      aria-label="Attach file"
+                    >
+                      <Paperclip
+                        size={16}
+                        strokeWidth={1.8}
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={addComment}
+                      disabled={
+                        !newComment.trim()
+                      }
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label="Send comment"
+                    >
+                      <SendHorizontal
+                        size={16}
+                        strokeWidth={1.8}
+                      />
+                    </button>
                   </div>
                 </div>
               </section>
