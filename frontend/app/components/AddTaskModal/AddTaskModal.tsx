@@ -15,7 +15,7 @@ import {
     X,
 } from "lucide-react";
 
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 
 type Priority =
     | "No Priority"

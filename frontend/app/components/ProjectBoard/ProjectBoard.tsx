@@ -35,7 +35,7 @@ import type {
 
 import {
   useAuth,
-} from "../auth/AuthContext";
+} from "../Auth/AuthContext";
 
 /*
  * Use the same Priority type as the Project type

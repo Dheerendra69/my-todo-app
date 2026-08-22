@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/app/components/auth/AuthContext";
+import { useAuth } from "@/app/components/Auth/AuthContext";
 
 function AuthCallbackContent() {
   const searchParams = useSearchParams();

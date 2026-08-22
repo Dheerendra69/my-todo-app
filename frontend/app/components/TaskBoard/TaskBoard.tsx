@@ -32,7 +32,7 @@ import {
   type FilterState,
 } from "../TaskFilter/TaskFilter";
 
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 
 import {
   useRouter,

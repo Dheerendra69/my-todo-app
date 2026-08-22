@@ -2,7 +2,11 @@
 
 ![Task Management System](./frontend//public/Hero-Page.png)
 
-A responsive task management application built as part of the Full Stack Developer assessment, with task organization, filtering, theming, authentication, and multiple viewing options.
+A responsive task management application built with task organization, filtering, theming, authentication, and multiple viewing options.
+
+## Live Demo
+
+https://my-todo-app-rose-eta.vercel.app
 
 ## Features
 
@@ -30,7 +34,3 @@ A responsive task management application built as part of the Full Stack Develop
 * **Database:** PostgreSQL
 * **Authentication:** Google OAuth
 * **Deployment:** Vercel (Frontend), Render (Backend & Database)
-
-## Live Demo
-
-https://my-todo-app-rose-eta.vercel.app

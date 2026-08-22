@@ -24,12 +24,12 @@ import {
 
 import {
   useAuth,
-} from "../auth/AuthContext";
+} from "../Auth/AuthContext";
 
 import {
   useTheme,
   ColorMode,
-} from "../theme/ThemeContext";
+} from "../Theme/ThemeContext";
 
 type SidebarProps = {
   isOpen: boolean;

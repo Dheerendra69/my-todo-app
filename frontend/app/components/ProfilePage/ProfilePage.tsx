@@ -11,7 +11,7 @@ import {
 
 import {
   useAuth,
-} from "../auth/AuthContext";
+} from "../Auth/AuthContext";
 
 type ProfileDetails = {
   name: string;

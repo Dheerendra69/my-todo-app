@@ -33,7 +33,7 @@ import {
   Signal,
   SignalMedium,
 } from "lucide-react";
-import { useAuth } from "@/app/components/auth/AuthContext";
+import { useAuth } from "@/app/components/Auth/AuthContext";
 
 type Priority =
   | "No Priority"
