@@ -467,8 +467,8 @@ export default function TaskFilter({
           setActiveCategory(null);
         }}
         className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] ${open
-            ? "bg-[var(--surface-secondary)]"
-            : ""
+          ? "bg-[var(--surface-secondary)]"
+          : ""
           }`}
       >
         <svg
@@ -485,7 +485,12 @@ export default function TaskFilter({
         </svg>
 
         {hasActiveFilters && (
-          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[var(--primary)] ring-2 ring-[var(--surface)]" />
+          <span
+            className="absolute -right-1 -top-1 h-2 w-2 rounded-full ring-2 ring-[var(--surface)]"
+            style={{
+              backgroundColor: "var(--accent-color)",
+            }}
+          />
         )}
       </button>
 
@@ -532,8 +537,8 @@ export default function TaskFilter({
                       }
                     }}
                     className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] transition-colors ${selected
-                        ? "bg-[var(--surface-secondary)]"
-                        : "hover:bg-[var(--surface-secondary)]"
+                      ? "bg-[var(--surface-secondary)]"
+                      : "hover:bg-[var(--surface-secondary)]"
                       }`}
                   >
                     <Icon

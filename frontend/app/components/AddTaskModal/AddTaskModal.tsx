@@ -234,6 +234,10 @@ export default function AddTaskModal({
                 defaultStatus
                 ],
             );
+
+            setPriorityOpen(false);
+            setMemberOpen(false);
+            setStatusOpen(false);
         }
     }, [
         isOpen,
@@ -414,8 +418,8 @@ export default function AddTaskModal({
                 status: data.status,
             });
 
-            // resetForm();
-            // onClose();
+            resetForm();
+            onClose();
         } catch (error) {
             setError(
                 error instanceof Error
@@ -512,12 +516,14 @@ export default function AddTaskModal({
                             <div className="relative">
                                 <button
                                     type="button"
-                                    onClick={() =>
+                                    onClick={() => {
                                         setPriorityOpen(
-                                            (current) =>
-                                                !current,
-                                        )
-                                    }
+                                            (current) => !current,
+                                        );
+
+                                        setMemberOpen(false);
+                                        setStatusOpen(false);
+                                    }}
                                     className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
                                 >
                                     <span
@@ -628,13 +634,18 @@ export default function AddTaskModal({
                         <div className="relative">
                             <button
                                 type="button"
-                                onClick={() =>
-                                    !isGuest &&
+                                onClick={() => {
+                                    if (isGuest) {
+                                        return;
+                                    }
+
                                     setMemberOpen(
-                                        (current) =>
-                                            !current,
-                                    )
-                                }
+                                        (current) => !current,
+                                    );
+
+                                    setPriorityOpen(false);
+                                    setStatusOpen(false);
+                                }}
                                 className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
                             >
                                 <span className="flex-1 text-sm text-[var(--foreground)]">
@@ -690,12 +701,14 @@ export default function AddTaskModal({
                         <div className="relative">
                             <button
                                 type="button"
-                                onClick={() =>
+                                onClick={() => {
                                     setStatusOpen(
-                                        (current) =>
-                                            !current,
-                                    )
-                                }
+                                        (current) => !current,
+                                    );
+
+                                    setPriorityOpen(false);
+                                    setMemberOpen(false);
+                                }}
                                 className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
                             >
                                 <span className="flex-1 text-sm text-[var(--foreground)]">
