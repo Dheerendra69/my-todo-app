@@ -343,6 +343,182 @@ function toInputDate(
     .split("T")[0];
 }
 
+function getCalendarDays(
+  year: number,
+  month: number,
+) {
+  const firstDay = new Date(
+    year,
+    month,
+    1,
+  ).getDay();
+
+  const daysInMonth = new Date(
+    year,
+    month + 1,
+    0,
+  ).getDate();
+
+  const previousMonthDays =
+    new Date(
+      year,
+      month,
+      0,
+    ).getDate();
+
+  const days: {
+    date: Date;
+    currentMonth: boolean;
+  }[] = [];
+
+  for (
+    let i = firstDay - 1;
+    i >= 0;
+    i--
+  ) {
+    days.push({
+      date: new Date(
+        year,
+        month - 1,
+        previousMonthDays - i,
+      ),
+      currentMonth: false,
+    });
+  }
+
+  for (
+    let day = 1;
+    day <= daysInMonth;
+    day++
+  ) {
+    days.push({
+      date: new Date(
+        year,
+        month,
+        day,
+      ),
+      currentMonth: true,
+    });
+  }
+
+  while (
+    days.length % 7 !==
+    0
+  ) {
+    const nextDay =
+      days.length -
+      (firstDay + daysInMonth) +
+      1;
+
+    days.push({
+      date: new Date(
+        year,
+        month + 1,
+        nextDay,
+      ),
+      currentMonth: false,
+    });
+  }
+
+  return days;
+}
+
+function formatManualDate(
+  date: string | null,
+) {
+  if (!date) {
+    return "";
+  }
+
+  const parsedDate =
+    new Date(
+      `${date}T00:00:00`,
+    );
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime(),
+    )
+  ) {
+    return "";
+  }
+
+  const day = String(
+    parsedDate.getDate(),
+  ).padStart(2, "0");
+
+  const month = String(
+    parsedDate.getMonth() + 1,
+  ).padStart(2, "0");
+
+  const year =
+    parsedDate.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
+function parseManualDate(
+  value: string,
+) {
+  const match =
+    value.match(
+      /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/,
+    );
+
+  if (!match) {
+    return null;
+  }
+
+  const day = Number(
+    match[1],
+  );
+
+  const month = Number(
+    match[2],
+  );
+
+  const year = Number(
+    match[3],
+  );
+
+  const date = new Date(
+    year,
+    month - 1,
+    day,
+  );
+
+  if (
+    date.getFullYear() !==
+    year ||
+    date.getMonth() !==
+    month - 1 ||
+    date.getDate() !==
+    day
+  ) {
+    return null;
+  }
+
+  return `${year}-${String(
+    month,
+  ).padStart(2, "0")}-${String(
+    day,
+  ).padStart(2, "0")}`;
+}
+
+function isSameDate(
+  first: Date,
+  second: Date,
+) {
+  return (
+    first.getFullYear() ===
+    second.getFullYear() &&
+    first.getMonth() ===
+    second.getMonth() &&
+    first.getDate() ===
+    second.getDate()
+  );
+}
+
 function TaskActionMenu({
   subtask,
   anchorRef,
@@ -1037,6 +1213,27 @@ export default function TaskDetailsPage() {
   );
 
   const [
+    calendarDate,
+    setCalendarDate,
+  ] = useState(() => {
+    return dueDate
+      ? new Date(
+        `${dueDate}T00:00:00`,
+      )
+      : new Date();
+  });
+
+  const [
+    manualDueDate,
+    setManualDueDate,
+  ] = useState("");
+
+  const [
+    dueDateError,
+    setDueDateError,
+  ] = useState("");
+
+  const [
     assignee,
     setAssignee,
   ] = useState<Assignee | null>(
@@ -1271,6 +1468,22 @@ export default function TaskDetailsPage() {
           setDueDate(
             task.dueDate,
           );
+
+          setManualDueDate(
+            formatManualDate(
+              task.dueDate,
+            ),
+          );
+
+          if (task.dueDate) {
+            setCalendarDate(
+              new Date(
+                `${toInputDate(
+                  task.dueDate,
+                )}T00:00:00`,
+              ),
+            );
+          }
 
           setAssignee(
             task.assignee,
@@ -2380,53 +2593,305 @@ export default function TaskDetailsPage() {
                       </button>
 
                       {showDueDateMenu && (
-                        <div className="absolute right-0 top-8 z-50 w-56 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 shadow-lg">
-                          <p className="px-2 py-2 text-xs text-[var(--foreground-secondary)]">
-                            Due Date
-                          </p>
+                        <div className="absolute right-0 top-8 z-50 w-[300px] rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 shadow-lg">
+                          <div className="flex items-center justify-between">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCalendarDate(
+                                  new Date(
+                                    calendarDate.getFullYear(),
+                                    calendarDate.getMonth() - 1,
+                                    1,
+                                  ),
+                                )
+                              }
+                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+                            >
+                              <ChevronRight
+                                size={16}
+                                className="rotate-180"
+                              />
+                            </button>
 
-                          <input
-                            type="date"
-                            value={toInputDate(dueDate)}
-                            onChange={(event) => {
-                              updateField(() =>
-                                setDueDate(
-                                  event.target.value || null,
-                                ),
-                              );
-                            }}
-                            className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 text-sm text-[var(--foreground)] outline-none"
-                          />
+                            <span className="text-sm font-medium text-[var(--foreground)]">
+                              {calendarDate.toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "long",
+                                  year: "numeric",
+                                },
+                              )}
+                            </span>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setShowDueDateMenu(
-                                false,
-                              )
-                            }
-                            className="mt-2 h-9 w-full rounded-md bg-[var(--foreground)] text-sm font-medium text-[var(--background)]"
-                          >
-                            Apply
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCalendarDate(
+                                  new Date(
+                                    calendarDate.getFullYear(),
+                                    calendarDate.getMonth() + 1,
+                                    1,
+                                  ),
+                                )
+                              }
+                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+                            >
+                              <ChevronRight
+                                size={16}
+                              />
+                            </button>
+                          </div>
 
-                          {dueDate && (
+                          <div className="mt-3 grid grid-cols-7 text-center">
+                            {[
+                              "Sun",
+                              "Mon",
+                              "Tue",
+                              "Wed",
+                              "Thu",
+                              "Fri",
+                              "Sat",
+                            ].map((day) => (
+                              <span
+                                key={day}
+                                className="py-2 text-[10px] font-medium text-[var(--foreground-secondary)]"
+                              >
+                                {day}
+                              </span>
+                            ))}
+
+                            {getCalendarDays(
+                              calendarDate.getFullYear(),
+                              calendarDate.getMonth(),
+                            ).map(
+                              (
+                                {
+                                  date,
+                                  currentMonth,
+                                },
+                                index,
+                              ) => {
+                                const selectedDate =
+                                  dueDate
+                                    ? new Date(
+                                      `${toInputDate(
+                                        dueDate,
+                                      )}T00:00:00`,
+                                    )
+                                    : null;
+
+                                const isSelected =
+                                  selectedDate &&
+                                  isSameDate(
+                                    date,
+                                    selectedDate,
+                                  );
+
+                                const isToday =
+                                  isSameDate(
+                                    date,
+                                    new Date(),
+                                  );
+
+                                return (
+                                  <button
+                                    key={`${date.toISOString()}-${index}`}
+                                    type="button"
+                                    onClick={() => {
+                                      const selected =
+                                        `${date.getFullYear()}-${String(
+                                          date.getMonth() + 1,
+                                        ).padStart(
+                                          2,
+                                          "0",
+                                        )}-${String(
+                                          date.getDate(),
+                                        ).padStart(
+                                          2,
+                                          "0",
+                                        )}`;
+
+                                      updateField(() =>
+                                        setDueDate(
+                                          selected,
+                                        ),
+                                      );
+
+                                      setManualDueDate(
+                                        formatManualDate(
+                                          selected,
+                                        ),
+                                      );
+
+                                      setDueDateError(
+                                        "",
+                                      );
+                                    }}
+                                    className={`mx-auto flex h-8 w-8 items-center justify-center rounded-md text-xs transition-colors ${!currentMonth
+                                      ? "text-[var(--foreground-secondary)] opacity-40"
+                                      : "text-[var(--foreground)]"
+                                      } ${isSelected
+                                        ? "bg-[var(--primary)] text-white"
+                                        : "hover:bg-[var(--surface-secondary)]"
+                                      } ${isToday &&
+                                        !isSelected
+                                        ? "border border-[var(--primary)]"
+                                        : ""
+                                      }`}
+                                  >
+                                    {date.getDate()}
+                                  </button>
+                                );
+                              },
+                            )}
+                          </div>
+
+                          <div className="mt-4 border-t border-[var(--border)] pt-3">
+                            <label className="mb-1.5 block text-xs text-[var(--foreground-secondary)]">
+                              Enter date manually
+                            </label>
+
+                            <input
+                              type="text"
+                              value={manualDueDate}
+                              onChange={(event) => {
+                                setManualDueDate(
+                                  event.target.value,
+                                );
+
+                                setDueDateError(
+                                  "",
+                                );
+                              }}
+                              onBlur={() => {
+                                if (
+                                  !manualDueDate.trim()
+                                ) {
+                                  return;
+                                }
+
+                                const parsedDate =
+                                  parseManualDate(
+                                    manualDueDate,
+                                  );
+
+                                if (!parsedDate) {
+                                  setDueDateError(
+                                    "Use DD/MM/YYYY",
+                                  );
+
+                                  return;
+                                }
+
+                                updateField(() =>
+                                  setDueDate(
+                                    parsedDate,
+                                  ),
+                                );
+
+                                setCalendarDate(
+                                  new Date(
+                                    `${parsedDate}T00:00:00`,
+                                  ),
+                                );
+
+                                setManualDueDate(
+                                  formatManualDate(
+                                    parsedDate,
+                                  ),
+                                );
+                              }}
+                              placeholder="DD/MM/YYYY"
+                              className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                            />
+
+                            {dueDateError && (
+                              <p className="mt-1 text-xs text-red-500">
+                                {dueDateError}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="mt-3 flex gap-2">
                             <button
                               type="button"
                               onClick={() => {
-                                updateField(() =>
-                                  setDueDate(null),
-                                );
+                                const parsedDate =
+                                  manualDueDate.trim()
+                                    ? parseManualDate(
+                                      manualDueDate,
+                                    )
+                                    : dueDate;
+
+                                if (
+                                  manualDueDate.trim() &&
+                                  !parsedDate
+                                ) {
+                                  setDueDateError(
+                                    "Use DD/MM/YYYY",
+                                  );
+
+                                  return;
+                                }
+
+                                if (parsedDate) {
+                                  updateField(() =>
+                                    setDueDate(
+                                      parsedDate,
+                                    ),
+                                  );
+
+                                  setCalendarDate(
+                                    new Date(
+                                      `${parsedDate}T00:00:00`,
+                                    ),
+                                  );
+
+                                  setManualDueDate(
+                                    formatManualDate(
+                                      parsedDate,
+                                    ),
+                                  );
+                                }
 
                                 setShowDueDateMenu(
                                   false,
                                 );
                               }}
-                              className="mt-1.5 h-8 w-full rounded-md text-left px-2 text-xs text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
+                              className="h-9 flex-1 rounded-md bg-[var(--foreground)] text-sm font-medium text-[var(--background)]"
                             >
-                              Clear due date
+                              Apply
                             </button>
-                          )}
+
+                            {dueDate && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  updateField(() =>
+                                    setDueDate(
+                                      null,
+                                    ),
+                                  );
+
+                                  setManualDueDate(
+                                    "",
+                                  );
+
+                                  setDueDateError(
+                                    "",
+                                  );
+
+                                  setShowDueDateMenu(
+                                    false,
+                                  );
+                                }}
+                                className="h-9 rounded-md px-3 text-xs text-red-500 hover:bg-[var(--surface-secondary)]"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
