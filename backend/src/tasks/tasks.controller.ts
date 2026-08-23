@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import { TasksService } from './tasks.service';
@@ -18,14 +20,17 @@ import { UpdateTaskPriorityDto } from './dto/update-task-priority.dto';
 import { UpdateTaskAssigneeDto } from './dto/update-task-assignee.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from 'src/auth/types/authenticated-request.type';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() dto: CreateTaskDto) {
-    return this.tasksService.create(dto);
+  @UseGuards(JwtAuthGuard)
+  create(@Body() dto: CreateTaskDto, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.create(dto, req.user.sub);
   }
 
   @Get()

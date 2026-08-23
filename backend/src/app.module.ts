@@ -12,6 +12,8 @@ import { Task } from './entities/task.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CommentsModule } from './comments/comments.module';
+import { Comment } from './entities/comment.entity';
 
 @Module({
   imports: [
@@ -20,32 +22,33 @@ import { AuthModule } from './auth/auth.module';
     }),
 
     // Local
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: process.env.DB_HOST,
-    //   port: Number(process.env.DB_PORT),
-    //   username: process.env.DB_USERNAME,
-    //   password: process.env.DB_PASSWORD,
-    //   database: process.env.DB_NAME,
-    //   entities: [User, Project, Task],
-    //   synchronize: true,
-    // }),
-
-    // Production
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
-      entities: [User, Project, Task],
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities: [User, Project, Task, Comment],
       synchronize: true,
-      ssl: {
-        rejectUnauthorized: false,
-      },
     }),
+
+    // Production
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   url: process.env.DATABASE_URL,
+    //   entities: [User, Project, Task, Comment],
+    //   synchronize: true,
+    //   ssl: {
+    //     rejectUnauthorized: false,
+    //   },
+    // }),
 
     UsersModule,
     ProjectsModule,
     TasksModule,
     AuthModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { Comment } from './comment.entity';
 import { Project } from './project.entity';
 import { User } from './user.entity';
 
@@ -79,6 +80,9 @@ export class Task {
 
   @OneToMany(() => Task, (task) => task.parentTask)
   subtasks: Task[];
+
+  @OneToMany(() => Comment, (comment) => comment.task)
+  comments: Comment[];
 
   @CreateDateColumn()
   createdAt: Date;

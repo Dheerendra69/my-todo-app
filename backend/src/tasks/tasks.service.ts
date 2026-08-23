@@ -28,7 +28,7 @@ export class TasksService {
     private readonly projectRepository: Repository<Project>,
   ) {}
 
-  async create(dto: CreateTaskDto) {
+  async create(dto: CreateTaskDto, userId: string) {
     const project = await this.projectRepository.findOne({
       where: {
         id: dto.projectId,
@@ -37,6 +37,16 @@ export class TasksService {
 
     if (!project) {
       throw new NotFoundException('Project not found');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     let assignee: User | null = null;
@@ -51,6 +61,8 @@ export class TasksService {
       if (!assignee) {
         throw new NotFoundException('Assignee not found');
       }
+    } else {
+      assignee = user;
     }
 
     let parentTask: Task | null = null;

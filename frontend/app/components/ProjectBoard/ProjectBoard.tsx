@@ -300,8 +300,8 @@ function ProjectActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeMenu
-              ? "bg-[var(--surface-secondary)]"
-              : "hover:bg-[var(--surface-secondary)]"
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <SignalHigh

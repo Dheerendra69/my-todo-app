@@ -620,9 +620,9 @@ function TaskActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
-              "Status"
-              ? "bg-[var(--surface-secondary)]"
-              : "hover:bg-[var(--surface-secondary)]"
+            "Status"
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <Signal
@@ -651,9 +651,9 @@ function TaskActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
-              "Priority"
-              ? "bg-[var(--surface-secondary)]"
-              : "hover:bg-[var(--surface-secondary)]"
+            "Priority"
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <SignalHigh
@@ -682,9 +682,9 @@ function TaskActionMenu({
             )
           }
           className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
-              "Due Date"
-              ? "bg-[var(--surface-secondary)]"
-              : "hover:bg-[var(--surface-secondary)]"
+            "Due Date"
+            ? "bg-[var(--surface-secondary)]"
+            : "hover:bg-[var(--surface-secondary)]"
             }`}
         >
           <Calendar
@@ -1101,8 +1101,8 @@ function ListTaskSection({
 
       <div
         className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out ${collapsed
-            ? "grid-rows-[0fr] opacity-0"
-            : "grid-rows-[1fr] opacity-100"
+          ? "grid-rows-[0fr] opacity-0"
+          : "grid-rows-[1fr] opacity-100"
           }`}
       >
         <div className="min-h-0 overflow-hidden">
@@ -1442,7 +1442,7 @@ export default function TaskBoard() {
               {
                 headers: {
                   Authorization:
-                    `Bearer ${localStorage.getItem("token") ?? ""}`,
+                    `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
                 },
               },
             );
@@ -1531,7 +1531,7 @@ export default function TaskBoard() {
               {
                 headers: {
                   Authorization:
-                    `Bearer ${localStorage.getItem("token") ?? ""}`,
+                    `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
                 },
               },
             );
@@ -1821,7 +1821,7 @@ export default function TaskBoard() {
                       "Content-Type":
                         "application/json",
                       Authorization:
-                        `Bearer ${localStorage.getItem("token") ?? ""}`,
+                        `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
                     },
                     body:
                       JSON.stringify(

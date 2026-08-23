@@ -16,7 +16,7 @@ export class CreateProjectDto {
   description?: string;
 
   @IsOptional()
-  @IsIn(['High', 'Medium', 'Low'])
+  @IsIn(['No Priority', 'Urgent', 'High', 'Medium', 'Low'])
   priority?: string;
 
   @IsOptional()

@@ -77,15 +77,27 @@ type BackendTask = {
   assignee: Assignee | null;
 };
 
-type Comment = {
+type CommentAuthor = {
+  id: string;
+  name: string;
+  avatar: string | null;
+};
+
+type CommentReply = {
   id: string;
   content: string;
   createdAt: string;
-  author: {
-    id: string;
-    name: string;
-    avatar?: string | null;
-  };
+  updatedAt: string;
+  author: CommentAuthor;
+};
+
+type TaskComment = {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  author: CommentAuthor;
+  replies: CommentReply[];
 };
 
 function formatCommentTime(
@@ -277,144 +289,6 @@ function PriorityBadge({
 }: {
   priority: Priority;
 }) {
-  type Comment = {
-    id: string;
-    content: string;
-    createdAt: string;
-    author: {
-      id: string;
-      name: string;
-      avatar?: string | null;
-    };
-  };
-
-  function formatCommentTime(
-    createdAt: string,
-  ) {
-    const seconds = Math.max(
-      0,
-      Math.floor(
-        (Date.now() -
-          new Date(createdAt).getTime()) /
-        1000,
-      ),
-    );
-
-    if (seconds < 60) {
-      return "Just now";
-    }
-
-    const minutes = Math.floor(
-      seconds / 60,
-    );
-
-    if (minutes < 60) {
-      return `${minutes} min${minutes === 1 ? "" : "s"
-        } ago`;
-    }
-
-    const hours = Math.floor(
-      minutes / 60,
-    );
-
-    if (hours < 24) {
-      return `${hours} hour${hours === 1 ? "" : "s"
-        } ago`;
-    }
-
-    const days = Math.floor(
-      hours / 24,
-    );
-
-    if (days < 7) {
-      return `${days} day${days === 1 ? "" : "s"
-        } ago`;
-    }
-
-    const weeks = Math.floor(
-      days / 7,
-    );
-
-    if (weeks < 4) {
-      return `${weeks} week${weeks === 1 ? "" : "s"
-        } ago`;
-    }
-
-    const months = Math.floor(
-      days / 30,
-    );
-
-    if (months < 12) {
-      return `${months} month${months === 1 ? "" : "s"
-        } ago`;
-    }
-
-    const years = Math.floor(
-      days / 365,
-    );
-
-    return `${years} year${years === 1 ? "" : "s"
-      } ago`;
-  }
-
-  function CommentAvatar({
-    name,
-    avatar,
-  }: {
-    name: string;
-    avatar?: string | null;
-  }) {
-    if (avatar) {
-      return (
-        <img
-          src={avatar}
-          alt={name}
-          className="h-5 w-5 rounded-full object-cover"
-        />
-      );
-    }
-
-    return (
-      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
-        {name.charAt(0).toUpperCase()}
-      </span>
-    );
-  }
-
-  const priorityConfig: Record<
-    Priority,
-    {
-      icon: React.ElementType;
-      className: string;
-    }
-  > = {
-    "No Priority": {
-      icon: Signal,
-      className:
-        "text-[var(--foreground-secondary)]",
-    },
-    Urgent: {
-      icon: SignalHigh,
-      className:
-        "text-red-600 dark:text-red-400",
-    },
-    High: {
-      icon: SignalHigh,
-      className:
-        "text-orange-500 dark:text-orange-400",
-    },
-    Medium: {
-      icon: SignalMedium,
-      className:
-        "text-[var(--primary)]",
-    },
-    Low: {
-      icon: SignalLow,
-      className:
-        "text-[var(--primary)] opacity-70",
-    },
-  };
-
   const config =
     priorityConfig[priority];
 
@@ -436,7 +310,6 @@ function PriorityBadge({
     </div>
   );
 }
-
 function formatDate(
   date: string | null,
 ) {
@@ -1175,7 +1048,7 @@ export default function TaskDetailsPage() {
   const [
     comments,
     setComments,
-  ] = useState<Comment[]>(
+  ] = useState<TaskComment[]>(
     [],
   );
 
@@ -1272,6 +1145,18 @@ export default function TaskDetailsPage() {
     null,
   );
 
+  const [
+    replyingToCommentId,
+    setReplyingToCommentId,
+  ] = useState<string | null>(
+    null,
+  );
+
+  const [
+    replyContent,
+    setReplyContent,
+  ] = useState("");
+
   const apiUrl =
     process.env.NEXT_PUBLIC_API_URL;
 
@@ -1306,6 +1191,39 @@ export default function TaskDetailsPage() {
     if (!taskId) {
       return;
     }
+
+    const fetchComments =
+      async () => {
+        try {
+          const token = localStorage.getItem("accessToken");
+
+          const response = await fetch(
+            `${apiUrl}/tasks/${taskId}/comments`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: token ? `Bearer ${token}` : "",
+              },
+            },
+          );
+
+          if (!response.ok) {
+            throw new Error(
+              "Failed to fetch comments",
+            );
+          }
+
+          const data: TaskComment[] =
+            await response.json();
+
+          setComments(data);
+        } catch (error) {
+          console.error(
+            "Failed to fetch comments:",
+            error,
+          );
+        }
+      };
 
     const fetchTask =
       async () => {
@@ -1355,7 +1273,10 @@ export default function TaskDetailsPage() {
 
           setIsDirty(false);
 
-          await fetchSubtasks();
+          await Promise.all([
+            fetchSubtasks(),
+            fetchComments(),
+          ]);
         } catch (error) {
           console.error(
             "Failed to fetch task:",
@@ -1584,36 +1505,181 @@ export default function TaskDetailsPage() {
       }
     };
 
-  const addComment = () => {
-    const content =
-      newComment.trim();
+  const addComment =
+    async () => {
+      const content =
+        newComment.trim();
 
-    if (!content || !user?.id) {
-      return;
-    }
+      if (!content) {
+        return;
+      }
 
-    setComments(
-      (currentComments) => [
-        ...currentComments,
-        {
-          id: crypto.randomUUID(),
-          content,
-          createdAt:
-            new Date().toISOString(),
-          author: {
-            id: user.id,
-            name:
-              user.name ??
-              "You",
-            avatar:
-              user.avatar ?? null,
-          },
-        },
-      ],
-    );
+      try {
+        const response =
+          await fetch(
+            `${apiUrl}/tasks/${taskId}/comments`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                Authorization:
+                  `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                content,
+              }),
+            },
+          );
 
-    setNewComment("");
-  };
+        if (!response.ok) {
+          throw new Error(
+            "Failed to add comment",
+          );
+        }
+
+        const createdComment:
+          TaskComment =
+          await response.json();
+
+        setComments(
+          (currentComments) => [
+            ...currentComments,
+            createdComment,
+          ],
+        );
+
+        setNewComment("");
+      } catch (error) {
+        console.error(
+          "Failed to add comment:",
+          error,
+        );
+      }
+    };
+
+  const deleteComment =
+    async (
+      commentId: string,
+    ) => {
+      try {
+        const response =
+          await fetch(
+            `${apiUrl}/tasks/${taskId}/comments/${commentId}`,
+            {
+              method: "DELETE",
+              credentials: "include",
+              headers: {
+                Authorization:
+                  `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+              }
+            },
+          );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to delete comment",
+          );
+        }
+
+        setComments(
+          (currentComments) =>
+            currentComments.filter(
+              (comment) =>
+                comment.id !==
+                commentId,
+            ),
+        );
+
+        setCommentMenuId(
+          null,
+        );
+      } catch (error) {
+        console.error(
+          "Failed to delete comment:",
+          error,
+        );
+      }
+    };
+
+  const addReply =
+    async (
+      commentId: string,
+    ) => {
+      const content =
+        replyContent.trim();
+
+      if (!content) {
+        return;
+      }
+
+      try {
+        const response =
+          await fetch(
+            `${apiUrl}/comments/${commentId}/replies`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                Authorization:
+                  `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                content,
+              }),
+            },
+          );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to add reply",
+          );
+        }
+
+        const createdReply:
+          CommentReply =
+          await response.json();
+
+        setComments(
+          (currentComments) =>
+            currentComments.map(
+              (comment) => {
+                if (
+                  comment.id !==
+                  commentId
+                ) {
+                  return comment;
+                }
+
+                return {
+                  ...comment,
+                  replies: [
+                    ...(
+                      comment.replies ??
+                      []
+                    ),
+                    createdReply,
+                  ],
+                };
+              },
+            ),
+        );
+
+        setReplyContent("");
+
+        setReplyingToCommentId(
+          null,
+        );
+      } catch (error) {
+        console.error(
+          "Failed to add reply:",
+          error,
+        );
+      }
+    };
 
   const closeTask = () => {
     if (isDirty) {
@@ -1903,9 +1969,9 @@ export default function TaskDetailsPage() {
                     (comment) => (
                       <div
                         key={comment.id}
-                        className="h-[135px] overflow-visible rounded-md border border-[var(--border)] bg-[var(--background)]"
+                        className="min-h-[135px] overflow-visible rounded-md border border-[var(--border)] bg-[var(--background)]"
                       >
-                        <div className="h-[86px] rounded-t-md border-b border-[var(--border)] p-4">
+                        <div className="min-h-[86px] rounded-t-md border-b border-[var(--border)] p-4">
                           <div className="flex h-full flex-col gap-2">
                             <div className="flex h-[21px] items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -1971,22 +2037,11 @@ export default function TaskDetailsPage() {
                                       <div className="absolute right-0 top-6 z-20 w-24 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg">
                                         <button
                                           type="button"
-                                          onClick={() => {
-                                            setComments(
-                                              (currentComments) =>
-                                                currentComments.filter(
-                                                  (
-                                                    currentComment,
-                                                  ) =>
-                                                    currentComment.id !==
-                                                    comment.id,
-                                                ),
-                                            );
-
-                                            setCommentMenuId(
-                                              null,
-                                            );
-                                          }}
+                                          onClick={() =>
+                                            deleteComment(
+                                              comment.id,
+                                            )
+                                          }
                                           className="flex h-8 w-full items-center rounded px-2 text-xs text-red-500 hover:bg-[var(--surface-secondary)]"
                                         >
                                           Delete
@@ -2016,6 +2071,14 @@ export default function TaskDetailsPage() {
 
                           <button
                             type="button"
+                            onClick={() =>
+                              setReplyingToCommentId(
+                                replyingToCommentId ===
+                                  comment.id
+                                  ? null
+                                  : comment.id,
+                              )
+                            }
                             className="text-sm text-neutral-400 transition-colors hover:text-[var(--foreground)]"
                           >
                             Leave a reply

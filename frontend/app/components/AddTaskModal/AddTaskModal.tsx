@@ -319,6 +319,8 @@ export default function AddTaskModal({
             setIsSubmitting(true);
             setError("");
 
+            const token = localStorage.getItem("accessToken");
+
             const response =
                 await fetch(
                     `${process.env.NEXT_PUBLIC_API_URL}/tasks`,
@@ -327,6 +329,7 @@ export default function AddTaskModal({
                         headers: {
                             "Content-Type":
                                 "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
                         },
                         body: JSON.stringify({
                             title:
@@ -411,8 +414,8 @@ export default function AddTaskModal({
                 status: data.status,
             });
 
-            resetForm();
-            onClose();
+            // resetForm();
+            // onClose();
         } catch (error) {
             setError(
                 error instanceof Error

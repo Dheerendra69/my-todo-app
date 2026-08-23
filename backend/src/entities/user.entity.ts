@@ -9,6 +9,7 @@ import {
 
 import { Project } from './project.entity';
 import { Task } from './task.entity';
+import { Comment } from './comment.entity';
 
 @Entity('users')
 export class User {
@@ -64,6 +65,9 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.assignee)
   tasks: Task[];
+
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
 
   @CreateDateColumn()
   createdAt: Date;
