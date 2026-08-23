@@ -31,6 +31,19 @@ export class CommentsController {
     return this.commentsService.create(taskId, req.user.sub, createCommentDto);
   }
 
+  @Post(':commentId/replies')
+  createReply(
+    @Param('taskId') taskId: string,
+    @Param('commentId') commentId: string,
+    @Body() createCommentDto: CreateCommentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.commentsService.create(taskId, req.user.sub, {
+      ...createCommentDto,
+      parentCommentId: commentId,
+    });
+  }
+
   @Get()
   findAll(
     @Param('taskId')

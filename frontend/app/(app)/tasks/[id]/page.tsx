@@ -1603,83 +1603,76 @@ export default function TaskDetailsPage() {
       }
     };
 
-  const addReply =
-    async (
-      commentId: string,
-    ) => {
-      const content =
-        replyContent.trim();
+  const addReply = async (
+    commentId: string,
+  ) => {
+    const content = replyContent.trim();
 
-      if (!content) {
-        return;
-      }
+    if (!content) {
+      return;
+    }
 
-      try {
-        const response =
-          await fetch(
-            `${apiUrl}/comments/${commentId}/replies`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type":
-                  "application/json",
-                Authorization:
-                  `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
-              },
-              credentials: "include",
-              body: JSON.stringify({
-                content,
-              }),
-            },
-          );
+    try {
+      const response = await fetch(
+        `${apiUrl}/tasks/${taskId}/comments/${commentId}/replies`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              `Bearer ${localStorage.getItem("accessToken") ?? ""
+              }`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            content,
+          }),
+        },
+      );
 
-        if (!response.ok) {
-          throw new Error(
-            "Failed to add reply",
-          );
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
 
-        const createdReply:
-          CommentReply =
-          await response.json();
-
-        setComments(
-          (currentComments) =>
-            currentComments.map(
-              (comment) => {
-                if (
-                  comment.id !==
-                  commentId
-                ) {
-                  return comment;
-                }
-
-                return {
-                  ...comment,
-                  replies: [
-                    ...(
-                      comment.replies ??
-                      []
-                    ),
-                    createdReply,
-                  ],
-                };
-              },
-            ),
-        );
-
-        setReplyContent("");
-
-        setReplyingToCommentId(
-          null,
-        );
-      } catch (error) {
         console.error(
           "Failed to add reply:",
-          error,
+          errorData,
+        );
+
+        throw new Error(
+          errorData.message ??
+          "Failed to add reply",
         );
       }
-    };
+
+      const createdReply: CommentReply =
+        await response.json();
+
+      setComments(
+        (currentComments) =>
+          currentComments.map((comment) => {
+            if (comment.id !== commentId) {
+              return comment;
+            }
+
+            return {
+              ...comment,
+              replies: [
+                ...(comment.replies ?? []),
+                createdReply,
+              ],
+            };
+          }),
+      );
+
+      setReplyContent("");
+      setReplyingToCommentId(null);
+    } catch (error) {
+      console.error(
+        "Failed to add reply:",
+        error,
+      );
+    }
+  };
 
   const closeTask = () => {
     if (isDirty) {
@@ -2058,43 +2051,100 @@ export default function TaskDetailsPage() {
                           </div>
                         </div>
 
-                        <div className="flex h-[48px] items-center gap-2 px-4 py-3">
-                          <CommentAvatar
-                            name={
-                              user?.name ??
-                              "You"
-                            }
-                            avatar={
-                              user?.avatar
-                            }
-                          />
+                        {comment.replies?.length > 0 && (
+                          <div className="border-b border-[var(--border)]">
+                            {comment.replies.map((reply) => (
+                              <div
+                                key={reply.id}
+                                className="ml-8 border-t border-[var(--border)] px-4 py-3"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <CommentAvatar
+                                    name={reply.author.name}
+                                    avatar={reply.author.avatar}
+                                  />
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setReplyingToCommentId(
-                                replyingToCommentId ===
-                                  comment.id
-                                  ? null
-                                  : comment.id,
-                              )
-                            }
-                            className="text-sm text-neutral-400 transition-colors hover:text-[var(--foreground)]"
-                          >
-                            Leave a reply
-                          </button>
+                                  <span className="text-xs font-medium text-[var(--foreground)]">
+                                    {reply.author.name}
+                                  </span>
 
-                          <Paperclip
-                            size={16}
-                            strokeWidth={1.8}
-                            className="ml-auto text-[var(--foreground-secondary)]"
-                          />
+                                  <span className="text-xs text-[var(--foreground-secondary)]">
+                                    {formatCommentTime(reply.createdAt)}
+                                  </span>
+                                </div>
 
-                          <SendHorizontal
-                            size={16}
-                            strokeWidth={1.8}
-                            className="text-[var(--foreground-secondary)]"
-                          />
+                                <p className="mt-2 text-sm leading-5 text-[var(--foreground)]">
+                                  {reply.content}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="px-4 py-3">
+                          {replyingToCommentId === comment.id ? (
+                            <div className="flex items-center gap-2">
+                              <CommentAvatar
+                                name={user?.name ?? "You"}
+                                avatar={user?.avatar}
+                              />
+
+                              <input
+                                type="text"
+                                autoFocus
+                                value={replyContent}
+                                onChange={(event) =>
+                                  setReplyContent(event.target.value)
+                                }
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter") {
+                                    event.preventDefault();
+
+                                    addReply(comment.id);
+                                  }
+
+                                  if (event.key === "Escape") {
+                                    setReplyingToCommentId(null);
+                                    setReplyContent("");
+                                  }
+                                }}
+                                placeholder="Write a reply..."
+                                className="min-w-0 flex-1 bg-transparent text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)]"
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  addReply(comment.id)
+                                }
+                                disabled={!replyContent.trim()}
+                                className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                <SendHorizontal
+                                  size={16}
+                                  strokeWidth={1.8}
+                                />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex h-[24px] items-center gap-2">
+                              <CommentAvatar
+                                name={user?.name ?? "You"}
+                                avatar={user?.avatar}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyingToCommentId(comment.id);
+                                  setReplyContent("");
+                                }}
+                                className="text-sm text-neutral-400 transition-colors hover:text-[var(--foreground)]"
+                              >
+                                Leave a reply
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ),
