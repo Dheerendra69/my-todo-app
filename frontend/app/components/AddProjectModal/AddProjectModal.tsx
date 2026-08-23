@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../Auth/AuthContext";
 
-type Priority = "Urgent" | "High" | "Medium" | "Low";
+type Priority = "No Priority" | "Urgent" | "High" | "Medium" | "Low";
 
 export type Project = {
     id: string;
@@ -31,6 +31,7 @@ type AddProjectModalProps = {
 };
 
 const priorities: Priority[] = [
+    "No Priority",
     "Urgent",
     "High",
     "Medium",

@@ -72,6 +72,8 @@ const initialFilters: FilterState = {
 };
 
 const priorityOptions: Priority[] = [
+  "No Priority",
+  "Urgent",
   "High",
   "Medium",
   "Low",
