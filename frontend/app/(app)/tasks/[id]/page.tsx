@@ -824,7 +824,7 @@ function TaskActionMenu({
 
             <input
               type="date"
-              value={dueDate}
+              value={toInputDate(dueDate)}
               onChange={(
                 event,
               ) =>
@@ -1023,6 +1023,11 @@ export default function TaskDetailsPage() {
   ] = useState<Priority>(
     "No Priority",
   );
+
+  const [
+    showDueDateMenu,
+    setShowDueDateMenu,
+  ] = useState(false);
 
   const [
     dueDate,
@@ -2347,28 +2352,82 @@ export default function TaskDetailsPage() {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-[90px_1fr] items-center">
+                    <div className="relative grid grid-cols-[90px_1fr] items-center">
                       <span className="text-xs text-[var(--foreground-secondary)]">
                         Due Date
                       </span>
 
-                      {dueDate ? (
-                        <button
-                          type="button"
-                          className="flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-1 text-xs text-[var(--foreground)]"
-                        >
-                          <Calendar
-                            size={12}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowDueDateMenu(
+                            !showDueDateMenu,
+                          )
+                        }
+                        className="flex w-fit items-center gap-1 rounded-full border border-[var(--border)] px-2 py-1 text-xs text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                      >
+                        <Calendar
+                          size={12}
+                        />
+
+                        {dueDate
+                          ? formatDate(dueDate)
+                          : "No due date"}
+
+                        <ChevronDown
+                          size={12}
+                        />
+                      </button>
+
+                      {showDueDateMenu && (
+                        <div className="absolute right-0 top-8 z-50 w-56 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 shadow-lg">
+                          <p className="px-2 py-2 text-xs text-[var(--foreground-secondary)]">
+                            Due Date
+                          </p>
+
+                          <input
+                            type="date"
+                            value={toInputDate(dueDate)}
+                            onChange={(event) => {
+                              updateField(() =>
+                                setDueDate(
+                                  event.target.value || null,
+                                ),
+                              );
+                            }}
+                            className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 text-sm text-[var(--foreground)] outline-none"
                           />
 
-                          {formatDate(
-                            dueDate,
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowDueDateMenu(
+                                false,
+                              )
+                            }
+                            className="mt-2 h-9 w-full rounded-md bg-[var(--foreground)] text-sm font-medium text-[var(--background)]"
+                          >
+                            Apply
+                          </button>
+
+                          {dueDate && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateField(() =>
+                                  setDueDate(null),
+                                );
+
+                                setShowDueDateMenu(
+                                  false,
+                                );
+                              }}
+                              className="mt-1.5 h-8 w-full rounded-md text-left px-2 text-xs text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
+                            >
+                              Clear due date
+                            </button>
                           )}
-                        </button>
-                      ) : (
-                        <span className="text-xs text-[var(--foreground-secondary)]">
-                          No due date
-                        </span>
+                        </div>
                       )}
                     </div>
                   </div>
