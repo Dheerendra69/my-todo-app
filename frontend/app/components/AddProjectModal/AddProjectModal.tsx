@@ -39,6 +39,7 @@ const priorities: Priority[] = [
 ];
 
 const priorityStyles = {
+    "No Priority": "text-[#6B7280]",
     Urgent: "text-[#DC2626]",
     High: "text-[#EF4444]",
     Medium: "text-[#F97316]",
