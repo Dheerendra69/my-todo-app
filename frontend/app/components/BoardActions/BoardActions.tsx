@@ -111,9 +111,9 @@ export default function BoardActions({
   };
 
   return (
-    <div className="relative flex items-center gap-2">
+    <div className="relative flex flex-wrap items-center gap-2">
       {isSearchOpen ? (
-        <div className="flex h-8 w-[373px] items-center gap-[6px] rounded border border-[var(--border)] bg-[var(--background)] px-3">
+        <div className="order-last flex h-9 basis-full items-center gap-[6px] rounded border border-[var(--border)] bg-[var(--background)] px-3 md:order-none md:h-8 md:w-[373px] md:basis-auto">
           <Search
             size={16}
             strokeWidth={2}
@@ -162,7 +162,7 @@ export default function BoardActions({
           onClick={() =>
             setIsSearchOpen(true)
           }
-          className="flex h-9 w-9 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition-colors hover:bg-[var(--surface-secondary)]"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition-colors hover:bg-[var(--surface-secondary)]"
         >
           <Search
             size={14}
@@ -179,9 +179,9 @@ export default function BoardActions({
               !previous,
           )
         }
-        className={`flex h-9 items-center gap-2 rounded-md border px-3 text-sm ${isFieldsOpen
-            ? "border-[#D4D4D4] bg-[var(--surface-secondary)]"
-            : "border-[var(--border)] bg-[var(--background)]"
+        className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-sm ${isFieldsOpen
+          ? "border-[#D4D4D4] bg-[var(--surface-secondary)]"
+          : "border-[var(--border)] bg-[var(--background)]"
           } hover:bg-[var(--surface-secondary)]`}
       >
         <SlidersHorizontal
@@ -189,7 +189,9 @@ export default function BoardActions({
           strokeWidth={2}
         />
 
-        <span>Fields</span>
+        <span className="whitespace-nowrap">
+          Fields
+        </span>
       </button>
 
       <TaskFilter
@@ -210,14 +212,15 @@ export default function BoardActions({
       <button
         type="button"
         onClick={onAdd}
-        className="flex h-9 items-center gap-2 rounded-md bg-[#171717] px-3 text-sm font-medium text-white hover:bg-[#262626]"
+        className="flex h-9 shrink-0 items-center gap-2 rounded-md bg-[#171717] px-3 text-sm font-medium text-white hover:bg-[#262626]"
       >
         <Plus
           size={15}
           strokeWidth={2}
+          className="shrink-0"
         />
 
-        <span>
+        <span className="whitespace-nowrap">
           {addButtonLabel}
         </span>
       </button>
