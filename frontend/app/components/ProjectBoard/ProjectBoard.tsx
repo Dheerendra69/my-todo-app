@@ -37,13 +37,6 @@ import {
   useAuth,
 } from "../Auth/AuthContext";
 
-/*
- * Use the same Priority type as the Project type
- * from AddProjectModal.
- *
- * This prevents:
- * "Type 'Priority' is not assignable to type 'Priority'"
- */
 type Priority = Project["priority"];
 
 type BackendProject = {
@@ -649,7 +642,6 @@ export default function ProjectBoard() {
                 priority:
                   project.priority,
 
-                // Fixed: Project requires "lead"
                 lead:
                   project.owner.name,
 

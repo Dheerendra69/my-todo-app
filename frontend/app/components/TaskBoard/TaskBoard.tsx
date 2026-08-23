@@ -420,8 +420,30 @@ function TaskActionMenu({
     left: 0,
   });
 
+  const [
+    menuPlacement,
+    setMenuPlacement,
+  ] = useState<
+    "top" | "bottom"
+  >("bottom");
+
+  const [
+    submenuPlacement,
+    setSubmenuPlacement,
+  ] = useState<
+    "left" | "right" | "top" | "bottom"
+  >("left");
+
   const menuRef =
     useRef<HTMLDivElement>(null);
+
+  const MAIN_MENU_WIDTH = 192;
+
+  const MAIN_MENU_HEIGHT = 126;
+
+  const GAP = 10;
+
+  const VIEWPORT_PADDING = 12;
 
   useEffect(() => {
     setPriority(
@@ -450,11 +472,163 @@ function TaskActionMenu({
       const rect =
         anchorRef.current.getBoundingClientRect();
 
+      const viewportWidth =
+        window.innerWidth;
+
+      const viewportHeight =
+        window.innerHeight;
+
+      const isMobile =
+        viewportWidth < 768;
+
+      const spaceBelow =
+        viewportHeight -
+        rect.bottom;
+
+      const spaceAbove =
+        rect.top;
+
+      const shouldOpenAbove =
+        spaceBelow <
+        MAIN_MENU_HEIGHT +
+        VIEWPORT_PADDING &&
+        spaceAbove > spaceBelow;
+
+      let top: number;
+
+      if (shouldOpenAbove) {
+        top =
+          rect.top -
+          MAIN_MENU_HEIGHT -
+          GAP;
+
+        setMenuPlacement("top");
+      } else {
+        top =
+          rect.bottom +
+          GAP;
+
+        setMenuPlacement("bottom");
+      }
+
+      top = Math.max(
+        VIEWPORT_PADDING,
+        Math.min(
+          top,
+          viewportHeight -
+          MAIN_MENU_HEIGHT -
+          VIEWPORT_PADDING,
+        ),
+      );
+
+      let left =
+        rect.right -
+        MAIN_MENU_WIDTH;
+
+      if (
+        left +
+        MAIN_MENU_WIDTH >
+        viewportWidth -
+        VIEWPORT_PADDING
+      ) {
+        left =
+          viewportWidth -
+          MAIN_MENU_WIDTH -
+          VIEWPORT_PADDING;
+      }
+
+      if (
+        left <
+        VIEWPORT_PADDING
+      ) {
+        left =
+          VIEWPORT_PADDING;
+      }
+
       setPosition({
-        top: rect.top,
-        left:
-          rect.right - 192,
+        top,
+        left,
       });
+
+
+      if (isMobile) {
+        const estimatedSubmenuHeight =
+          activeCategory ===
+            "Due Date"
+            ? 190
+            : 230;
+
+        const submenuSpaceBelow =
+          viewportHeight -
+          (top +
+            MAIN_MENU_HEIGHT);
+
+        const submenuSpaceAbove =
+          top;
+
+        if (
+          submenuSpaceBelow >=
+          estimatedSubmenuHeight +
+          GAP
+        ) {
+          setSubmenuPlacement(
+            "bottom",
+          );
+        } else if (
+          submenuSpaceAbove >=
+          estimatedSubmenuHeight +
+          GAP
+        ) {
+          setSubmenuPlacement(
+            "top",
+          );
+        } else {
+
+          setSubmenuPlacement(
+            submenuSpaceBelow >=
+              submenuSpaceAbove
+              ? "bottom"
+              : "top",
+          );
+        }
+
+        return;
+      }
+
+
+
+      const spaceLeft =
+        left;
+
+      const spaceRight =
+        viewportWidth -
+        (left +
+          MAIN_MENU_WIDTH);
+
+      if (
+        spaceLeft >=
+        MAIN_MENU_WIDTH +
+        GAP
+      ) {
+        setSubmenuPlacement(
+          "left",
+        );
+      } else if (
+        spaceRight >=
+        MAIN_MENU_WIDTH +
+        GAP
+      ) {
+        setSubmenuPlacement(
+          "right",
+        );
+      } else {
+
+        setSubmenuPlacement(
+          spaceLeft >= spaceRight
+            ? "left"
+            : "right",
+        );
+      }
     };
 
     updatePosition();
@@ -482,7 +656,10 @@ function TaskActionMenu({
         true,
       );
     };
-  }, [anchorRef]);
+  }, [
+    anchorRef,
+    activeCategory,
+  ]);
 
   useEffect(() => {
     const handleOutsideClick = (
@@ -513,7 +690,10 @@ function TaskActionMenu({
     const handleEscape = (
       event: KeyboardEvent,
     ) => {
-      if (event.key === "Escape") {
+      if (
+        event.key ===
+        "Escape"
+      ) {
         onClose();
       }
     };
@@ -591,6 +771,34 @@ function TaskActionMenu({
     onClose();
   };
 
+  const getSubmenuClassName = (
+    width: string,
+  ) => {
+    if (
+      submenuPlacement ===
+      "bottom"
+    ) {
+      return `absolute left-0 top-[calc(100%+10px)] ${width}`;
+    }
+
+    if (
+      submenuPlacement ===
+      "top"
+    ) {
+      return `absolute bottom-[calc(100%+10px)] left-0 ${width}`;
+    }
+
+
+    if (
+      submenuPlacement ===
+      "right"
+    ) {
+      return `absolute left-[calc(100%+10px)] top-0 ${width}`;
+    }
+
+    return `absolute right-[calc(100%+10px)] top-0 ${width}`;
+  };
+
   if (
     typeof document ===
     "undefined"
@@ -606,7 +814,7 @@ function TaskActionMenu({
         top: position.top,
         left: position.left,
       }}
-      className="z-[9999] flex gap-2"
+      className="z-[9999]"
     >
       <div className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
         <button
@@ -705,7 +913,11 @@ function TaskActionMenu({
 
       {activeCategory ===
         "Status" && (
-          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+          <div
+            className={`${getSubmenuClassName(
+              "w-48",
+            )} rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl`}
+          >
             <div className="flex h-9 items-center px-3">
               <span className="text-xs font-medium text-[var(--foreground-secondary)]">
                 Status
@@ -719,23 +931,21 @@ function TaskActionMenu({
                   type="button"
                   onClick={() =>
                     updateTask({
-                      status:
-                        option.value,
+                      status: option.value,
                     })
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
                 >
-                  <span className="flex h-4 w-4 items-center justify-center">
-                    {status ===
-                      option.value && (
-                        <Check
-                          size={16}
-                        />
-                      )}
-                  </span>
-
                   <span className="text-sm text-[var(--foreground)]">
                     {option.label}
+                  </span>
+
+                  <span className="ml-auto flex h-4 w-4 items-center justify-center">
+                    {status === option.value && (
+                      <Check
+                        size={16}
+                      />
+                    )}
                   </span>
                 </button>
               ),
@@ -745,7 +955,11 @@ function TaskActionMenu({
 
       {activeCategory ===
         "Priority" && (
-          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+          <div
+            className={`${getSubmenuClassName(
+              "w-48",
+            )} rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl`}
+          >
             <div className="flex h-9 items-center px-3">
               <span className="text-xs font-medium text-[var(--foreground-secondary)]">
                 Priority
@@ -787,7 +1001,11 @@ function TaskActionMenu({
 
       {activeCategory ===
         "Due Date" && (
-          <div className="absolute right-[calc(100%+10px)] top-0 w-56 rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 shadow-xl">
+          <div
+            className={`${getSubmenuClassName(
+              "w-56",
+            )} rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 shadow-xl`}
+          >
             <div className="flex h-9 items-center px-2">
               <span className="text-xs font-medium text-[var(--foreground-secondary)]">
                 Due Date
