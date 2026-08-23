@@ -22,27 +22,27 @@ import { Comment } from './entities/comment.entity';
     }),
 
     // Local
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [User, Project, Task, Comment],
-      synchronize: true,
-    }),
-
-    // Production
     // TypeOrmModule.forRoot({
     //   type: 'postgres',
-    //   url: process.env.DATABASE_URL,
+    //   host: process.env.DB_HOST,
+    //   port: Number(process.env.DB_PORT),
+    //   username: process.env.DB_USERNAME,
+    //   password: process.env.DB_PASSWORD,
+    //   database: process.env.DB_NAME,
     //   entities: [User, Project, Task, Comment],
     //   synchronize: true,
-    //   ssl: {
-    //     rejectUnauthorized: false,
-    //   },
     // }),
+
+    // Production
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      entities: [User, Project, Task, Comment],
+      synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    }),
 
     UsersModule,
     ProjectsModule,
