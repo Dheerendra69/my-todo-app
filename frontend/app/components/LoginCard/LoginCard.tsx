@@ -73,9 +73,9 @@ export default function LoginCard() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 py-8 text-[var(--foreground)] sm:px-6">
+    <main className="flex h-[100dvh] items-center justify-center overflow-hidden bg-[var(--background)] px-4 text-[var(--foreground)] sm:px-6">
       <div className="flex w-full max-w-[1200px] flex-col items-center">
-        <div className="flex h-6 items-center gap-2">
+        <div className="flex h-9 items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--accent-color)]">
             <svg
               width="22"
