@@ -29,8 +29,11 @@ export default function AppShell({
     setIsSidebarOpen(false);
   };
 
+  const hasTopBar =
+    pathname !== "/settings/theme";
+
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="h-[100dvh] overflow-hidden bg-[var(--background)]">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={closeSidebar}
@@ -46,21 +49,23 @@ export default function AppShell({
       )}
 
       <div
-        className={`min-h-screen transition-[margin] duration-200 ${isSidebarOpen
-          ? "md:ml-64"
-          : "md:ml-0"
+        className={`flex h-[100dvh] flex-col transition-[margin] duration-200 ${isSidebarOpen
+            ? "md:ml-64"
+            : "md:ml-0"
           }`}
       >
-        {pathname !== "/settings/theme" && (
-          <TopBar
-            isSidebarOpen={isSidebarOpen}
-            onToggleSidebar={
-              toggleSidebar
-            }
-          />
+        {hasTopBar && (
+          <div className="shrink-0">
+            <TopBar
+              isSidebarOpen={isSidebarOpen}
+              onToggleSidebar={
+                toggleSidebar
+              }
+            />
+          </div>
         )}
 
-        <main className="min-h-[calc(100vh-4rem)]">
+        <main className="min-h-0 flex-1 overflow-y-auto">
           {children}
         </main>
       </div>

@@ -122,8 +122,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen border-l border-[var(--border)] bg-[var(--background)]">
-        <div className="flex min-h-screen items-center justify-center">
+      <main className="min-h-full border-l border-[var(--border)] bg-[var(--background)]">
+        <div className="flex min-h-[100dvh] items-center justify-center">
           <p className="text-sm text-[var(--foreground-secondary)]">
             Loading profile...
           </p>
@@ -261,8 +261,11 @@ export default function ProfilePage() {
     };
 
   return (
-    <main className="min-h-screen border-l border-[var(--border)] bg-[var(--background)]">
-      <div className="flex min-h-screen w-full items-center justify-center px-4 py-8 pb-28 sm:px-6 lg:px-8">
+    <main className="min-h-[100dvh] border-l border-[var(--border)] bg-[var(--background)]">
+      <div
+        className={`flex min-h-full w-full items-start justify-center px-4 py-8 sm:px-6 md:items-center lg:px-8 ${hasPendingChanges ? "pb-28" : ""
+          }`}
+      >
         <div className="w-full max-w-[640px]">
           <div className="flex h-8 items-center px-0">
             <h1 className="text-2xl font-medium leading-none text-[var(--foreground)]">
@@ -434,8 +437,8 @@ export default function ProfilePage() {
       </div>
 
       {hasPendingChanges && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex min-h-16 items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-8 py-3 shadow-lg">
-          <div className="mr-auto">
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
+          <div className="w-full sm:mr-auto sm:w-auto">
             <span className="text-sm text-[var(--foreground-secondary)]">
               You have unsaved changes
             </span>
@@ -446,34 +449,25 @@ export default function ProfilePage() {
               </p>
             )}
           </div>
+          <div className="flex w-full justify-end gap-3 sm:w-auto">
+            <button
+              type="button"
+              onClick={discardChanges}
+              disabled={isSaving}
+              className="flex-1 rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            >
+              Discard
+            </button>
 
-          <button
-            type="button"
-            onClick={
-              discardChanges
-            }
-            disabled={
-              isSaving
-            }
-            className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Discard
-          </button>
-
-          <button
-            type="button"
-            onClick={
-              saveChanges
-            }
-            disabled={
-              isSaving
-            }
-            className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSaving
-              ? "Saving..."
-              : "Save Changes"}
-          </button>
+            <button
+              type="button"
+              onClick={saveChanges}
+              disabled={isSaving}
+              className="flex-1 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
         </div>
       )}
     </main>
