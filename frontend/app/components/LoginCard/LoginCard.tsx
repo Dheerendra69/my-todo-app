@@ -107,7 +107,7 @@ export default function LoginCard() {
         </div>
 
         <div className="mt-[56px] flex w-full flex-col items-center">
-          <section className="w-full max-w-[384px] rounded-[24px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+          <section className="w-full max-w-[384px] rounded-[24px] border border-[var(--border)] bg-[var(--background)] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
             <div className="flex flex-col gap-[6px] text-center">
               <h1 className="text-xl font-semibold leading-[20px] tracking-normal text-[var(--foreground)]">
                 Let&apos;s get back on track
