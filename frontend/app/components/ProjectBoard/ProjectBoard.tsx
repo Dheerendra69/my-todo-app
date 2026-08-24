@@ -162,8 +162,25 @@ function ProjectActionMenu({
     left: 0,
   });
 
+  const [
+    submenuPlacement,
+    setSubmenuPlacement,
+  ] = useState<
+    "left" | "right" | "top" | "bottom"
+  >("left");
+
   const menuRef =
     useRef<HTMLDivElement>(null);
+
+  const MAIN_MENU_WIDTH = 192;
+
+  const MAIN_MENU_HEIGHT = 48;
+
+  const SUBMENU_HEIGHT = 230;
+
+  const GAP = 10;
+
+  const VIEWPORT_PADDING = 12;
 
   useLayoutEffect(() => {
     const updatePosition = () => {
@@ -174,10 +191,149 @@ function ProjectActionMenu({
       const rect =
         anchorRef.current.getBoundingClientRect();
 
+      const viewportWidth =
+        window.innerWidth;
+
+      const viewportHeight =
+        window.innerHeight;
+
+      const isMobile =
+        viewportWidth < 768;
+
+      const spaceBelow =
+        viewportHeight -
+        rect.bottom;
+
+      const spaceAbove =
+        rect.top;
+
+      const shouldOpenAbove =
+        spaceBelow <
+        MAIN_MENU_HEIGHT +
+        VIEWPORT_PADDING &&
+        spaceAbove > spaceBelow;
+
+      let top: number;
+
+      if (shouldOpenAbove) {
+        top =
+          rect.top -
+          MAIN_MENU_HEIGHT -
+          GAP;
+      } else {
+        top =
+          rect.bottom +
+          GAP;
+      }
+
+      top = Math.max(
+        VIEWPORT_PADDING,
+        Math.min(
+          top,
+          viewportHeight -
+          MAIN_MENU_HEIGHT -
+          VIEWPORT_PADDING,
+        ),
+      );
+
+      let left =
+        rect.right -
+        MAIN_MENU_WIDTH;
+
+      if (
+        left +
+        MAIN_MENU_WIDTH >
+        viewportWidth -
+        VIEWPORT_PADDING
+      ) {
+        left =
+          viewportWidth -
+          MAIN_MENU_WIDTH -
+          VIEWPORT_PADDING;
+      }
+
+      if (
+        left <
+        VIEWPORT_PADDING
+      ) {
+        left =
+          VIEWPORT_PADDING;
+      }
+
       setPosition({
-        top: rect.top,
-        left: rect.right - 192,
+        top,
+        left,
       });
+
+      if (isMobile) {
+        const submenuSpaceBelow =
+          viewportHeight -
+          (top +
+            MAIN_MENU_HEIGHT);
+
+        const submenuSpaceAbove =
+          top;
+
+        if (
+          submenuSpaceBelow >=
+          SUBMENU_HEIGHT +
+          GAP
+        ) {
+          setSubmenuPlacement(
+            "bottom",
+          );
+        } else if (
+          submenuSpaceAbove >=
+          SUBMENU_HEIGHT +
+          GAP
+        ) {
+          setSubmenuPlacement(
+            "top",
+          );
+        } else {
+          setSubmenuPlacement(
+            submenuSpaceBelow >=
+              submenuSpaceAbove
+              ? "bottom"
+              : "top",
+          );
+        }
+
+        return;
+      }
+
+      const spaceLeft =
+        left;
+
+      const spaceRight =
+        viewportWidth -
+        (left +
+          MAIN_MENU_WIDTH);
+
+      if (
+        spaceLeft >=
+        MAIN_MENU_WIDTH +
+        GAP
+      ) {
+        setSubmenuPlacement(
+          "left",
+        );
+      } else if (
+        spaceRight >=
+        MAIN_MENU_WIDTH +
+        GAP
+      ) {
+        setSubmenuPlacement(
+          "right",
+        );
+      } else {
+        setSubmenuPlacement(
+          spaceLeft >=
+            spaceRight
+            ? "left"
+            : "right",
+        );
+      }
     };
 
     updatePosition();
@@ -205,7 +361,10 @@ function ProjectActionMenu({
         true,
       );
     };
-  }, [anchorRef]);
+  }, [
+    anchorRef,
+    activeMenu,
+  ]);
 
   useEffect(() => {
     const handleOutsideClick = (
@@ -236,7 +395,10 @@ function ProjectActionMenu({
     const handleEscape = (
       event: KeyboardEvent,
     ) => {
-      if (event.key === "Escape") {
+      if (
+        event.key ===
+        "Escape"
+      ) {
         onClose();
       }
     };
@@ -267,6 +429,31 @@ function ProjectActionMenu({
     onClose,
   ]);
 
+  const getSubmenuClassName = () => {
+    if (
+      submenuPlacement ===
+      "bottom"
+    ) {
+      return "absolute left-0 top-[calc(100%+10px)] w-48";
+    }
+
+    if (
+      submenuPlacement ===
+      "top"
+    ) {
+      return "absolute bottom-[calc(100%+10px)] left-0 w-48";
+    }
+
+    if (
+      submenuPlacement ===
+      "right"
+    ) {
+      return "absolute left-[calc(100%+10px)] top-0 w-48";
+    }
+
+    return "absolute right-[calc(100%+10px)] top-0 w-48";
+  };
+
   if (
     typeof document ===
     "undefined"
@@ -282,9 +469,9 @@ function ProjectActionMenu({
         top: position.top,
         left: position.left,
       }}
-      className="z-[9999] flex gap-2"
+      className="z-[9999]"
     >
-      <div className="relative w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+      <div className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
         <button
           type="button"
           onClick={() =>
@@ -314,7 +501,9 @@ function ProjectActionMenu({
       </div>
 
       {activeMenu && (
-        <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+        <div
+          className={`${getSubmenuClassName()} rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl`}
+        >
           <div className="flex h-9 items-center px-3">
             <span className="text-xs font-medium text-[var(--foreground-secondary)]">
               Priority
@@ -334,8 +523,12 @@ function ProjectActionMenu({
 
                   onClose();
                 }}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
               >
+                <PriorityBadge
+                  priority={option}
+                />
+
                 <span className="flex h-4 w-4 items-center justify-center">
                   {project.priority ===
                     option && (
@@ -344,10 +537,6 @@ function ProjectActionMenu({
                       />
                     )}
                 </span>
-
-                <PriorityBadge
-                  priority={option}
-                />
               </button>
             ),
           )}
@@ -1073,34 +1262,34 @@ export default function ProjectBoard() {
       </main>
 
       {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-8 shadow-lg">
-          <span className="mr-3 text-sm text-[var(--foreground-secondary)]">
-            You have unsaved changes
-          </span>
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
+          <div className="w-full sm:mr-auto sm:w-auto">
+            <span className="text-sm text-[var(--foreground-secondary)]">
+              You have unsaved changes
+            </span>
+          </div>
 
-          <button
-            type="button"
-            onClick={
-              discardChanges
-            }
-            disabled={isSaving}
-            className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:opacity-50"
-          >
-            Discard
-          </button>
+          <div className="flex w-full justify-end gap-3 sm:w-auto">
+            <button
+              type="button"
+              onClick={discardChanges}
+              disabled={isSaving}
+              className="flex-1 rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            >
+              Discard
+            </button>
 
-          <button
-            type="button"
-            onClick={
-              saveChanges
-            }
-            disabled={isSaving}
-            className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:opacity-50"
-          >
-            {isSaving
-              ? "Saving..."
-              : "Save Changes"}
-          </button>
+            <button
+              type="button"
+              onClick={saveChanges}
+              disabled={isSaving}
+              className="flex-1 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            >
+              {isSaving
+                ? "Saving..."
+                : "Save Changes"}
+            </button>
+          </div>
         </div>
       )}
 
