@@ -379,8 +379,13 @@ export default function TaskFilter({
                   onClick={() =>
                     toggleStatus(status)
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
                 >
+
+                  <span className="text-sm">
+                    {status}
+                  </span>
+
                   <span className="flex h-4 w-4 items-center justify-center">
                     {selected && (
                       <Check
@@ -388,10 +393,6 @@ export default function TaskFilter({
                         strokeWidth={2}
                       />
                     )}
-                  </span>
-
-                  <span className="text-sm">
-                    {status}
                   </span>
                 </button>
               );
