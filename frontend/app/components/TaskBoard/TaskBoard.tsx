@@ -977,8 +977,14 @@ function TaskActionMenu({
                         option,
                     })
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
                 >
+                  <PriorityBadge
+                    priority={
+                      option
+                    }
+                  />
+
                   <span className="flex h-4 w-4 items-center justify-center">
                     {priority ===
                       option && (
@@ -988,11 +994,6 @@ function TaskActionMenu({
                       )}
                   </span>
 
-                  <PriorityBadge
-                    priority={
-                      option
-                    }
-                  />
                 </button>
               ),
             )}
@@ -1396,6 +1397,8 @@ function ListTaskSection({
 
 function BoardSection({
   section,
+  collapsed,
+  onToggle,
   onAddTask,
   onOpenTask,
   openActionTaskId,
@@ -1403,16 +1406,25 @@ function BoardSection({
   onChangeTask,
 }: {
   section: TaskSection;
+
+  collapsed: boolean;
+
+  onToggle: () => void;
+
   onAddTask: (
     sectionId: TaskStatus,
   ) => void;
+
   onOpenTask: (
     taskId: string,
   ) => void;
+
   openActionTaskId: string | null;
+
   onOpenActions: (
     taskId: string,
   ) => void;
+
   onChangeTask: (
     taskId: string,
     changes: {
@@ -1423,9 +1435,25 @@ function BoardSection({
   ) => void;
 }) {
   return (
-    <section className="h-fit w-[289px] shrink-0 overflow-visible rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)]">
+    <section className="h-fit w-full shrink-0 overflow-visible rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] md:w-[289px]">
       <div className="flex h-[39px] items-center justify-between border-b border-[var(--border)] px-3">
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onToggle}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)] md:hidden"
+          >
+            <ChevronDown
+              size={16}
+              strokeWidth={2}
+              className={
+                collapsed
+                  ? "-rotate-90 transition-transform"
+                  : "rotate-0 transition-transform"
+              }
+            />
+          </button>
+
           <Columns3
             size={14}
             strokeWidth={2}
@@ -1465,47 +1493,65 @@ function BoardSection({
         </div>
       </div>
 
-      <div>
-        {section.tasks.map(
-          (task) => (
-            <BoardTaskCard
-              key={task.id}
-              task={task}
-              onOpenTask={
-                onOpenTask
-              }
-              onOpenActions={
-                onOpenActions
-              }
-              actionOpen={
-                openActionTaskId ===
-                task.id
-              }
-              onChangeTask={
-                onChangeTask
-              }
-            />
-          ),
-        )}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out md:grid-rows-[1fr] md:opacity-100 ${collapsed
+          ? "grid-rows-[0fr] opacity-0"
+          : "grid-rows-[1fr] opacity-100"
+          }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div>
+            {section.tasks.map(
+              (task) => (
+                <BoardTaskCard
+                  key={task.id}
+                  task={task}
+                  onOpenTask={
+                    onOpenTask
+                  }
+                  onOpenActions={
+                    onOpenActions
+                  }
+                  actionOpen={
+                    openActionTaskId ===
+                    task.id
+                  }
+                  onChangeTask={
+                    onChangeTask
+                  }
+                />
+              ),
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="flex h-[39px] items-center px-3">
-        <button
-          type="button"
-          onClick={() =>
-            onAddTask(
-              section.id,
-            )
-          }
-          className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
-        >
-          <Plus
-            size={12}
-            strokeWidth={2}
-          />
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-in-out md:grid-rows-[1fr] md:opacity-100 ${collapsed
+          ? "grid-rows-[0fr] opacity-0"
+          : "grid-rows-[1fr] opacity-100"
+          }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex h-[39px] items-center px-3">
+            <button
+              type="button"
+              onClick={() =>
+                onAddTask(
+                  section.id,
+                )
+              }
+              className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+            >
+              <Plus
+                size={12}
+                strokeWidth={2}
+              />
 
-          <span>Add Task</span>
-        </button>
+              <span>Add Task</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -2265,7 +2311,7 @@ export default function TaskBoard() {
 
   return (
     <div className="min-h-screen min-w-0 w-full bg-[var(--background)] text-[var(--foreground)]">
-      <main className="w-full px-4 py-4">
+      <main className="w-full px-4 pt-4 pb-24">
         <div className="mx-auto w-full max-w-[992px]">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h1 className="text-base font-semibold leading-4 text-[var(--foreground)]">
@@ -2293,99 +2339,67 @@ export default function TaskBoard() {
             />
           </div>
 
-          {viewMode ===
-            "list" ? (
+          {viewMode === "list" ? (
             <div className="flex w-full flex-col gap-5">
-              {filteredSections.map(
-                (
-                  section,
-                ) => (
-                  <ListTaskSection
-                    key={
-                      section.id
-                    }
-                    section={
-                      section
-                    }
-                    collapsed={
-                      collapsedSections[
-                      section.id
-                      ] ??
-                      false
-                    }
-                    onToggle={() =>
-                      toggleSection(
-                        section.id,
-                      )
-                    }
-                    onAddTask={
-                      openAddTaskModal
-                    }
-                    onOpenTask={(
-                      taskId,
-                    ) =>
-                      router.push(
-                        `/tasks/${taskId}`,
-                      )
-                    }
-                    openActionTaskId={
-                      openActionTaskId
-                    }
-                    onOpenActions={(
-                      taskId,
-                    ) =>
-                      setOpenActionTaskId(
-                        taskId ||
-                        null,
-                      )
-                    }
-                    onChangeTask={
-                      changeTaskLocally
-                    }
-                  />
-                ),
-              )}
+              {filteredSections.map((section) => (
+                <ListTaskSection
+                  key={section.id}
+                  section={section}
+                  collapsed={
+                    collapsedSections[section.id] ?? false
+                  }
+                  onToggle={() =>
+                    toggleSection(section.id)
+                  }
+                  onAddTask={openAddTaskModal}
+                  onOpenTask={(taskId) =>
+                    router.push(`/tasks/${taskId}`)
+                  }
+                  openActionTaskId={openActionTaskId}
+                  onOpenActions={(taskId) =>
+                    setOpenActionTaskId(taskId || null)
+                  }
+                  onChangeTask={changeTaskLocally}
+                />
+              ))}
             </div>
           ) : (
-            <div className="flex w-full items-start gap-4 overflow-x-auto pb-4">
-              {filteredSections.map(
-                (
-                  section,
-                ) => (
-                  <BoardSection
-                    key={
-                      section.id
-                    }
-                    section={
-                      section
-                    }
-                    onAddTask={
-                      openAddTaskModal
-                    }
-                    onOpenTask={(
-                      taskId,
-                    ) =>
-                      router.push(
-                        `/tasks/${taskId}`,
-                      )
-                    }
-                    openActionTaskId={
-                      openActionTaskId
-                    }
-                    onOpenActions={(
-                      taskId,
-                    ) =>
-                      setOpenActionTaskId(
-                        taskId ||
-                        null,
-                      )
-                    }
-                    onChangeTask={
-                      changeTaskLocally
-                    }
-                  />
-                ),
-              )}
+            <div className="flex w-full flex-col gap-4 pb-4 md:flex-row md:items-start md:overflow-x-auto">
+              {filteredSections.map((section) => (
+                <BoardSection
+                  key={section.id}
+                  section={section}
+                  collapsed={
+                    collapsedSections[
+                    section.id
+                    ] ?? false
+                  }
+                  onToggle={() =>
+                    toggleSection(
+                      section.id,
+                    )
+                  }
+                  onAddTask={
+                    openAddTaskModal
+                  }
+                  onOpenTask={(taskId) =>
+                    router.push(
+                      `/tasks/${taskId}`,
+                    )
+                  }
+                  openActionTaskId={
+                    openActionTaskId
+                  }
+                  onOpenActions={(taskId) =>
+                    setOpenActionTaskId(
+                      taskId || null,
+                    )
+                  }
+                  onChangeTask={
+                    changeTaskLocally
+                  }
+                />
+              ))}
             </div>
           )}
         </div>
@@ -2411,8 +2425,8 @@ export default function TaskBoard() {
       />
 
       {hasPendingChanges && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-8 shadow-lg">
-          <div className="mr-auto">
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
+          <div className="w-full sm:mr-auto sm:w-auto">
             <span className="text-sm text-[var(--foreground-secondary)]">
               You have unsaved changes
             </span>
@@ -2423,34 +2437,25 @@ export default function TaskBoard() {
               </p>
             )}
           </div>
+          <div className="flex w-full justify-end gap-3 sm:w-auto">
+            <button
+              type="button"
+              onClick={discardChanges}
+              disabled={isSaving}
+              className="flex-1 rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            >
+              Discard
+            </button>
 
-          <button
-            type="button"
-            onClick={
-              discardChanges
-            }
-            disabled={
-              isSaving
-            }
-            className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Discard
-          </button>
-
-          <button
-            type="button"
-            onClick={
-              saveAllChanges
-            }
-            disabled={
-              isSaving
-            }
-            className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSaving
-              ? "Saving..."
-              : "Save Changes"}
-          </button>
+            <button
+              type="button"
+              onClick={saveAllChanges}
+              disabled={isSaving}
+              className="flex-1 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
         </div>
       )}
     </div>
