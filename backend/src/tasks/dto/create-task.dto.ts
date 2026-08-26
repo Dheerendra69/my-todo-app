@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsDateString,
   IsEnum,
   IsNotEmpty,
@@ -40,4 +41,11 @@ export class CreateTaskDto {
   @IsOptional()
   @IsUUID()
   parentTaskId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({
+    each: true,
+  })
+  labels?: string[];
 }

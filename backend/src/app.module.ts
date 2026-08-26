@@ -14,6 +14,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { Comment } from './entities/comment.entity';
+import { Label } from './entities/label.entity';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { Comment } from './entities/comment.entity';
     //   username: process.env.DB_USERNAME,
     //   password: process.env.DB_PASSWORD,
     //   database: process.env.DB_NAME,
-    //   entities: [User, Project, Task, Comment],
+    //   entities: [User, Project, Task, Comment, Label],
     //   synchronize: true,
     // }),
 
@@ -37,7 +38,7 @@ import { Comment } from './entities/comment.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [User, Project, Task, Comment],
+      entities: [User, Project, Task, Comment, Label],
       synchronize: true,
       ssl: {
         rejectUnauthorized: false,

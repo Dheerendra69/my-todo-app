@@ -6,11 +6,14 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  JoinTable,
+  ManyToMany,
 } from 'typeorm';
 
 import { Comment } from './comment.entity';
 import { Project } from './project.entity';
 import { User } from './user.entity';
+import { Label } from './label.entity';
 
 export enum TaskStatus {
   TODO = 'todo',
@@ -83,6 +86,22 @@ export class Task {
 
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
+
+  @ManyToMany(() => Label, (label) => label.tasks, {
+    cascade: false,
+  })
+  @JoinTable({
+    name: 'task_labels',
+    joinColumn: {
+      name: 'task_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'label_id',
+      referencedColumnName: 'id',
+    },
+  })
+  labels: Label[];
 
   @CreateDateColumn()
   createdAt: Date;

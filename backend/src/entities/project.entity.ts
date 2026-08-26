@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
+import { Label } from './label.entity';
 
 @Entity('projects')
 export class Project {
@@ -40,6 +41,9 @@ export class Project {
 
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task[];
+
+  @OneToMany(() => Label, (label) => label.project)
+  labels: Label[];
 
   @CreateDateColumn()
   createdAt: Date;

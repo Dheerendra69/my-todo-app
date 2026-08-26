@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  IsArray,
 } from 'class-validator';
 
 import { TaskPriority, TaskStatus } from '../../entities/task.entity';
@@ -38,4 +39,11 @@ export class UpdateTaskDto {
   @IsOptional()
   @IsUUID()
   projectId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', {
+    each: true,
+  })
+  labelIds?: string[];
 }

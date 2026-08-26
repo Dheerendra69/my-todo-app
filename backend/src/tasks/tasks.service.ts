@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { Task, TaskPriority, TaskStatus } from '../entities/task.entity';
+import { Label } from '../entities/label.entity';
 
 import { User } from '../entities/user.entity';
 import { Project } from '../entities/project.entity';
@@ -26,6 +27,9 @@ export class TasksService {
 
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
+
+    @InjectRepository(Label)
+    private readonly labelRepository: Repository<Label>,
   ) {}
 
   async create(dto: CreateTaskDto, userId: string) {
@@ -88,6 +92,34 @@ export class TasksService {
       }
     }
 
+    let labels: Label[] = [];
+
+    if (dto.labels?.length) {
+      for (const labelName of dto.labels) {
+        const trimmedName = labelName.trim();
+
+        if (!trimmedName) {
+          continue;
+        }
+
+        let label = await this.labelRepository.findOne({
+          where: {
+            name: trimmedName,
+          },
+        });
+
+        if (!label) {
+          label = this.labelRepository.create({
+            name: trimmedName,
+          });
+
+          label = await this.labelRepository.save(label);
+        }
+
+        labels.push(label);
+      }
+    }
+
     const task = this.taskRepository.create({
       title: dto.title,
       description: dto.description ?? null,
@@ -97,6 +129,7 @@ export class TasksService {
       project,
       assignee,
       parentTask,
+      labels,
     });
 
     const savedTask = await this.taskRepository.save(task);
@@ -120,6 +153,7 @@ export class TasksService {
       .leftJoinAndSelect('task.project', 'project')
       .leftJoinAndSelect('task.assignee', 'assignee')
       .leftJoinAndSelect('task.parentTask', 'parentTask')
+      .leftJoinAndSelect('task.labels', 'labels')
       .where('task.parentTask IS NULL');
 
     if (status) {
@@ -187,6 +221,7 @@ export class TasksService {
         project: true,
         assignee: true,
         parentTask: true,
+        labels: true,
         subtasks: {
           assignee: true,
         },
@@ -212,6 +247,7 @@ export class TasksService {
       relations: {
         assignee: true,
         project: true,
+        labels: true,
       },
       order: {
         createdAt: 'ASC',
