@@ -508,8 +508,8 @@ export default function AddTaskModal({
                     selectedLabels,
             });
 
-            // resetForm();
-            // onClose();
+            resetForm();
+            onClose();
         } catch (error) {
             setError(
                 error instanceof Error
