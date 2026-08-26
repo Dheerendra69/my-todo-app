@@ -91,8 +91,10 @@ type BackendTask = {
     avatar?: string | null;
   } | null;
   members: {
-    id?: string;
-  }
+    id: string;
+    name: string;
+    avatar?: string | null;
+  }[];
 };
 
 type BackendProject = {
