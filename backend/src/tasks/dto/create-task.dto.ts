@@ -35,6 +35,13 @@ export class CreateTaskDto {
   @IsUUID()
   assigneeId?: string;
 
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', {
+    each: true,
+  })
+  memberIds?: string[];
+
   @IsUUID()
   projectId: string;
 

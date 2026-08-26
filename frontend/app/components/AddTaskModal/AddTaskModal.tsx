@@ -10,9 +10,11 @@ import {
     Check,
     ChevronDown,
     Plus,
+    Search,
     SignalHigh,
     SignalLow,
     Tag,
+    UserPlus,
     X,
 } from "lucide-react";
 
@@ -43,6 +45,13 @@ type Label = {
     name: string;
 };
 
+type Member = {
+    id: string;
+    name: string;
+    email?: string | null;
+    avatar?: string | null;
+};
+
 type CreatedTask = {
     id: string;
     title: string;
@@ -50,6 +59,7 @@ type CreatedTask = {
     priority: Priority;
     member: string;
     avatar?: string;
+    members?: Member[];
     dueDate: string;
     dueDateValue: string | null;
     status: TaskStatus;
@@ -73,6 +83,7 @@ type BackendCreatedTask = {
         name: string;
         avatar?: string | null;
     } | null;
+    members?: Member[];
     labels?: {
         id: string;
         name: string;
@@ -178,6 +189,20 @@ function formatDueDate(
     );
 }
 
+function getInitials(
+    name: string,
+) {
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(
+            (part) =>
+                part[0]?.toUpperCase(),
+        )
+        .join("");
+}
+
 export default function AddTaskModal({
     isOpen,
     onClose,
@@ -204,8 +229,30 @@ export default function AddTaskModal({
         "No Priority",
     );
 
-    const [member, setMember] =
-        useState("Admin");
+    const [
+        availableMembers,
+        setAvailableMembers,
+    ] = useState<Member[]>([]);
+
+    const [
+        selectedMembers,
+        setSelectedMembers,
+    ] = useState<Member[]>([]);
+
+    const [
+        memberSearch,
+        setMemberSearch,
+    ] = useState("");
+
+    const [
+        membersLoading,
+        setMembersLoading,
+    ] = useState(false);
+
+    const [
+        membersError,
+        setMembersError,
+    ] = useState("");
 
     const [dueDate, setDueDate] =
         useState("");
@@ -250,20 +297,73 @@ export default function AddTaskModal({
         user?.isGuest === true;
 
     useEffect(() => {
-        if (isOpen) {
-            setStatus(
-                statusLabels[
-                defaultStatus
-                ],
-            );
-
-            setPriorityOpen(false);
-            setMemberOpen(false);
-            setStatusOpen(false);
+        if (!isOpen) {
+            return;
         }
+
+        setStatus(
+            statusLabels[
+            defaultStatus
+            ],
+        );
+
+        setPriorityOpen(false);
+        setMemberOpen(false);
+        setStatusOpen(false);
+        setMemberSearch("");
+
+        if (isGuest) {
+            return;
+        }
+
+        const fetchMembers =
+            async () => {
+                try {
+                    setMembersLoading(true);
+                    setMembersError("");
+
+                    const response =
+                        await fetch(
+                            `${process.env.NEXT_PUBLIC_API_URL}/users`,
+                            {
+                                headers: {
+                                    Authorization:
+                                        `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+                                },
+                            },
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data?.message ||
+                            "Failed to load members",
+                        );
+                    }
+
+                    setAvailableMembers(
+                        Array.isArray(data)
+                            ? data
+                            : [],
+                    );
+                } catch (error) {
+                    setMembersError(
+                        error instanceof Error
+                            ? error.message
+                            : "Failed to load members",
+                    );
+                } finally {
+                    setMembersLoading(false);
+                }
+            };
+
+        fetchMembers();
     }, [
         isOpen,
         defaultStatus,
+        isGuest,
     ]);
 
     if (!isOpen) {
@@ -274,11 +374,8 @@ export default function AddTaskModal({
         setTitle("");
         setDescription("");
         setPriority("No Priority");
-        setMember(
-            isGuest
-                ? user?.name || "Guest"
-                : "Admin",
-        );
+        setSelectedMembers([]);
+        setMemberSearch("");
         setDueDate("");
         setStatus(
             statusLabels[
@@ -291,6 +388,48 @@ export default function AddTaskModal({
         setMemberOpen(false);
         setStatusOpen(false);
         setError("");
+        setMembersError("");
+    };
+
+    const toggleMember = (
+        memberToToggle: Member,
+    ) => {
+        setSelectedMembers(
+            (current) => {
+                const alreadySelected =
+                    current.some(
+                        (member) =>
+                            member.id ===
+                            memberToToggle.id,
+                    );
+
+                if (alreadySelected) {
+                    return current.filter(
+                        (member) =>
+                            member.id !==
+                            memberToToggle.id,
+                    );
+                }
+
+                return [
+                    ...current,
+                    memberToToggle,
+                ];
+            },
+        );
+    };
+
+    const removeMember = (
+        memberId: string,
+    ) => {
+        setSelectedMembers(
+            (current) =>
+                current.filter(
+                    (member) =>
+                        member.id !==
+                        memberId,
+                ),
+        );
     };
 
     const addLabel = () => {
@@ -301,12 +440,17 @@ export default function AddTaskModal({
             return;
         }
 
+        const formattedLabel =
+            toTitleCase(
+                trimmedLabel,
+            );
+
         const alreadyExists =
             selectedLabels.some(
                 (label) =>
                     label.name
                         .toLowerCase() ===
-                    trimmedLabel.toLowerCase(),
+                    formattedLabel.toLowerCase(),
             );
 
         if (alreadyExists) {
@@ -318,7 +462,8 @@ export default function AddTaskModal({
             (current) => [
                 ...current,
                 {
-                    name: toTitleCase(trimmedLabel),
+                    name:
+                        formattedLabel,
                 },
             ],
         );
@@ -350,6 +495,29 @@ export default function AddTaskModal({
         }
     };
 
+    const filteredMembers =
+        availableMembers.filter(
+            (member) => {
+                const search =
+                    memberSearch
+                        .trim()
+                        .toLowerCase();
+
+                if (!search) {
+                    return true;
+                }
+
+                return (
+                    member.name
+                        .toLowerCase()
+                        .includes(search) ||
+                    member.email
+                        ?.toLowerCase()
+                        .includes(search)
+                );
+            },
+        );
+
     const handleSubmit = async () => {
         if (
             !title.trim() ||
@@ -359,9 +527,24 @@ export default function AddTaskModal({
         }
 
         if (isGuest) {
+            const guestMember: Member = {
+                id:
+                    user?.id ||
+                    crypto.randomUUID(),
+                name:
+                    user?.name ||
+                    "Guest",
+                avatar:
+                    user?.avatar ||
+                    null,
+            };
+
             const guestTask: CreatedTask = {
                 id: crypto.randomUUID(),
-                title: toTitleCase(title.trim()),
+                title:
+                    toTitleCase(
+                        title.trim(),
+                    ),
                 description:
                     description.trim(),
                 priority,
@@ -371,6 +554,9 @@ export default function AddTaskModal({
                 avatar:
                     user?.avatar ||
                     undefined,
+                members: [
+                    guestMember,
+                ],
                 dueDate:
                     formatDueDate(
                         dueDate || null,
@@ -438,6 +624,11 @@ export default function AddTaskModal({
                             assigneeId:
                                 assigneeId ||
                                 undefined,
+                            memberIds:
+                                selectedMembers.map(
+                                    (member) =>
+                                        member.id,
+                                ),
                             labels:
                                 selectedLabels.map(
                                     (label) =>
@@ -481,6 +672,10 @@ export default function AddTaskModal({
                 );
             }
 
+            const createdMembers =
+                data.members ??
+                selectedMembers;
+
             onCreate({
                 id: data.id,
                 title: data.title,
@@ -493,16 +688,25 @@ export default function AddTaskModal({
                     ],
                 member:
                     data.assignee?.name ??
-                    member,
+                    createdMembers[0]
+                        ?.name ??
+                    user?.name ??
+                    "",
                 avatar:
                     data.assignee?.avatar ??
+                    createdMembers[0]
+                        ?.avatar ??
                     undefined,
-                dueDate: formatDueDate(
-                    data.dueDate,
-                ),
+                members:
+                    createdMembers,
+                dueDate:
+                    formatDueDate(
+                        data.dueDate,
+                    ),
                 dueDateValue:
                     data.dueDate,
-                status: data.status,
+                status:
+                    data.status,
                 labels:
                     data.labels ??
                     selectedLabels,
@@ -719,8 +923,62 @@ export default function AddTaskModal({
 
                     <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-medium text-[var(--foreground)]">
-                            Assignee
+                            Members
                         </label>
+
+                        {selectedMembers.length >
+                            0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedMembers.map(
+                                        (member) => (
+                                            <div
+                                                key={
+                                                    member.id
+                                                }
+                                                className="flex h-7 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-secondary)] py-1 pl-1 pr-2 text-xs text-[var(--foreground)]"
+                                            >
+                                                {member.avatar ? (
+                                                    <img
+                                                        src={
+                                                            member.avatar
+                                                        }
+                                                        alt={
+                                                            member.name
+                                                        }
+                                                        className="h-5 w-5 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--foreground)] text-[9px] font-medium text-[var(--background)]">
+                                                        {getInitials(
+                                                            member.name,
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                <span className="max-w-[120px] truncate">
+                                                    {
+                                                        member.name
+                                                    }
+                                                </span>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeMember(
+                                                            member.id,
+                                                        )
+                                                    }
+                                                    className="flex h-4 w-4 items-center justify-center rounded-full hover:bg-[var(--border)]"
+                                                >
+                                                    <X
+                                                        size={11}
+                                                    />
+                                                </button>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            )}
 
                         <div className="relative">
                             <button
@@ -738,13 +996,20 @@ export default function AddTaskModal({
                                     setPriorityOpen(false);
                                     setStatusOpen(false);
                                 }}
-                                className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
+                                disabled={isGuest}
+                                className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
                             >
-                                <span className="flex-1 text-sm text-[var(--foreground)]">
+                                <UserPlus
+                                    size={14}
+                                />
+
+                                <span className="flex-1 text-sm text-[var(--foreground-secondary)]">
                                     {isGuest
-                                        ? user?.name ||
-                                        "Guest"
-                                        : member}
+                                        ? "Guest users cannot add members"
+                                        : selectedMembers.length >
+                                            0
+                                            ? `${selectedMembers.length} member${selectedMembers.length === 1 ? "" : "s"} selected`
+                                            : "Add members"}
                                 </span>
 
                                 {!isGuest && (
@@ -756,30 +1021,133 @@ export default function AddTaskModal({
 
                             {!isGuest &&
                                 memberOpen && (
-                                    <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setMember(
-                                                    "Admin",
-                                                );
-                                                setMemberOpen(
-                                                    false,
-                                                );
-                                            }}
-                                            className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
-                                        >
-                                            <span className="flex-1 text-left text-sm text-[var(--foreground)]">
-                                                Admin
-                                            </span>
+                                    <div className="absolute left-0 top-[42px] z-30 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-2 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+                                        <div className="relative mb-2">
+                                            <Search
+                                                size={14}
+                                                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--foreground-secondary)]"
+                                            />
 
-                                            {member ===
-                                                "Admin" && (
-                                                    <Check
-                                                        size={14}
-                                                    />
+                                            <input
+                                                autoFocus
+                                                value={
+                                                    memberSearch
+                                                }
+                                                onChange={(
+                                                    event,
+                                                ) =>
+                                                    setMemberSearch(
+                                                        event
+                                                            .target
+                                                            .value,
+                                                    )
+                                                }
+                                                placeholder="Search members..."
+                                                className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] pl-8 pr-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                                            />
+                                        </div>
+
+                                        <div className="max-h-[220px] overflow-y-auto">
+                                            {membersLoading && (
+                                                <div className="flex h-16 items-center justify-center text-xs text-[var(--foreground-secondary)]">
+                                                    Loading members...
+                                                </div>
+                                            )}
+
+                                            {!membersLoading &&
+                                                membersError && (
+                                                    <div className="px-2 py-3 text-xs text-red-500">
+                                                        {
+                                                            membersError
+                                                        }
+                                                    </div>
                                                 )}
-                                        </button>
+
+                                            {!membersLoading &&
+                                                !membersError &&
+                                                filteredMembers.length ===
+                                                0 && (
+                                                    <div className="flex h-16 items-center justify-center text-xs text-[var(--foreground-secondary)]">
+                                                        No members found
+                                                    </div>
+                                                )}
+
+                                            {!membersLoading &&
+                                                !membersError &&
+                                                filteredMembers.map(
+                                                    (
+                                                        member,
+                                                    ) => {
+                                                        const isSelected =
+                                                            selectedMembers.some(
+                                                                (
+                                                                    selected,
+                                                                ) =>
+                                                                    selected.id ===
+                                                                    member.id,
+                                                            );
+
+                                                        return (
+                                                            <button
+                                                                key={
+                                                                    member.id
+                                                                }
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    toggleMember(
+                                                                        member,
+                                                                    )
+                                                                }
+                                                                className="flex min-h-10 w-full items-center gap-2 rounded-md px-2 py-1.5 hover:bg-[var(--surface-secondary)]"
+                                                            >
+                                                                {member.avatar ? (
+                                                                    <img
+                                                                        src={
+                                                                            member.avatar
+                                                                        }
+                                                                        alt={
+                                                                            member.name
+                                                                        }
+                                                                        className="h-6 w-6 rounded-full object-cover"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--foreground)] text-[10px] font-medium text-[var(--background)]">
+                                                                        {getInitials(
+                                                                            member.name,
+                                                                        )}
+                                                                    </div>
+                                                                )}
+
+                                                                <div className="min-w-0 flex-1 text-left">
+                                                                    <p className="truncate text-sm text-[var(--foreground)]">
+                                                                        {
+                                                                            member.name
+                                                                        }
+                                                                    </p>
+
+                                                                    {member.email && (
+                                                                        <p className="truncate text-xs text-[var(--foreground-secondary)]">
+                                                                            {
+                                                                                member.email
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="flex h-4 w-4 items-center justify-center rounded border border-[var(--border)]">
+                                                                    {isSelected && (
+                                                                        <Check
+                                                                            size={
+                                                                                12
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    },
+                                                )}
+                                        </div>
                                     </div>
                                 )}
                         </div>
@@ -824,6 +1192,7 @@ export default function AddTaskModal({
                                                     setStatus(
                                                         item,
                                                     );
+
                                                     setStatusOpen(
                                                         false,
                                                     );

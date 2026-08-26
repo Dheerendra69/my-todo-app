@@ -70,6 +70,20 @@ export class Task {
   })
   assignee: User | null;
 
+  @ManyToMany(() => User, (user) => user.memberTasks)
+  @JoinTable({
+    name: 'task_members',
+    joinColumn: {
+      name: 'task_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
+  members: User[];
+
   @ManyToOne(() => Project, (project) => project.tasks, {
     onDelete: 'CASCADE',
   })

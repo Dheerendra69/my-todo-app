@@ -34,8 +34,9 @@ export class TasksController {
   }
 
   @Get()
-  findAll(@Query() query: TaskQueryDto) {
-    return this.tasksService.findAll(query);
+  @UseGuards(JwtAuthGuard)
+  findAll(@Query() query: TaskQueryDto, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.findAll(query, req.user.sub);
   }
 
   @Get(':id/subtasks')
@@ -44,8 +45,13 @@ export class TasksController {
   }
 
   @Post(':id/subtasks')
-  createSubtask(@Param('id') id: string, @Body() dto: CreateSubtaskDto) {
-    return this.tasksService.createSubtask(id, dto);
+  @UseGuards(JwtAuthGuard)
+  createSubtask(
+    @Param('id') id: string,
+    @Body() dto: CreateSubtaskDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.tasksService.createSubtask(id, dto, req.user.sub);
   }
 
   @Get(':id')

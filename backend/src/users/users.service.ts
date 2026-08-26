@@ -19,7 +19,17 @@ export class UsersService {
   }
 
   findAll() {
-    return this.userRepository.find();
+    return this.userRepository.find({
+      where: {
+        isGuest: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        email: true,
+      },
+    });
   }
 
   async findOne(id: string) {

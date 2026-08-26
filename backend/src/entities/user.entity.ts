@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -65,6 +66,9 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.assignee)
   tasks: Task[];
+
+  @ManyToMany(() => Task, (task) => task.members)
+  memberTasks: Task[];
 
   @OneToMany(() => Comment, (comment) => comment.author)
   comments: Comment[];

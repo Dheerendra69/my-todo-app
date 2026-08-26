@@ -90,6 +90,9 @@ type BackendTask = {
     name: string;
     avatar?: string | null;
   } | null;
+  members: {
+    id?: string;
+  }
 };
 
 type BackendProject = {
@@ -1729,12 +1732,13 @@ export default function TaskBoard() {
               ? result
               : result.data;
 
-          const userTasks =
-            tasks.filter(
-              (task) =>
-                task.assignee?.id ===
-                user.id,
-            );
+          const userTasks = tasks.filter(
+            (task) =>
+              task.assignee?.id === user.id ||
+              task.members?.some(
+                (member) => member.id === user.id,
+              ),
+          );
 
           const formattedSections =
             initialSections.map(

@@ -37,6 +37,7 @@ import {
   Tag,
 } from "lucide-react";
 import { useAuth } from "@/app/components/Auth/AuthContext";
+import { toTitleCase } from "@/helpers";
 
 type Priority =
   | "No Priority"
@@ -82,6 +83,7 @@ type BackendTask = {
     name: string;
   };
   assignee: Assignee | null;
+  members: Assignee[];
   labels: Label[];
 };
 
@@ -935,8 +937,14 @@ function TaskActionMenu({
                         option.value,
                     })
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
                 >
+
+
+                  <span className="text-sm text-[var(--foreground)]">
+                    {option.label}
+                  </span>
+
                   <span className="flex h-4 w-4 items-center justify-center">
                     {status ===
                       option.value && (
@@ -944,10 +952,6 @@ function TaskActionMenu({
                           size={16}
                         />
                       )}
-                  </span>
-
-                  <span className="text-sm text-[var(--foreground)]">
-                    {option.label}
                   </span>
                 </button>
               ),
@@ -975,8 +979,16 @@ function TaskActionMenu({
                         option,
                     })
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
                 >
+
+
+                  <PriorityBadge
+                    priority={
+                      option
+                    }
+                  />
+
                   <span className="flex h-4 w-4 items-center justify-center">
                     {priority ===
                       option && (
@@ -985,12 +997,6 @@ function TaskActionMenu({
                         />
                       )}
                   </span>
-
-                  <PriorityBadge
-                    priority={
-                      option
-                    }
-                  />
                 </button>
               ),
             )}
@@ -1111,11 +1117,23 @@ function SubtaskRow({
 
       <div className="flex items-center px-3">
         {subtask.assignee ? (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
-            {subtask.assignee.name.charAt(
-              0,
-            )}
-          </div>
+          subtask.assignee.avatar ? (
+            <img
+              src={subtask.assignee.avatar}
+              alt={subtask.assignee.name}
+              title={subtask.assignee.name}
+              className="h-6 w-6 rounded-full object-cover"
+            />
+          ) : (
+            <div
+              title={subtask.assignee.name}
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]"
+            >
+              {subtask.assignee.name
+                .charAt(0)
+                .toUpperCase()}
+            </div>
+          )
         ) : (
           <span className="text-xs text-[var(--foreground-secondary)]">
             Unassigned
@@ -1372,6 +1390,11 @@ export default function TaskDetailsPage() {
     setReplyContent,
   ] = useState("");
 
+  const [
+    members,
+    setMembers,
+  ] = useState<Assignee[]>([]);
+
   const apiUrl =
     process.env.NEXT_PUBLIC_API_URL;
 
@@ -1502,6 +1525,10 @@ export default function TaskDetailsPage() {
             task.assignee,
           );
 
+          setMembers(
+            task.members ?? [],
+          );
+
           setLabels(
             task.labels ?? [],
           );
@@ -1617,23 +1644,28 @@ export default function TaskDetailsPage() {
     };
 
   const createSubtask = async () => {
-    if (!newSubtaskTitle.trim()) {
-      return;
-    }
+    const subtaskTitle =
+      newSubtaskTitle.trim();
 
-    if (!user?.id) {
-      console.error("Current user not found");
+    if (!subtaskTitle) {
       return;
     }
 
     try {
+      const token =
+        localStorage.getItem(
+          "accessToken",
+        );
+
       const payload = {
-        title,
-        description,
-        status,
-        priority: priorityToBackend[priority],
-        dueDate,
-        labels: labels.map((label) => label.id),
+        title: subtaskTitle,
+        status: newSubtaskStatus,
+        priority:
+          priorityToBackend[
+          newSubtaskPriority
+          ],
+        dueDate:
+          newSubtaskDueDate || null,
       };
 
       const response = await fetch(
@@ -1641,9 +1673,15 @@ export default function TaskDetailsPage() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
+            Authorization: token
+              ? `Bearer ${token}`
+              : "",
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(
+            payload,
+          ),
         },
       );
 
@@ -1654,7 +1692,9 @@ export default function TaskDetailsPage() {
       }
 
       setNewSubtaskTitle("");
-      setNewSubtaskPriority("No Priority");
+      setNewSubtaskPriority(
+        "No Priority",
+      );
       setNewSubtaskStatus("todo");
       setNewSubtaskDueDate("");
       setShowAddSubtask(false);
@@ -1667,7 +1707,6 @@ export default function TaskDetailsPage() {
       );
     }
   };
-
   const updateSubtask =
     async (
       subtaskId: string,
@@ -2598,14 +2637,46 @@ export default function TaskDetailsPage() {
                         Members
                       </span>
 
-                      <span className="flex items-center gap-2 text-xs font-medium text-[var(--foreground)]">
-                        <UserRound
-                          size={14}
-                        />
+                      {members.length > 0 ? (
+                        <div className="flex items-center">
+                          {members.map(
+                            (member, index) => (
+                              <div
+                                key={member.id}
+                                title={member.name}
+                                className={`group relative ${index > 0
+                                  ? "-ml-2"
+                                  : ""
+                                  }`}
+                              >
+                                {member.avatar ? (
+                                  <img
+                                    src={member.avatar}
+                                    alt={toTitleCase(member.name)}
+                                    className="h-7 w-7 rounded-full border-2 border-[var(--surface)] object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[var(--surface)] bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
+                                    {member.name
+                                      .charAt(0)
+                                      .toUpperCase()}
+                                  </div>
+                                )}
 
-                        {assignee?.name ??
-                          "Unassigned"}
-                      </span>
+                                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--foreground)] px-2 py-1 text-xs text-[var(--background)] shadow-lg group-hover:block">
+                                  {toTitleCase(member.name)}
+                                </div>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      ) : (
+                        <span className="flex items-center gap-2 text-xs text-[var(--foreground-secondary)]">
+                          <UserRound size={14} />
+
+                          No members
+                        </span>
+                      )}
                     </div>
 
                     <div className="relative grid grid-cols-[90px_1fr] items-center">

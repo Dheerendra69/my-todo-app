@@ -53,6 +53,30 @@ export class TasksService {
       throw new NotFoundException('User not found');
     }
 
+    let members: User[] = [];
+
+    if (dto.memberIds?.length) {
+      const uniqueMemberIds = [...new Set(dto.memberIds)];
+
+      members = await this.userRepository.find({
+        where: {
+          id: In(uniqueMemberIds),
+        },
+      });
+
+      if (members.length !== uniqueMemberIds.length) {
+        throw new NotFoundException('One or more members were not found');
+      }
+    }
+
+    const isCreatorAlreadyMember = members.some(
+      (member) => member.id === user.id,
+    );
+
+    if (!isCreatorAlreadyMember) {
+      members.push(user);
+    }
+
     let assignee: User | null = null;
 
     if (dto.assigneeId) {
@@ -130,6 +154,7 @@ export class TasksService {
       assignee,
       parentTask,
       labels,
+      members,
     });
 
     const savedTask = await this.taskRepository.save(task);
@@ -137,7 +162,7 @@ export class TasksService {
     return this.findOne(savedTask.id);
   }
 
-  async findAll(query: TaskQueryDto) {
+  async findAll(query: TaskQueryDto, userId: string) {
     const {
       status,
       priority,
@@ -152,9 +177,13 @@ export class TasksService {
       .createQueryBuilder('task')
       .leftJoinAndSelect('task.project', 'project')
       .leftJoinAndSelect('task.assignee', 'assignee')
+      .leftJoinAndSelect('task.members', 'members')
       .leftJoinAndSelect('task.parentTask', 'parentTask')
       .leftJoinAndSelect('task.labels', 'labels')
-      .where('task.parentTask IS NULL');
+      .where('task.parentTask IS NULL')
+      .andWhere('(assignee.id = :userId OR members.id = :userId)', {
+        userId,
+      });
 
     if (status) {
       queryBuilder.andWhere('task.status = :status', {
@@ -183,11 +212,11 @@ export class TasksService {
     if (search) {
       queryBuilder.andWhere(
         `
-          (
-            LOWER(task.title) LIKE LOWER(:search)
-            OR LOWER(task.description) LIKE LOWER(:search)
-          )
-        `,
+        (
+          LOWER(task.title) LIKE LOWER(:search)
+          OR LOWER(task.description) LIKE LOWER(:search)
+        )
+      `,
         {
           search: `%${search}%`,
         },
@@ -195,6 +224,7 @@ export class TasksService {
     }
 
     queryBuilder
+      .distinct(true)
       .orderBy('task.createdAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
@@ -220,6 +250,7 @@ export class TasksService {
       relations: {
         project: true,
         assignee: true,
+        members: true,
         parentTask: true,
         labels: true,
         subtasks: {
@@ -255,21 +286,33 @@ export class TasksService {
     });
   }
 
-  async createSubtask(taskId: string, dto: CreateSubtaskDto) {
+  async createSubtask(taskId: string, dto: CreateSubtaskDto, userId: string) {
     const parentTask = await this.findOne(taskId);
 
-    let assignee: User | null = null;
+    const creator = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!creator) {
+      throw new NotFoundException('User not found');
+    }
+
+    let assignee = creator;
 
     if (dto.assigneeId) {
-      assignee = await this.userRepository.findOne({
+      const selectedAssignee = await this.userRepository.findOne({
         where: {
           id: dto.assigneeId,
         },
       });
 
-      if (!assignee) {
+      if (!selectedAssignee) {
         throw new NotFoundException('Assignee not found');
       }
+
+      assignee = selectedAssignee;
     }
 
     const subtask = this.taskRepository.create({
@@ -281,6 +324,7 @@ export class TasksService {
       project: parentTask.project,
       assignee,
       parentTask,
+      members: [creator],
     });
 
     const savedSubtask = await this.taskRepository.save(subtask);
