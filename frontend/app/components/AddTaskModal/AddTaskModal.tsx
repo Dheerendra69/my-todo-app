@@ -12,10 +12,12 @@ import {
     Plus,
     SignalHigh,
     SignalLow,
+    Tag,
     X,
 } from "lucide-react";
 
 import { useAuth } from "../Auth/AuthContext";
+import { toTitleCase } from "@/helpers";
 
 type Priority =
     | "No Priority"
@@ -36,6 +38,11 @@ type Status =
     | "Completed"
     | "On Hold";
 
+type Label = {
+    id?: string;
+    name: string;
+};
+
 type CreatedTask = {
     id: string;
     title: string;
@@ -46,6 +53,7 @@ type CreatedTask = {
     dueDate: string;
     dueDateValue: string | null;
     status: TaskStatus;
+    labels: Label[];
 };
 
 type BackendCreatedTask = {
@@ -65,6 +73,10 @@ type BackendCreatedTask = {
         name: string;
         avatar?: string | null;
     } | null;
+    labels?: {
+        id: string;
+        name: string;
+    }[];
 };
 
 type AddTaskModalProps = {
@@ -202,6 +214,16 @@ export default function AddTaskModal({
         useState<Status>("To Do");
 
     const [
+        labelInput,
+        setLabelInput,
+    ] = useState("");
+
+    const [
+        selectedLabels,
+        setSelectedLabels,
+    ] = useState<Label[]>([]);
+
+    const [
         priorityOpen,
         setPriorityOpen,
     ] = useState(false);
@@ -263,10 +285,69 @@ export default function AddTaskModal({
             defaultStatus
             ],
         );
+        setLabelInput("");
+        setSelectedLabels([]);
         setPriorityOpen(false);
         setMemberOpen(false);
         setStatusOpen(false);
         setError("");
+    };
+
+    const addLabel = () => {
+        const trimmedLabel =
+            labelInput.trim();
+
+        if (!trimmedLabel) {
+            return;
+        }
+
+        const alreadyExists =
+            selectedLabels.some(
+                (label) =>
+                    label.name
+                        .toLowerCase() ===
+                    trimmedLabel.toLowerCase(),
+            );
+
+        if (alreadyExists) {
+            setLabelInput("");
+            return;
+        }
+
+        setSelectedLabels(
+            (current) => [
+                ...current,
+                {
+                    name: toTitleCase(trimmedLabel),
+                },
+            ],
+        );
+
+        setLabelInput("");
+    };
+
+    const removeLabel = (
+        labelName: string,
+    ) => {
+        setSelectedLabels(
+            (current) =>
+                current.filter(
+                    (label) =>
+                        label.name !==
+                        labelName,
+                ),
+        );
+    };
+
+    const handleLabelKeyDown = (
+        event: React.KeyboardEvent<
+            HTMLInputElement
+        >,
+    ) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            addLabel();
+        }
     };
 
     const handleSubmit = async () => {
@@ -280,7 +361,7 @@ export default function AddTaskModal({
         if (isGuest) {
             const guestTask: CreatedTask = {
                 id: crypto.randomUUID(),
-                title: title.trim(),
+                title: toTitleCase(title.trim()),
                 description:
                     description.trim(),
                 priority,
@@ -300,6 +381,8 @@ export default function AddTaskModal({
                     statusApiValues[
                     status
                     ],
+                labels:
+                    selectedLabels,
             };
 
             onCreate(
@@ -323,8 +406,6 @@ export default function AddTaskModal({
             setIsSubmitting(true);
             setError("");
 
-            const token = localStorage.getItem("accessToken");
-
             const response =
                 await fetch(
                     `${process.env.NEXT_PUBLIC_API_URL}/tasks`,
@@ -333,7 +414,8 @@ export default function AddTaskModal({
                         headers: {
                             "Content-Type":
                                 "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+                            Authorization:
+                                `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
                         },
                         body: JSON.stringify({
                             title:
@@ -356,6 +438,11 @@ export default function AddTaskModal({
                             assigneeId:
                                 assigneeId ||
                                 undefined,
+                            labels:
+                                selectedLabels.map(
+                                    (label) =>
+                                        label.name,
+                                ),
                         }),
                     },
                 );
@@ -416,10 +503,13 @@ export default function AddTaskModal({
                 dueDateValue:
                     data.dueDate,
                 status: data.status,
+                labels:
+                    data.labels ??
+                    selectedLabels,
             });
 
-            resetForm();
-            onClose();
+            // resetForm();
+            // onClose();
         } catch (error) {
             setError(
                 error instanceof Error
@@ -518,7 +608,8 @@ export default function AddTaskModal({
                                     type="button"
                                     onClick={() => {
                                         setPriorityOpen(
-                                            (current) => !current,
+                                            (current) =>
+                                                !current,
                                         );
 
                                         setMemberOpen(false);
@@ -640,7 +731,8 @@ export default function AddTaskModal({
                                     }
 
                                     setMemberOpen(
-                                        (current) => !current,
+                                        (current) =>
+                                            !current,
                                     );
 
                                     setPriorityOpen(false);
@@ -703,7 +795,8 @@ export default function AddTaskModal({
                                 type="button"
                                 onClick={() => {
                                     setStatusOpen(
-                                        (current) => !current,
+                                        (current) =>
+                                            !current,
                                     );
 
                                     setPriorityOpen(false);
@@ -753,6 +846,66 @@ export default function AddTaskModal({
                                 </div>
                             )}
                         </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-[var(--foreground)]">
+                            Labels
+                        </label>
+
+                        <input
+                            value={labelInput}
+                            onChange={(event) =>
+                                setLabelInput(
+                                    event.target.value,
+                                )
+                            }
+                            onKeyDown={
+                                handleLabelKeyDown
+                            }
+                            placeholder="Type a label and press Enter"
+                            className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                        />
+
+                        {selectedLabels.length >
+                            0 && (
+                                <div className="flex flex-wrap gap-2 pt-1">
+                                    {selectedLabels.map(
+                                        (label) => (
+                                            <div
+                                                key={
+                                                    label.name
+                                                }
+                                                className="flex h-5 items-center gap-1 rounded-3xl border border-white bg-[#F5F5F5] px-2 text-xs font-medium leading-4 text-[#171717]"
+                                            >
+                                                <Tag
+                                                    size={12}
+                                                />
+
+                                                <span>
+                                                    {
+                                                        label.name
+                                                    }
+                                                </span>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeLabel(
+                                                            label.name,
+                                                        )
+                                                    }
+                                                    className="flex h-3 w-3 items-center justify-center rounded-full hover:opacity-70"
+                                                >
+                                                    <X
+                                                        size={10}
+                                                    />
+                                                </button>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            )}
                     </div>
 
                     {error && (

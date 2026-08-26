@@ -34,6 +34,7 @@ import {
   Check,
   Signal,
   SignalMedium,
+  Tag,
 } from "lucide-react";
 import { useAuth } from "@/app/components/Auth/AuthContext";
 
@@ -63,6 +64,12 @@ type Assignee = {
   avatar?: string | null;
 };
 
+type Label = {
+  id: string;
+  name: string;
+  color: string | null;
+};
+
 type BackendTask = {
   id: string;
   title: string;
@@ -75,6 +82,7 @@ type BackendTask = {
     name: string;
   };
   assignee: Assignee | null;
+  labels: Label[];
 };
 
 type CommentAuthor = {
@@ -1241,6 +1249,11 @@ export default function TaskDetailsPage() {
   );
 
   const [
+    labels,
+    setLabels,
+  ] = useState<Label[]>([]);
+
+  const [
     subtasks,
     setSubtasks,
   ] = useState<BackendTask[]>(
@@ -1489,6 +1502,10 @@ export default function TaskDetailsPage() {
             task.assignee,
           );
 
+          setLabels(
+            task.labels ?? [],
+          );
+
           setIsDirty(false);
 
           await Promise.all([
@@ -1611,11 +1628,12 @@ export default function TaskDetailsPage() {
 
     try {
       const payload = {
-        title: newSubtaskTitle.trim(),
-        priority: priorityToBackend[newSubtaskPriority],
-        status: newSubtaskStatus,
-        dueDate: newSubtaskDueDate || null,
-        assigneeId: user.id,
+        title,
+        description,
+        status,
+        priority: priorityToBackend[priority],
+        dueDate,
+        labels: labels.map((label) => label.id),
       };
 
       const response = await fetch(
@@ -2024,15 +2042,12 @@ export default function TaskDetailsPage() {
                         />
                       ) : (
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-xs text-[var(--foreground)]">
-                          {assignee?.name?.charAt(
-                            0,
-                          ) ?? "?"}
+                          {assignee?.name?.charAt(0) ?? "?"}
                         </span>
                       )}
 
                       <span className="text-sm font-medium text-[var(--foreground)]">
-                        {assignee?.name ??
-                          "Unassigned"}
+                        {assignee?.name ?? "Unassigned"}
                       </span>
                     </div>
 
@@ -2043,10 +2058,38 @@ export default function TaskDetailsPage() {
                       >
                         <Calendar size={12} />
 
-                        {formatDate(
-                          dueDate,
-                        )}
+                        {formatDate(dueDate)}
                       </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-2 flex min-h-7 items-start gap-3">
+                  <span className="w-20 shrink-0 pt-0.5 text-sm font-medium text-[var(--foreground-secondary)]">
+                    Labels
+                  </span>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {labels.length > 0 ? (
+                      labels.map((label) => (
+                        <div
+                          key={label.id}
+                          className="flex h-5 items-center gap-1 rounded-3xl border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-xs font-medium leading-4 text-[var(--foreground)]"
+                        >
+                          <Tag
+                            size={12}
+                            strokeWidth={2}
+                          />
+
+                          <span>
+                            {label.name}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="pt-0.5 text-xs text-[var(--foreground-secondary)]">
+                        No labels
+                      </span>
                     )}
                   </div>
                 </div>
