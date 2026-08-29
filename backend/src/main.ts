@@ -6,10 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://my-todo-app-rose-eta.vercel.app',
-    ],
+    origin: ['http://localhost:3000', process.env.FRONTEND_URL],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

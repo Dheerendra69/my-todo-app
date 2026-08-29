@@ -15,10 +15,7 @@ import { Task } from '../entities/task.entity';
 
 @WebSocketGateway({
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'https://my-todo-app-rose-eta.vercel.app',
-    ],
+    origin: ['http://localhost:3000', process.env.FRONTEND_URL],
     credentials: true,
   },
 })
