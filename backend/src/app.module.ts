@@ -1,20 +1,25 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
+import { AuthModule } from './auth/auth.module';
+import { CommentsModule } from './comments/comments.module';
 
 import { User } from './entities/user.entity';
 import { Project } from './entities/project.entity';
 import { Task } from './entities/task.entity';
-
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { CommentsModule } from './comments/comments.module';
 import { Comment } from './entities/comment.entity';
 import { Label } from './entities/label.entity';
+
+import { AppController } from './app.controller';
+
+import { AppService } from './app.service';
+import { CollaborationModule } from './collaboration/collaboration.module';
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 @Module({
   imports: [
@@ -22,27 +27,27 @@ import { Label } from './entities/label.entity';
       isGlobal: true,
     }),
 
-    // Local
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: process.env.DB_HOST,
-    //   port: Number(process.env.DB_PORT),
-    //   username: process.env.DB_USERNAME,
-    //   password: process.env.DB_PASSWORD,
-    //   database: process.env.DB_NAME,
-    //   entities: [User, Project, Task, Comment, Label],
-    //   synchronize: true,
-    // }),
-
-    // Production
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
+
+      ...(isProduction
+        ? {
+            url: process.env.DATABASE_URL,
+            ssl: {
+              rejectUnauthorized: false,
+            },
+          }
+        : {
+            host: process.env.DB_HOST,
+            port: Number(process.env.DB_PORT),
+            username: process.env.DB_USERNAME,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+          }),
+
       entities: [User, Project, Task, Comment, Label],
+
       synchronize: true,
-      ssl: {
-        rejectUnauthorized: false,
-      },
     }),
 
     UsersModule,
@@ -50,7 +55,9 @@ import { Label } from './entities/label.entity';
     TasksModule,
     AuthModule,
     CommentsModule,
+    CollaborationModule,
   ],
+
   controllers: [AppController],
   providers: [AppService],
 })

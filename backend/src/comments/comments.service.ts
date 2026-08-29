@@ -14,6 +14,7 @@ import { User } from '../entities/user.entity';
 
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { CollaborationGateway } from 'src/collaboration/collaboration.gateway';
 
 @Injectable()
 export class CommentsService {
@@ -26,6 +27,8 @@ export class CommentsService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    private readonly collaborationGateway: CollaborationGateway,
   ) {}
 
   async create(
@@ -85,7 +88,7 @@ export class CommentsService {
 
     const savedComment = await this.commentRepository.save(comment);
 
-    return this.commentRepository.findOne({
+    const createdComment = await this.commentRepository.findOne({
       where: {
         id: savedComment.id,
       },
@@ -104,6 +107,21 @@ export class CommentsService {
         },
       },
     });
+
+    if (parentComment) {
+      this.collaborationGateway.emitToTask(taskId, 'reply.created', {
+        commentId: parentComment.id,
+        reply: createdComment,
+      });
+    } else {
+      this.collaborationGateway.emitToTask(
+        taskId,
+        'comment.created',
+        createdComment,
+      );
+    }
+
+    return createdComment;
   }
 
   async findAllByTask(taskId: string) {

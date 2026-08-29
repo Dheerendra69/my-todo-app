@@ -9,7 +9,7 @@ import {
 
 import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
-
+import { connectSocket, socket } from "@/lib/socket";
 
 import {
   Calendar,
@@ -108,6 +108,7 @@ type TaskComment = {
   updatedAt: string;
   author: CommentAuthor;
   replies: CommentReply[];
+  parentCommentId?: string;
 };
 
 function formatCommentTime(
@@ -1557,6 +1558,125 @@ export default function TaskDetailsPage() {
   }, [taskId]);
 
   useEffect(() => {
+    if (!taskId) {
+      return;
+    }
+
+    const handleCommentCreated = (
+      comment: TaskComment,
+    ) => {
+      setComments((currentComments) => {
+        if (
+          comment.parentCommentId
+        ) {
+          return currentComments;
+        }
+
+        const alreadyExists =
+          currentComments.some(
+            (currentComment) =>
+              currentComment.id === comment.id,
+          );
+
+        if (alreadyExists) {
+          return currentComments;
+        }
+
+        return [
+          ...currentComments,
+          comment,
+        ];
+      });
+    };
+
+    const handleReplyCreated = (data: {
+      commentId: string;
+      reply: CommentReply;
+    }) => {
+      setComments((currentComments) =>
+        currentComments.map((comment) => {
+          if (comment.id !== data.commentId) {
+            return comment;
+          }
+
+          const alreadyExists =
+            (comment.replies ?? []).some(
+              (reply) =>
+                reply.id === data.reply.id,
+            );
+
+          if (alreadyExists) {
+            return comment;
+          }
+
+          return {
+            ...comment,
+            replies: [
+              ...(comment.replies ?? []),
+              data.reply,
+            ],
+          };
+        }),
+      );
+    };
+
+    const handleJoinTaskError = (data: {
+      message: string;
+    }) => {
+      console.error(
+        "Failed to join task:",
+        data.message,
+      );
+    };
+
+    connectSocket();
+
+    socket.emit(
+      "join-task",
+      taskId,
+    );
+
+    socket.on(
+      "comment.created",
+      handleCommentCreated,
+    );
+
+    socket.on(
+      "reply.created",
+      handleReplyCreated,
+    );
+
+    socket.on(
+      "join-task-error",
+      handleJoinTaskError,
+    );
+
+    return () => {
+      socket.emit(
+        "leave-task",
+        taskId,
+      );
+
+      socket.off(
+        "comment.created",
+        handleCommentCreated,
+      );
+
+      socket.off(
+        "reply.created",
+        handleReplyCreated,
+      );
+
+      socket.off(
+        "join-task-error",
+        handleJoinTaskError,
+      );
+
+      socket.disconnect();
+    };
+  }, [taskId]);
+
+  useEffect(() => {
     const handleBeforeUnload = (
       event: BeforeUnloadEvent,
     ) => {
@@ -1818,12 +1938,21 @@ export default function TaskDetailsPage() {
           TaskComment =
           await response.json();
 
-        setComments(
-          (currentComments) => [
+        setComments((currentComments) => {
+          const alreadyExists = currentComments.some(
+            (comment) =>
+              comment.id === createdComment.id,
+          );
+
+          if (alreadyExists) {
+            return currentComments;
+          }
+
+          return [
             ...currentComments,
             createdComment,
-          ],
-        );
+          ];
+        });
 
         setNewComment("");
       } catch (error) {
@@ -1922,21 +2051,31 @@ export default function TaskDetailsPage() {
       const createdReply: CommentReply =
         await response.json();
 
-      setComments(
-        (currentComments) =>
-          currentComments.map((comment) => {
-            if (comment.id !== commentId) {
-              return comment;
-            }
+      setComments((currentComments) =>
+        currentComments.map((comment) => {
+          if (comment.id !== commentId) {
+            return comment;
+          }
 
-            return {
-              ...comment,
-              replies: [
-                ...(comment.replies ?? []),
-                createdReply,
-              ],
-            };
-          }),
+          const alreadyExists = (
+            comment.replies ?? []
+          ).some(
+            (reply) =>
+              reply.id === createdReply.id,
+          );
+
+          if (alreadyExists) {
+            return comment;
+          }
+
+          return {
+            ...comment,
+            replies: [
+              ...(comment.replies ?? []),
+              createdReply,
+            ],
+          };
+        }),
       );
 
       setReplyContent("");
