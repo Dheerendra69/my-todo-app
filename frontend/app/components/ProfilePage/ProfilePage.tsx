@@ -6,6 +6,10 @@ import {
 } from "react";
 
 import {
+  useRouter,
+} from "next/navigation";
+
+import {
   Pencil,
 } from "lucide-react";
 
@@ -25,6 +29,8 @@ const getGuestProfileKey = (
 ) => `guest-profile-${userId}`;
 
 export default function ProfilePage() {
+  const router = useRouter();
+
   const {
     user,
     loading,
@@ -137,7 +143,28 @@ export default function ProfilePage() {
   }
 
   const isGuest =
-    user.isGuest === true;
+    user?.isGuest === true;
+
+  const shouldShowLogin =
+    !user || isGuest;
+
+  if (shouldShowLogin) {
+    return (
+      <main className="min-h-[100dvh] border-l border-[var(--border)] bg-[var(--background)]">
+        <div className="flex min-h-[100dvh] w-full items-center justify-center px-4">
+          <button
+            type="button"
+            onClick={() =>
+              router.push("/login")
+            }
+            className="h-10 rounded-md bg-[var(--accent-color)] px-8 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
+          >
+            Login
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   const hasPendingChanges =
     details.name !==
