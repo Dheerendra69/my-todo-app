@@ -19,7 +19,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CollaborationModule } from './collaboration/collaboration.module';
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'deployment';
 
 @Module({
   imports: [
