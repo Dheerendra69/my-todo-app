@@ -90,10 +90,10 @@ export default function FieldsPopover({
       ref={popoverRef}
       className="
         absolute right-0 top-[calc(100%+8px)] z-50
-        w-[299px]
+        w-74.75
         rounded-md
-        border border-[var(--border)]
-        bg-[var(--background)]
+        border border-border
+        bg-background
         p-4
         shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.06)]
       "
@@ -106,11 +106,11 @@ export default function FieldsPopover({
             className={`
               flex h-9 w-1/2 items-center justify-center
               gap-1 rounded-l-md
-              border border-[var(--border)]
+              border border-border
               px-3 text-sm font-medium
               ${viewMode === "list"
-                ? "bg-[var(--surface-secondary)]"
-                : "bg-[var(--background)] hover:bg-[var(--surface-secondary)]"
+                ? "bg-surface-secondary"
+                : "bg-background hover:bg-surface-secondary"
               }
             `}
           >
@@ -124,11 +124,11 @@ export default function FieldsPopover({
             className={`
               flex h-9 w-1/2 items-center justify-center
               gap-1 rounded-r-md
-              border border-l-0 border-[var(--border)]
+              border border-l-0 border-border
               px-3 text-sm font-medium
               ${viewMode === "board"
-                ? "bg-[var(--surface-secondary)]"
-                : "bg-[var(--background)] hover:bg-[var(--surface-secondary)]"
+                ? "bg-surface-secondary"
+                : "bg-background hover:bg-surface-secondary"
               }
             `}
           >
@@ -151,10 +151,10 @@ export default function FieldsPopover({
                   items-center
                   rounded-md
                   text-left
-                  hover:bg-[var(--surface-secondary)]
+                  hover:bg-surface-secondary
                 "
               >
-                <span className="text-sm font-normal leading-4 text-[var(--foreground)]">
+                <span className="text-sm font-normal leading-4 text-foreground">
                   {field}
                 </span>
 
@@ -162,7 +162,7 @@ export default function FieldsPopover({
                   className={`
                     ml-auto flex h-4 w-4 shrink-0
                     items-center justify-center
-                    rounded-[4px] border
+                    rounded-sm border
                     ${selected
                       ? "border-[#171717] bg-[#171717]"
                       : "border-[#D4D4D4] bg-[#E5E5E5]"

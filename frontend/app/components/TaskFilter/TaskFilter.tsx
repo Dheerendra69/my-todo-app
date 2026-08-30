@@ -12,6 +12,7 @@ import {
   Tag,
   Users,
 } from "lucide-react";
+import { Priority, Status } from "@/app/constants";
 
 export type FilterCategory =
   | "Status"
@@ -22,18 +23,6 @@ export type FilterCategory =
   | "Labels"
   | "Reporter";
 
-export type Priority =
-  | "No Priority"
-  | "Urgent"
-  | "High"
-  | "Medium"
-  | "Low";
-
-export type Status =
-  | "To Do"
-  | "Doing"
-  | "Completed"
-  | "On Hold";
 
 export type DueDate =
   | "Increasing"
@@ -276,9 +265,9 @@ export default function TaskFilter({
   const renderSubmenu = () => {
     if (activeCategory === "Priority") {
       return (
-        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute left-0 top-[calc(100%+8px)] z-70 w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
-            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+            <span className="text-xs font-medium text-foreground-secondary">
               Priority
             </span>
           </div>
@@ -301,7 +290,7 @@ export default function TaskFilter({
                       option.name,
                     )
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-foreground transition-colors hover:bg-surface-secondary"
                 >
                   <Icon
                     size={16}
@@ -317,7 +306,7 @@ export default function TaskFilter({
                     className={
                       option.color
                         ? ""
-                        : "text-[var(--foreground)]"
+                        : "text-foreground"
                     }
                   />
 
@@ -325,7 +314,7 @@ export default function TaskFilter({
                     className={
                       option.color
                         ? "text-sm font-normal"
-                        : "text-sm font-normal text-[var(--foreground)]"
+                        : "text-sm font-normal text-foreground"
                     }
                     style={
                       option.color
@@ -344,7 +333,7 @@ export default function TaskFilter({
                       <Check
                         size={16}
                         strokeWidth={2}
-                        className="text-[var(--foreground)]"
+                        className="text-foreground"
                       />
                     )}
                   </span>
@@ -358,9 +347,9 @@ export default function TaskFilter({
 
     if (activeCategory === "Status") {
       return (
-        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute left-0 top-[calc(100%+8px)] z-70 w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
-            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+            <span className="text-xs font-medium text-foreground-secondary">
               Status
             </span>
           </div>
@@ -379,7 +368,7 @@ export default function TaskFilter({
                   onClick={() =>
                     toggleStatus(status)
                   }
-                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-foreground transition-colors hover:bg-surface-secondary"
                 >
 
                   <span className="text-sm">
@@ -404,9 +393,9 @@ export default function TaskFilter({
 
     if (activeCategory === "Due Date") {
       return (
-        <div className="absolute left-0 top-[calc(100%+8px)] z-[70] w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
+        <div className="absolute left-0 top-[calc(100%+8px)] z-70 w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)] md:left-auto md:right-[calc(100%+10px)] md:top-0">
           <div className="flex h-9 items-center px-3">
-            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+            <span className="text-xs font-medium text-foreground-secondary">
               Due Date
             </span>
           </div>
@@ -423,7 +412,7 @@ export default function TaskFilter({
                   onClick={() =>
                     selectDueDate(option)
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-foreground transition-colors hover:bg-surface-secondary"
                 >
                   <Calendar
                     size={16}
@@ -467,8 +456,8 @@ export default function TaskFilter({
 
           setActiveCategory(null);
         }}
-        className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] ${open
-          ? "bg-[var(--surface-secondary)]"
+        className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:bg-surface-secondary ${open
+          ? "bg-surface-secondary"
           : ""
           }`}
       >
@@ -487,7 +476,7 @@ export default function TaskFilter({
 
         {hasActiveFilters && (
           <span
-            className="absolute -right-1 -top-1 h-2 w-2 rounded-full ring-2 ring-[var(--surface)]"
+            className="absolute -right-1 -top-1 h-2 w-2 rounded-full ring-2 ring-surface"
             style={{
               backgroundColor: "var(--accent-color)",
             }}
@@ -498,7 +487,7 @@ export default function TaskFilter({
       {open && (
         <div className="absolute right-0 top-10 z-50">
           <div
-            className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)]"
+            className="relative w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0px_8px_16px_-4px_rgba(0,0,0,0.08),0px_4px_8px_-2px_rgba(0,0,0,0.04)]"
             onClick={() => {
               setActiveCategory(null);
             }}
@@ -537,9 +526,9 @@ export default function TaskFilter({
                         );
                       }
                     }}
-                    className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] transition-colors ${selected
-                      ? "bg-[var(--surface-secondary)]"
-                      : "hover:bg-[var(--surface-secondary)]"
+                    className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground transition-colors ${selected
+                      ? "bg-surface-secondary"
+                      : "hover:bg-surface-secondary"
                       }`}
                   >
                     <Icon

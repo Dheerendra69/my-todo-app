@@ -37,19 +37,7 @@ import { useAuth } from "../Auth/AuthContext";
 import {
   useRouter,
 } from "next/navigation";
-
-type Priority =
-  | "No Priority"
-  | "Urgent"
-  | "High"
-  | "Medium"
-  | "Low";
-
-type TaskStatus =
-  | "todo"
-  | "doing"
-  | "completed"
-  | "on_hold";
+import { Priority, TaskStatus } from "@/app/constants";
 
 type Task = {
   id: string;
@@ -1440,13 +1428,13 @@ function BoardSection({
   ) => void;
 }) {
   return (
-    <section className="h-fit w-full shrink-0 overflow-visible rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)] md:w-[289px]">
-      <div className="flex h-[39px] items-center justify-between border-b border-[var(--border)] px-3">
+    <section className="h-fit w-full shrink-0 overflow-visible rounded-lg border border-[var(--border)] bg-surface-secondary md:w-72.25">
+      <div className="flex h-9.75 items-center justify-between border-b border-border px-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onToggle}
-            className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)] md:hidden"
+            className="flex h-6 w-6 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary md:hidden"
           >
             <ChevronDown
               size={16}
@@ -1462,10 +1450,10 @@ function BoardSection({
           <Columns3
             size={14}
             strokeWidth={2}
-            className="text-[var(--primary)]"
+            className="text-primary"
           />
 
-          <span className="text-xs font-semibold leading-[100%] text-[var(--foreground)]">
+          <span className="text-xs font-semibold leading-[100%] text-foreground">
             {section.title}
           </span>
         </div>
@@ -1478,7 +1466,7 @@ function BoardSection({
                 section.id,
               )
             }
-            className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+            className="flex h-5 w-5 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
           >
             <Plus
               size={14}
@@ -1486,7 +1474,7 @@ function BoardSection({
             />
           </button>
 
-          <button
+          {/* <button
             type="button"
             className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
           >
@@ -1494,7 +1482,7 @@ function BoardSection({
               size={14}
               strokeWidth={2}
             />
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -1538,7 +1526,7 @@ function BoardSection({
           }`}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="flex h-[39px] items-center px-3">
+          <div className="flex h-9.75 items-center px-3">
             <button
               type="button"
               onClick={() =>
@@ -1546,7 +1534,7 @@ function BoardSection({
                   section.id,
                 )
               }
-              className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+              className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
             >
               <Plus
                 size={12}
@@ -2316,11 +2304,11 @@ export default function TaskBoard() {
     ).length > 0;
 
   return (
-    <div className="min-h-screen min-w-0 w-full bg-[var(--background)] text-[var(--foreground)]">
+    <div className="min-h-screen min-w-0 w-full bg-background text-foreground">
       <main className="w-full px-4 pt-4 pb-24">
-        <div className="mx-auto w-full max-w-[992px]">
+        <div className="mx-auto w-full max-w-248">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h1 className="text-base font-semibold leading-4 text-[var(--foreground)]">
+            <h1 className="text-base font-semibold leading-4 text-foreground">
               Tasks
             </h1>
 
@@ -2416,7 +2404,7 @@ export default function TaskBoard() {
         onClick={() =>
           setIsAddTaskOpen(true)
         }
-        className="fixed bottom-6 right-6 z-30 flex h-10 items-center gap-2 rounded-full bg-[var(--background)] px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
+        className="fixed bottom-6 right-6 z-30 flex h-10 items-center gap-2 rounded-full bg-background px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
       >
         <Plus size={16} />
 
@@ -2446,9 +2434,9 @@ export default function TaskBoard() {
       />
 
       {hasPendingChanges && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-border bg-surface px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
           <div className="w-full sm:mr-auto sm:w-auto">
-            <span className="text-sm text-[var(--foreground-secondary)]">
+            <span className="text-sm text-foreground-secondary">
               You have unsaved changes
             </span>
 
@@ -2463,7 +2451,7 @@ export default function TaskBoard() {
               type="button"
               onClick={discardChanges}
               disabled={isSaving}
-              className="flex-1 rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+              className="flex-1 rounded-md border border-border px-4 py-2 text-sm text-foreground hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
               Discard
             </button>
@@ -2472,7 +2460,7 @@ export default function TaskBoard() {
               type="button"
               onClick={saveAllChanges}
               disabled={isSaving}
-              className="flex-1 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+              className="flex-1 rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
               {isSaving ? "Saving..." : "Save Changes"}
             </button>

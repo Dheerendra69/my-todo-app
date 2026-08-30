@@ -33,7 +33,7 @@ export default function AppShell({
     pathname !== "/settings/theme";
 
   return (
-    <div className="h-[100dvh] overflow-hidden bg-[var(--background)]">
+    <div className="h-dvh overflow-hidden bg-background">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={closeSidebar}
@@ -49,7 +49,7 @@ export default function AppShell({
       )}
 
       <div
-        className={`flex h-[100dvh] flex-col transition-[margin] duration-200 ${isSidebarOpen
+        className={`flex h-dvh flex-col transition-[margin] duration-200 ${isSidebarOpen
             ? "md:ml-64"
             : "md:ml-0"
           }`}

@@ -113,11 +113,11 @@ export default function BoardActions({
   return (
     <div className="relative flex flex-wrap items-center gap-2">
       {isSearchOpen ? (
-        <div className="order-last flex h-9 basis-full items-center gap-[6px] rounded border border-[var(--border)] bg-[var(--background)] px-3 md:order-none md:h-8 md:w-[373px] md:basis-auto">
+        <div className="order-last flex h-9 basis-full items-center gap-1.5 rounded border border-border bg-background px-3 md:order-0 md:h-8 md:w-93.25 md:basis-auto">
           <Search
             size={16}
             strokeWidth={2}
-            className="shrink-0 text-[var(--foreground-secondary)]"
+            className="shrink-0 text-foreground-secondary"
           />
 
           <input
@@ -130,7 +130,7 @@ export default function BoardActions({
               )
             }
             placeholder="Search..."
-            className="h-5 min-w-0 flex-1 bg-transparent text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)]"
+            className="h-5 min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-secondary"
           />
 
           {searchValue ? (
@@ -139,7 +139,7 @@ export default function BoardActions({
               onClick={() =>
                 onSearchChange?.("")
               }
-              className="flex h-5 w-5 shrink-0 items-center justify-center rounded hover:bg-[var(--surface-secondary)]"
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded hover:bg-surface-secondary"
             >
               <X
                 size={14}
@@ -150,7 +150,7 @@ export default function BoardActions({
             <button
               type="button"
               onClick={closeSearch}
-              className="flex h-[22px] min-w-[31px] shrink-0 items-center justify-center rounded-sm bg-[var(--surface-secondary)] px-1.5 text-xs font-medium text-[var(--foreground)]"
+              className="flex h-5.5 min-w-7.75 shrink-0 items-center justify-center rounded-sm bg-surface-secondary px-1.5 text-xs font-medium text-foreground"
             >
               ⌘F
             </button>
@@ -162,7 +162,7 @@ export default function BoardActions({
           onClick={() =>
             setIsSearchOpen(true)
           }
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] transition-colors hover:bg-[var(--surface-secondary)]"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-background transition-colors hover:bg-surface-secondary"
         >
           <Search
             size={14}
@@ -180,9 +180,9 @@ export default function BoardActions({
           )
         }
         className={`flex h-9 shrink-0 items-center gap-2 rounded-md border px-3 text-sm ${isFieldsOpen
-          ? "border-[#D4D4D4] bg-[var(--surface-secondary)]"
-          : "border-[var(--border)] bg-[var(--background)]"
-          } hover:bg-[var(--surface-secondary)]`}
+          ? "border-[#D4D4D4] bg-surface-secondary"
+          : "border-border bg-background"
+          } hover:bg-surface-secondary`}
       >
         <SlidersHorizontal
           size={15}

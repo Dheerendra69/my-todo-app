@@ -147,7 +147,7 @@ export default function TopBar({
   ]);
 
   return (
-    <header className="flex h-16 w-full items-center border-b border-[var(--border)] bg-[var(--background)] px-4">
+    <header className="flex h-16 w-full items-center border-b border-border bg-background px-4">
       <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"
@@ -157,7 +157,7 @@ export default function TopBar({
               ? "Hide sidebar"
               : "Show sidebar"
           }
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--accent-color)]"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-foreground transition-colors hover:bg-surface-secondary hover:text-(--accent-color)"
         >
           <PanelLeft
             size={16}
@@ -165,7 +165,7 @@ export default function TopBar({
           />
         </button>
 
-        <div className="h-[15px] w-px shrink-0 bg-[var(--border)]" />
+        <div className="h-3.75 w-px shrink-0 bg-border" />
 
         <nav className="flex min-w-0 items-center gap-2 text-sm">
           {section && (
@@ -179,7 +179,7 @@ export default function TopBar({
                       : "/projects",
                   )
                 }
-                className="shrink-0 text-[var(--foreground-secondary)] transition-colors hover:text-[var(--accent-color)]"
+                className="shrink-0 text-foreground-secondary transition-colors hover:text-(--accent-color)"
               >
                 {section}
               </button>
@@ -187,7 +187,7 @@ export default function TopBar({
               <ChevronRight
                 size={15}
                 strokeWidth={2}
-                className="shrink-0 text-[var(--foreground-secondary)]"
+                className="shrink-0 text-foreground-secondary"
               />
             </>
           )}

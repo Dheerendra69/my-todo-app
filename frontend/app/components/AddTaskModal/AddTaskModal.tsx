@@ -20,25 +20,7 @@ import {
 
 import { useAuth } from "../Auth/AuthContext";
 import { toTitleCase } from "@/helpers";
-
-type Priority =
-    | "No Priority"
-    | "Urgent"
-    | "High"
-    | "Medium"
-    | "Low";
-
-type TaskStatus =
-    | "todo"
-    | "doing"
-    | "completed"
-    | "on_hold";
-
-type Status =
-    | "To Do"
-    | "Doing"
-    | "Completed"
-    | "On Hold";
+import { Priority, Status, TaskStatus } from "@/app/constants";
 
 type Label = {
     id?: string;

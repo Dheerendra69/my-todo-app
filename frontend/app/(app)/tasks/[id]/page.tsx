@@ -17,7 +17,6 @@ import {
   ChevronRight,
   Circle,
   Eye,
-  FileText,
   Lock,
   MoreHorizontal,
   Plus,
@@ -33,24 +32,12 @@ import {
   X,
   Check,
   Signal,
-  SignalMedium,
   Tag,
 } from "lucide-react";
 import { useAuth } from "@/app/components/Auth/AuthContext";
 import { toTitleCase } from "@/helpers";
-
-type Priority =
-  | "No Priority"
-  | "Urgent"
-  | "High"
-  | "Medium"
-  | "Low";
-
-type TaskStatus =
-  | "todo"
-  | "doing"
-  | "completed"
-  | "on_hold";
+import { Priority, TaskStatus } from "@/app/constants";
+import Image from "next/image";
 
 type BackendPriority =
   | "no_priority"
@@ -189,7 +176,7 @@ function CommentAvatar({
 }) {
   if (avatar) {
     return (
-      <img
+      <Image
         src={avatar}
         alt={name}
         className="h-5 w-5 rounded-full object-cover"
@@ -1119,7 +1106,7 @@ function SubtaskRow({
       <div className="flex items-center px-3">
         {subtask.assignee ? (
           subtask.assignee.avatar ? (
-            <img
+            <Image
               src={subtask.assignee.avatar}
               alt={subtask.assignee.name}
               title={subtask.assignee.name}
@@ -2218,7 +2205,7 @@ export default function TaskDetailsPage() {
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5">
                       {assignee?.avatar ? (
-                        <img
+                        <Image
                           src={assignee.avatar}
                           alt={assignee.name}
                           className="h-6 w-6 rounded-full object-cover"
@@ -2794,7 +2781,7 @@ export default function TaskDetailsPage() {
                                   }`}
                               >
                                 {member.avatar ? (
-                                  <img
+                                  <Image
                                     src={member.avatar}
                                     alt={toTitleCase(member.name)}
                                     className="h-7 w-7 rounded-full border-2 border-[var(--surface)] object-cover"

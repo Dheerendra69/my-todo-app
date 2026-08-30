@@ -11,8 +11,7 @@ import {
     X,
 } from "lucide-react";
 import { useAuth } from "../Auth/AuthContext";
-
-type Priority = "No Priority" | "Urgent" | "High" | "Medium" | "Low";
+import { Priority } from "@/app/constants";
 
 export type Project = {
     id: string;
