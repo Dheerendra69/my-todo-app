@@ -89,7 +89,7 @@ function PriorityBadge({
   return (
     <div
       className={`flex items-center gap-1 ${priorityStyles[priority] ??
-        "text-[var(--foreground)]"
+        "text-foreground"
         }`}
     >
       {priority === "Low" ? (
@@ -125,7 +125,7 @@ function ProjectMember({
           className="h-6 w-6 rounded-full object-cover"
         />
       ) : (
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[10px]">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-secondary text-[10px]">
           {project.lead.charAt(0)}
         </div>
       )}
@@ -469,9 +469,9 @@ function ProjectActionMenu({
         top: position.top,
         left: position.left,
       }}
-      className="z-[9999]"
+      className="z-9999"
     >
-      <div className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+      <div className="relative w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-xl">
         <button
           type="button"
           onClick={() =>
@@ -479,9 +479,9 @@ function ProjectActionMenu({
               !activeMenu,
             )
           }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeMenu
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeMenu
+            ? "bg-surface-secondary"
+            : "hover:bg-surface-secondary"
             }`}
         >
           <SignalHigh
@@ -502,10 +502,10 @@ function ProjectActionMenu({
 
       {activeMenu && (
         <div
-          className={`${getSubmenuClassName()} rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl`}
+          className={`${getSubmenuClassName()} rounded-md border border-border bg-surface p-1.5 shadow-xl`}
         >
           <div className="flex h-9 items-center px-3">
-            <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+            <span className="text-xs font-medium text-foreground-secondary">
               Priority
             </span>
           </div>
@@ -523,7 +523,7 @@ function ProjectActionMenu({
 
                   onClose();
                 }}
-                className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-surface-secondary"
               >
                 <PriorityBadge
                   priority={option}
@@ -567,8 +567,8 @@ function ProjectRow({
     useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="grid min-w-[850px] grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-[var(--border)] last:border-b-0">
-      <div className="px-3 py-3 text-sm font-medium text-[var(--foreground)]">
+    <div className="grid min-w-212.5 grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-border last:border-b-0">
+      <div className="px-3 py-3 text-sm font-medium text-foreground">
         {project.title}
       </div>
 
@@ -584,7 +584,7 @@ function ProjectRow({
         />
       </div>
 
-      <div className="justify-self-center py-3 text-sm text-[var(--foreground)]">
+      <div className="justify-self-center py-3 text-sm text-foreground">
         {project.dueDate
           ? new Date(
             project.dueDate,
@@ -610,7 +610,7 @@ function ProjectRow({
                 : project.id,
             )
           }
-          className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+          className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-surface-secondary"
         >
           <MoreHorizontal
             size={16}
@@ -655,15 +655,15 @@ function ProjectCard({
     useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="mx-3 mb-3 rounded-md border border-[var(--border)] bg-[var(--background)] p-3">
+    <div className="mx-3 mb-3 rounded-md border border-border bg-background p-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-sm font-medium leading-5 text-[var(--foreground)]">
+          <h3 className="text-sm font-medium leading-5 text-foreground">
             {project.title}
           </h3>
 
           {project.description && (
-            <p className="mt-1 text-xs text-[var(--foreground-secondary)]">
+            <p className="mt-1 text-xs text-foreground-secondary">
               {project.description}
             </p>
           )}
@@ -707,7 +707,7 @@ function ProjectCard({
             project={project}
           />
 
-          <span className="text-xs font-medium text-[var(--foreground)]">
+          <span className="text-xs font-medium text-foreground">
             {project.lead}
           </span>
         </div>
@@ -1059,11 +1059,11 @@ export default function ProjectBoard() {
   };
 
   return (
-    <div className="min-h-screen min-w-0 w-full bg-[var(--background)]">
+    <div className="min-h-screen min-w-0 w-full bg-background">
       <main className="w-full px-4 py-4 pb-24">
-        <div className="mx-auto w-full max-w-[1036px]">
+        <div className="mx-auto w-full max-w-259">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h1 className="text-base font-semibold leading-4 text-[var(--foreground)]">
+            <h1 className="text-base font-semibold leading-4 text-foreground">
               Projects
             </h1>
 
@@ -1092,26 +1092,26 @@ export default function ProjectBoard() {
 
           {viewMode ===
             "list" ? (
-            <div className="w-full overflow-x-auto rounded-lg border border-[var(--border)]">
-              <div className="min-w-[850px]">
-                <div className="grid h-12 grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-[var(--border)] bg-[var(--surface-secondary)]">
-                  <div className="px-3 text-sm font-medium text-[var(--foreground)]">
+            <div className="w-full overflow-x-auto rounded-lg border border-border">
+              <div className="min-w-212.5">
+                <div className="grid h-12 grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-border bg-surface-secondary">
+                  <div className="px-3 text-sm font-medium text-foreground">
                     Projects
                   </div>
 
-                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-foreground">
                     Priority
                   </div>
 
-                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-foreground">
                     Members
                   </div>
 
-                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-foreground">
                     Due Date
                   </div>
 
-                  <div className="justify-self-center text-sm font-medium text-[var(--foreground)]">
+                  <div className="justify-self-center text-sm font-medium text-foreground">
                     Actions
                   </div>
                 </div>
@@ -1142,7 +1142,7 @@ export default function ProjectBoard() {
 
                 {filteredProjects.length ===
                   0 && (
-                    <div className="flex h-24 items-center justify-center text-sm text-[var(--foreground-secondary)]">
+                    <div className="flex h-24 items-center justify-center text-sm text-foreground-secondary">
                       No projects found.
                     </div>
                   )}
@@ -1154,7 +1154,7 @@ export default function ProjectBoard() {
                       true,
                     )
                   }
-                  className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                  className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-foreground hover:bg-surface-secondary"
                 >
                   <Plus size={16} />
                   Add Project
@@ -1162,15 +1162,15 @@ export default function ProjectBoard() {
               </div>
             </div>
           ) : (
-            <section className="w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface-secondary)]">
-              <div className="flex h-[39px] items-center justify-between px-3">
+            <section className="w-full overflow-hidden rounded-lg border border-border bg-surface-secondary">
+              <div className="flex h-9.75 items-center justify-between px-3">
                 <div className="flex items-center gap-2">
                   <Columns3
                     size={14}
                     strokeWidth={2}
                   />
 
-                  <span className="text-xs font-semibold text-[var(--foreground)]">
+                  <span className="text-xs font-semibold text-foreground">
                     Projects
                   </span>
                 </div>
@@ -1183,7 +1183,7 @@ export default function ProjectBoard() {
                         true,
                       )
                     }
-                    className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-[var(--background)]"
+                    className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-background"
                   >
                     <Plus
                       size={14}
@@ -1193,7 +1193,7 @@ export default function ProjectBoard() {
 
                   <button
                     type="button"
-                    className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-[var(--background)]"
+                    className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-background"
                   >
                     <MoreHorizontal
                       size={14}
@@ -1230,13 +1230,13 @@ export default function ProjectBoard() {
 
                 {filteredProjects.length ===
                   0 && (
-                    <div className="flex h-24 items-center justify-center text-sm text-[var(--foreground-secondary)]">
+                    <div className="flex h-24 items-center justify-center text-sm text-foreground-secondary">
                       No projects found.
                     </div>
                   )}
               </div>
 
-              <div className="flex h-[52px] items-center px-3">
+              <div className="flex h-13 items-center px-3">
                 <button
                   type="button"
                   onClick={() =>
@@ -1244,7 +1244,7 @@ export default function ProjectBoard() {
                       true,
                     )
                   }
-                  className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--background)]"
+                  className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-foreground hover:bg-background"
                 >
                   <Plus
                     size={12}
@@ -1262,9 +1262,9 @@ export default function ProjectBoard() {
       </main>
 
       {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-border bg-surface px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
           <div className="w-full sm:mr-auto sm:w-auto">
-            <span className="text-sm text-[var(--foreground-secondary)]">
+            <span className="text-sm text-foreground-secondary">
               You have unsaved changes
             </span>
           </div>
@@ -1274,7 +1274,7 @@ export default function ProjectBoard() {
               type="button"
               onClick={discardChanges}
               disabled={isSaving}
-              className="flex-1 rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+              className="flex-1 rounded-md border border-border px-4 py-2 text-sm text-foreground hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
               Discard
             </button>
@@ -1283,7 +1283,7 @@ export default function ProjectBoard() {
               type="button"
               onClick={saveChanges}
               disabled={isSaving}
-              className="flex-1 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+              className="flex-1 rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
               {isSaving
                 ? "Saving..."
@@ -1294,7 +1294,7 @@ export default function ProjectBoard() {
       )}
 
       {saved && (
-        <div className="fixed bottom-5 right-5 z-50 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] shadow-lg">
+        <div className="fixed bottom-5 right-5 z-50 rounded-md bg-foreground px-4 py-2 text-sm text-background shadow-lg">
           Changes saved
         </div>
       )}
@@ -1306,7 +1306,7 @@ export default function ProjectBoard() {
             true,
           )
         }
-        className="fixed bottom-6 right-6 flex h-10 items-center gap-2 rounded-full bg-[var(--background)] px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
+        className="fixed bottom-6 right-6 flex h-10 items-center gap-2 rounded-full bg-background px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
       >
         <Plus size={16} />
 

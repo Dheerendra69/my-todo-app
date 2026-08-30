@@ -13,7 +13,7 @@ import { TaskPriority, TaskStatus } from '../../entities/task.entity';
 export class CreateTaskDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title?: string;
 
   @IsOptional()
   @IsString()
@@ -43,7 +43,7 @@ export class CreateTaskDto {
   memberIds?: string[];
 
   @IsUUID()
-  projectId: string;
+  projectId?: string;
 
   @IsOptional()
   @IsUUID()

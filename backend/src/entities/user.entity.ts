@@ -15,67 +15,67 @@ import { Comment } from './comment.entity';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id?: string;
 
   @Column({
     type: 'varchar',
   })
-  name: string;
-
-  @Column({
-    type: 'varchar',
-    unique: true,
-    nullable: true,
-  })
-  email: string | null;
-
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  avatar: string | null;
+  name?: string;
 
   @Column({
     type: 'varchar',
     unique: true,
     nullable: true,
   })
-  googleId: string | null;
+  email?: string | null;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  avatar?: string | null;
+
+  @Column({
+    type: 'varchar',
+    unique: true,
+    nullable: true,
+  })
+  googleId?: string | null;
 
   @Column({
     type: 'boolean',
     default: false,
   })
-  isGuest: boolean;
+  isGuest?: boolean;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  title: string | null;
+  title?: string | null;
 
   @Column({
     type: 'varchar',
     unique: true,
     nullable: true,
   })
-  username: string | null;
+  username?: string | null;
 
   @OneToMany(() => Project, (project) => project.owner)
-  projects: Project[];
+  projects?: Project[];
 
   @OneToMany(() => Task, (task) => task.assignee)
-  tasks: Task[];
+  tasks?: Task[];
 
   @ManyToMany(() => Task, (task) => task.members)
-  memberTasks: Task[];
+  memberTasks?: Task[];
 
   @OneToMany(() => Comment, (comment) => comment.author)
-  comments: Comment[];
+  comments?: Comment[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt?: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt?: Date;
 }

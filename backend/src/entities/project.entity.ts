@@ -14,40 +14,40 @@ import { Label } from './label.entity';
 @Entity('projects')
 export class Project {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string | undefined;
 
-  @Column({ length: 150 })
-  name: string;
+  @Column({ type: 'varchar', length: 255 })
+  name: string | undefined;
 
-  @Column({ nullable: true })
-  description: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  description: string | undefined;
 
   @Column({
     type: 'varchar',
     default: 'Medium',
   })
-  priority: string;
+  priority: string | undefined;
 
   @Column({
     type: 'date',
     nullable: true,
   })
-  dueDate: string;
+  dueDate: string | undefined;
 
   @ManyToOne(() => User, (user) => user.projects, {
     onDelete: 'CASCADE',
   })
-  owner: User;
+  owner: User | undefined;
 
   @OneToMany(() => Task, (task) => task.project)
-  tasks: Task[];
+  tasks: Task[] | undefined;
 
   @OneToMany(() => Label, (label) => label.project)
-  labels: Label[];
+  labels: Label[] | undefined;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date | undefined;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date | undefined;
 }

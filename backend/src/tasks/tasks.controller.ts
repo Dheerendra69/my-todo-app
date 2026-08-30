@@ -20,8 +20,8 @@ import { UpdateTaskPriorityDto } from './dto/update-task-priority.dto';
 import { UpdateTaskAssigneeDto } from './dto/update-task-assignee.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import type { AuthenticatedRequest } from 'src/auth/types/authenticated-request.type';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../auth/types/authenticated-request.type';
 
 @Controller('tasks')
 export class TasksController {

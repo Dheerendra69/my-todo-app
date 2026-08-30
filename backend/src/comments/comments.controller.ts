@@ -14,8 +14,8 @@ import { CommentsService } from './comments.service';
 
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import type { AuthenticatedRequest } from 'src/auth/types/authenticated-request.type';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../auth/types/authenticated-request.type';
 
 @Controller('tasks/:taskId/comments')
 @UseGuards(JwtAuthGuard)

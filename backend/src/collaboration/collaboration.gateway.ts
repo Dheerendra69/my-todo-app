@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { Server, Socket } from 'socket.io';
 
 import { Task } from '../entities/task.entity';
+import { User } from '../entities/user.entity';
 
 @WebSocketGateway({
   cors: {
@@ -21,7 +22,7 @@ import { Task } from '../entities/task.entity';
 })
 export class CollaborationGateway {
   @WebSocketServer()
-  server: Server;
+  server: Server | undefined;
 
   constructor(
     private readonly jwtService: JwtService,
@@ -29,6 +30,9 @@ export class CollaborationGateway {
 
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   handleConnection(socket: Socket) {
@@ -83,7 +87,7 @@ export class CollaborationGateway {
       };
     }
 
-    const isMember = task.members.some((member) => member.id === user.sub);
+    const isMember = task?.members?.some((member) => member.id === user.sub);
 
     const isAssignee = task.assignee?.id === user.sub;
 
@@ -115,7 +119,46 @@ export class CollaborationGateway {
     };
   }
 
+  @SubscribeMessage('task.typing.start')
+  async handleTypingStart(
+    @MessageBody() taskId: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const user = socket.data.user;
+
+    if (!user) return;
+
+    const dbUser = await this.userRepository.findOne({
+      where: {
+        id: user.sub,
+      },
+    });
+
+    if (!dbUser) return;
+
+    socket.to(`task:${taskId}`).emit('task.typing', {
+      taskId,
+      userId: dbUser.id,
+      userName: dbUser.name,
+    });
+  }
+
+  @SubscribeMessage('task.typing.stop')
+  handleTypingStop(
+    @MessageBody() taskId: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const user = socket.data.user;
+
+    if (!user) return;
+
+    socket.to(`task:${taskId}`).emit('task.typing.stop', {
+      taskId,
+      userId: user.sub,
+    });
+  }
+
   emitToTask(taskId: string, event: string, data: unknown) {
-    this.server.to(`task:${taskId}`).emit(event, data);
+    this?.server?.to(`task:${taskId}`).emit(event, data);
   }
 }

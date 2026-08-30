@@ -287,7 +287,7 @@ function PriorityBadge({
     "No Priority": {
       icon: Signal,
       className:
-        "text-[var(--foreground-secondary)]",
+        "text-foreground-secondary",
     },
     Urgent: {
       icon: SignalHigh,
@@ -302,12 +302,12 @@ function PriorityBadge({
     Medium: {
       icon: SignalMedium,
       className:
-        "text-[var(--primary)]",
+        "text-primary",
     },
     Low: {
       icon: SignalLow,
       className:
-        "text-[var(--primary)] opacity-70",
+        "text-primary opacity-70",
     },
   };
 
@@ -345,13 +345,13 @@ function MemberAvatar({
       <img
         src={avatar}
         alt={member}
-        className="h-5 w-5 rounded-full object-cover ring-1 ring-[var(--border)]"
+        className="h-5 w-5 rounded-full object-cover ring-1 ring-border"
       />
     );
   }
 
   return (
-    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
+    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-muted text-[10px] font-medium text-primary">
       {member === "Unassigned"
         ? "?"
         : member.charAt(0)}
@@ -807,9 +807,9 @@ function TaskActionMenu({
         top: position.top,
         left: position.left,
       }}
-      className="z-[9999]"
+      className="z-9999"
     >
-      <div className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+      <div className="relative w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-xl">
         <button
           type="button"
           onClick={() =>
@@ -820,10 +820,10 @@ function TaskActionMenu({
                 : "Status",
             )
           }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeCategory ===
             "Status"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+            ? "bg-surface-secondary"
+            : "hover:bg-surface-secondary"
             }`}
         >
           <Signal
@@ -851,10 +851,10 @@ function TaskActionMenu({
                 : "Priority",
             )
           }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeCategory ===
             "Priority"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+            ? "bg-surface-secondary"
+            : "hover:bg-surface-secondary"
             }`}
         >
           <SignalHigh
@@ -882,10 +882,10 @@ function TaskActionMenu({
                 : "Due Date",
             )
           }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeCategory ===
             "Due Date"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+            ? "bg-surface-secondary"
+            : "hover:bg-surface-secondary"
             }`}
         >
           <Calendar
@@ -909,10 +909,10 @@ function TaskActionMenu({
           <div
             className={`${getSubmenuClassName(
               "w-48",
-            )} rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl`}
+            )} rounded-md border border-border bg-surface p-1.5 shadow-xl`}
           >
             <div className="flex h-9 items-center px-3">
-              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+              <span className="text-xs font-medium text-foreground-secondary">
                 Status
               </span>
             </div>
@@ -927,9 +927,9 @@ function TaskActionMenu({
                       status: option.value,
                     })
                   }
-                  className="flex h-9 w-full items-center rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center rounded-md px-3 text-left hover:bg-surface-secondary"
                 >
-                  <span className="text-sm text-[var(--foreground)]">
+                  <span className="text-sm text-foreground">
                     {option.label}
                   </span>
 
@@ -951,10 +951,10 @@ function TaskActionMenu({
           <div
             className={`${getSubmenuClassName(
               "w-48",
-            )} rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl`}
+            )} rounded-md border border-border bg-surface p-1.5 shadow-xl`}
           >
             <div className="flex h-9 items-center px-3">
-              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+              <span className="text-xs font-medium text-foreground-secondary">
                 Priority
               </span>
             </div>
@@ -970,7 +970,7 @@ function TaskActionMenu({
                         option,
                     })
                   }
-                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-surface-secondary"
                 >
                   <PriorityBadge
                     priority={
@@ -998,10 +998,10 @@ function TaskActionMenu({
           <div
             className={`${getSubmenuClassName(
               "w-56",
-            )} rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 shadow-xl`}
+            )} rounded-md border border-border bg-surface p-2 shadow-xl`}
           >
             <div className="flex h-9 items-center px-2">
-              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+              <span className="text-xs font-medium text-foreground-secondary">
                 Due Date
               </span>
             </div>
@@ -1014,7 +1014,7 @@ function TaskActionMenu({
                   event.target.value,
                 )
               }
-              className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 text-sm text-[var(--foreground)] outline-none"
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground outline-none"
             />
 
             <button
@@ -1025,7 +1025,7 @@ function TaskActionMenu({
                     dueDate || null,
                 })
               }
-              className="mt-2 h-9 w-full rounded-md bg-[var(--foreground)] text-sm font-medium text-[var(--background)]"
+              className="mt-2 h-9 w-full rounded-md bg-foreground text-sm font-medium text-background"
             >
               Apply
             </button>
@@ -1038,7 +1038,7 @@ function TaskActionMenu({
                     dueDate: null,
                   })
                 }
-                className="mt-1.5 h-8 w-full rounded-md text-left text-xs text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
+                className="mt-1.5 h-8 w-full rounded-md text-left text-xs text-foreground-secondary hover:bg-surface-secondary"
               >
                 Clear due date
               </button>
@@ -1078,13 +1078,13 @@ function TaskRow({
     useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="grid min-w-[780px] grid-cols-[minmax(240px,1fr)_140px_120px_140px_140px] items-center border-b border-[var(--border)] bg-[var(--background)] last:border-b-0">
+    <div className="grid min-w-195 grid-cols-[minmax(240px,1fr)_140px_120px_140px_140px] items-center border-b border-border bg-background last:border-b-0">
       <button
         type="button"
         onClick={() =>
           onOpenTask(task.id)
         }
-        className="px-3 py-3 text-left text-sm font-medium text-[var(--foreground)] transition-colors hover:text-[var(--primary)] hover:underline"
+        className="px-3 py-3 text-left text-sm font-medium text-foreground transition-colors hover:text-primary hover:underline"
       >
         {task.title}
       </button>
@@ -1102,7 +1102,7 @@ function TaskRow({
         />
       </div>
 
-      <div className="flex items-center justify-center px-3 py-3 text-sm text-[var(--foreground-secondary)]">
+      <div className="flex items-center justify-center px-3 py-3 text-sm text-foreground-secondary">
         {task.dueDate || "-"}
       </div>
 
@@ -1119,7 +1119,7 @@ function TaskRow({
                 : task.id,
             );
           }}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
         >
           <MoreHorizontal
             size={16}
@@ -1174,14 +1174,14 @@ function BoardTaskCard({
     useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="mx-3 mb-3 block w-[calc(100%-24px)] rounded-md border border-[var(--border)] bg-[var(--background)] p-3 transition-all hover:border-[var(--primary)] hover:shadow-sm">
+    <div className="mx-3 mb-3 block w-[calc(100%-24px)] rounded-md border border-border bg-background p-3 transition-all hover:border-primary hover:shadow-sm">
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
           onClick={() =>
             onOpenTask(task.id)
           }
-          className="min-w-0 flex-1 truncate text-left text-sm font-medium leading-5 text-[var(--foreground)]"
+          className="min-w-0 flex-1 truncate text-left text-sm font-medium leading-5 text-foreground"
         >
           {task.title}
         </button>
@@ -1198,7 +1198,7 @@ function BoardTaskCard({
                 : task.id,
             );
           }}
-          className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--foreground-secondary)] hover:text-[var(--primary)]"
+          className="flex h-5 w-5 shrink-0 items-center justify-center text-foreground-secondary hover:text-primary"
         >
           <MoreHorizontal
             size={14}
@@ -1214,13 +1214,13 @@ function BoardTaskCard({
             avatar={task.avatar}
           />
 
-          <span className="truncate text-xs font-medium leading-4 text-[var(--foreground-secondary)]">
+          <span className="truncate text-xs font-medium leading-4 text-foreground-secondary">
             {task.member}
           </span>
         </div>
 
         {task.dueDate && (
-          <div className="flex h-5 shrink-0 items-center gap-1 rounded-3xl bg-[var(--primary-muted)] px-2 text-[var(--primary)]">
+          <div className="flex h-5 shrink-0 items-center gap-1 rounded-3xl bg-primary-muted px-2 text-primary">
             <span className="text-xs font-medium leading-4">
               {task.dueDate.replace(
                 /\s\d{4}$/,
@@ -1293,7 +1293,7 @@ function ListTaskSection({
         <button
           type="button"
           onClick={onToggle}
-          className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+          className="flex h-6 w-6 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
         >
           <ChevronDown
             size={16}
@@ -1306,7 +1306,7 @@ function ListTaskSection({
           />
         </button>
 
-        <span className="text-sm font-medium text-[var(--foreground)]">
+        <span className="text-sm font-medium text-foreground">
           {section.title}
         </span>
       </div>
@@ -1318,26 +1318,26 @@ function ListTaskSection({
           }`}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="w-full overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--background)]">
-            <div className="min-w-[780px]">
-              <div className="grid h-12 min-w-[780px] grid-cols-[minmax(240px,1fr)_140px_120px_140px_140px] items-center border-b border-[var(--border)] bg-[var(--surface-secondary)]">
-                <div className="px-3 text-left text-sm font-medium text-[var(--foreground)]">
+          <div className="w-full overflow-x-auto rounded-lg border border-border bg-background">
+            <div className="min-w-195">
+              <div className="grid h-12 min-w-195 grid-cols-[minmax(240px,1fr)_140px_120px_140px_140px] items-center border-b border-border bg-surface-secondary">
+                <div className="px-3 text-left text-sm font-medium text-foreground">
                   Task
                 </div>
 
-                <div className="px-3 text-center text-sm font-medium text-[var(--foreground)]">
+                <div className="px-3 text-center text-sm font-medium text-foreground">
                   Priority
                 </div>
 
-                <div className="px-3 text-center text-sm font-medium text-[var(--foreground)]">
+                <div className="px-3 text-center text-sm font-medium text-foreground">
                   Members
                 </div>
 
-                <div className="px-3 text-center text-sm font-medium text-[var(--foreground)]">
+                <div className="px-3 text-center text-sm font-medium text-foreground">
                   Due Date
                 </div>
 
-                <div className="px-3 text-center text-sm font-medium text-[var(--foreground)]">
+                <div className="px-3 text-center text-sm font-medium text-foreground">
                   Actions
                 </div>
               </div>
@@ -1371,7 +1371,7 @@ function ListTaskSection({
                     section.id,
                   )
                 }
-                className="flex h-12 w-full items-center gap-1 px-3 text-sm font-medium text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+                className="flex h-12 w-full items-center gap-1 px-3 text-sm font-medium text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
               >
                 <Plus
                   size={16}
@@ -1428,7 +1428,7 @@ function BoardSection({
   ) => void;
 }) {
   return (
-    <section className="h-fit w-full shrink-0 overflow-visible rounded-lg border border-[var(--border)] bg-surface-secondary md:w-72.25">
+    <section className="h-fit w-full shrink-0 overflow-visible rounded-lg border border-border bg-surface-secondary md:w-72.25">
       <div className="flex h-9.75 items-center justify-between border-b border-border px-3">
         <div className="flex items-center gap-2">
           <button
@@ -1476,7 +1476,7 @@ function BoardSection({
 
           {/* <button
             type="button"
-            className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+            className="flex h-5 w-5 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
           >
             <MoreHorizontal
               size={14}

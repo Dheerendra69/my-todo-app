@@ -4,5 +4,5 @@ export class UpdateCommentDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(5000)
-  content: string;
+  content: string | undefined;
 }

@@ -150,22 +150,22 @@ export default function AddProjectModal({
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 px-4"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 px-4"
             onMouseDown={onClose}
         >
             <div
-                className="w-full max-w-[520px] overflow-visible rounded-xl border border-[var(--border)] bg-[var(--background)] shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+                className="w-full max-w-130 overflow-visible rounded-xl border border-border bg-background shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
                 onMouseDown={(event) =>
                     event.stopPropagation()
                 }
             >
-                <div className="flex h-[64px] items-center justify-between border-b border-[var(--border)] px-5">
+                <div className="flex h-16 items-center justify-between border-b border-border px-5">
                     <div>
-                        <h2 className="text-sm font-semibold text-[var(--foreground)]">
+                        <h2 className="text-sm font-semibold text-foreground">
                             Add Project
                         </h2>
 
-                        <p className="mt-1 text-xs text-[var(--foreground-secondary)]">
+                        <p className="mt-1 text-xs text-foreground-secondary">
                             Create a new project
                         </p>
                     </div>
@@ -174,7 +174,7 @@ export default function AddProjectModal({
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+                        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-surface-secondary"
                     >
                         <X size={16} />
                     </button>
@@ -182,7 +182,7 @@ export default function AddProjectModal({
 
                 <div className="flex flex-col gap-4 p-5">
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Project name
                         </label>
 
@@ -192,12 +192,12 @@ export default function AddProjectModal({
                                 setTitle(event.target.value)
                             }
                             placeholder="Enter project name"
-                            className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-foreground-secondary focus:border-foreground-secondary"
                         />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Description
                         </label>
 
@@ -208,13 +208,13 @@ export default function AddProjectModal({
                             }
                             placeholder="Add a project description..."
                             rows={3}
-                            className="w-full resize-none rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground-secondary focus:border-foreground-secondary"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-[var(--foreground)]">
+                            <label className="text-xs font-medium text-foreground">
                                 Priority
                             </label>
 
@@ -227,7 +227,7 @@ export default function AddProjectModal({
                                                 !current,
                                         )
                                     }
-                                    className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
+                                    className="flex h-9 w-full items-center gap-2 rounded-md border border-border bg-background px-3 text-left"
                                 >
                                     <span
                                         className={
@@ -241,7 +241,7 @@ export default function AddProjectModal({
                                         )}
                                     </span>
 
-                                    <span className="flex-1 text-sm text-[var(--foreground)]">
+                                    <span className="flex-1 text-sm text-foreground">
                                         {priority}
                                     </span>
 
@@ -249,7 +249,7 @@ export default function AddProjectModal({
                                 </button>
 
                                 {priorityOpen && (
-                                    <div className="absolute left-0 top-[42px] z-30 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
+                                    <div className="absolute left-0 top-10.5 z-30 w-full rounded-md border border-border bg-background p-1 shadow-lg">
                                         {priorities.map((item) => (
                                             <button
                                                 key={item}
@@ -258,7 +258,7 @@ export default function AddProjectModal({
                                                     setPriority(item);
                                                     setPriorityOpen(false);
                                                 }}
-                                                className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                                className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-surface-secondary"
                                             >
                                                 <span
                                                     className={
@@ -287,7 +287,7 @@ export default function AddProjectModal({
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-[var(--foreground)]">
+                            <label className="text-xs font-medium text-foreground">
                                 Due Date
                             </label>
 
@@ -303,14 +303,14 @@ export default function AddProjectModal({
                                     onChange={(event) =>
                                         setDueDate(event.target.value)
                                     }
-                                    className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 pl-9 text-sm"
+                                    className="h-9 w-full rounded-md border border-border bg-background px-3 pl-9 text-sm"
                                 />
                             </div>
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Project Lead
                         </label>
 
@@ -322,7 +322,7 @@ export default function AddProjectModal({
                                         (current) => !current,
                                     )
                                 }
-                                className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
+                                className="flex h-9 w-full items-center gap-2 rounded-md border border-border bg-background px-3 text-left"
                             >
                                 <img
                                     src={
@@ -333,7 +333,7 @@ export default function AddProjectModal({
                                     className="h-5 w-5 rounded-full object-cover"
                                 />
 
-                                <span className="flex-1 text-sm text-[var(--foreground)]">
+                                <span className="flex-1 text-sm text-foreground">
                                     {user?.name || "User"}
                                 </span>
 
@@ -341,7 +341,7 @@ export default function AddProjectModal({
                             </button>
 
                             {leadOpen && (
-                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
+                                <div className="absolute left-0 top-10.5 z-20 w-full rounded-md border border-border bg-background p-1 shadow-lg">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -350,7 +350,7 @@ export default function AddProjectModal({
                                             );
                                             setLeadOpen(false);
                                         }}
-                                        className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                        className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-surface-secondary"
                                     >
                                         <img
                                             src={
@@ -379,12 +379,12 @@ export default function AddProjectModal({
                     )}
                 </div>
 
-                <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] p-4">
+                <div className="flex items-center justify-end gap-2 border-t border-border p-4">
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="h-9 rounded-md px-3 text-sm font-medium hover:bg-[var(--surface-secondary)]"
+                        className="h-9 rounded-md px-3 text-sm font-medium hover:bg-surface-secondary"
                     >
                         Cancel
                     </button>
@@ -397,7 +397,7 @@ export default function AddProjectModal({
                             isSubmitting
                         }
                         onClick={handleSubmit}
-                        className="flex h-9 items-center gap-1.5 rounded-md bg-[var(--foreground)] px-3 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex h-9 items-center gap-1.5 rounded-md bg-foreground px-3 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         <Plus size={14} />
 

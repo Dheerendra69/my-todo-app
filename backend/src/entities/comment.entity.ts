@@ -15,12 +15,12 @@ import { User } from './user.entity';
 @Entity('comments')
 export class Comment {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string | undefined;
 
   @Column({
     type: 'text',
   })
-  content: string;
+  content: string | undefined;
 
   @ManyToOne(() => Task, (task) => task.comments, {
     onDelete: 'CASCADE',
@@ -28,7 +28,7 @@ export class Comment {
   @JoinColumn({
     name: 'taskId',
   })
-  task: Task;
+  task: Task | undefined;
 
   @ManyToOne(() => User, (user) => user.comments, {
     onDelete: 'CASCADE',
@@ -36,7 +36,7 @@ export class Comment {
   @JoinColumn({
     name: 'authorId',
   })
-  author: User;
+  author: User | undefined;
 
   @ManyToOne(() => Comment, (comment) => comment.replies, {
     nullable: true,
@@ -45,14 +45,14 @@ export class Comment {
   @JoinColumn({
     name: 'parentCommentId',
   })
-  parentComment: Comment | null;
+  parentComment: Comment | null | undefined;
 
   @OneToMany(() => Comment, (comment) => comment.parentComment)
-  replies: Comment[];
+  replies: Comment[] | undefined;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date | undefined;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date | undefined;
 }

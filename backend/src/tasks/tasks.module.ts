@@ -8,8 +8,8 @@ import { Project } from '../entities/project.entity';
 
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
-import { Label } from 'src/entities/label.entity';
-import { CollaborationModule } from 'src/collaboration/collaboration.module';
+import { Label } from '../entities/label.entity';
+import { CollaborationModule } from '../collaboration/collaboration.module';
 
 @Module({
   imports: [

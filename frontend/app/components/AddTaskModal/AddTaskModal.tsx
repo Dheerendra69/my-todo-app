@@ -717,22 +717,22 @@ export default function AddTaskModal({
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 px-4"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 px-4"
             onMouseDown={onClose}
         >
             <div
-                className="w-full max-w-[520px] overflow-visible rounded-xl border border-[var(--border)] bg-[var(--background)] shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+                className="w-full max-w-130 overflow-visible rounded-xl border border-border bg-background shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
                 onMouseDown={(event) =>
                     event.stopPropagation()
                 }
             >
-                <div className="flex h-[64px] items-center justify-between border-b border-[var(--border)] px-5">
+                <div className="flex h-16 items-center justify-between border-b border-border px-5">
                     <div>
-                        <h2 className="text-sm font-semibold text-[var(--foreground)]">
+                        <h2 className="text-sm font-semibold text-foreground">
                             Add Task
                         </h2>
 
-                        <p className="mt-1 text-xs text-[var(--foreground-secondary)]">
+                        <p className="mt-1 text-xs text-foreground-secondary">
                             Create a new task
                         </p>
                     </div>
@@ -741,7 +741,7 @@ export default function AddTaskModal({
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+                        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-surface-secondary"
                     >
                         <X size={16} />
                     </button>
@@ -749,7 +749,7 @@ export default function AddTaskModal({
 
                 <div className="flex flex-col gap-4 p-5">
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Task title
                         </label>
 
@@ -761,12 +761,12 @@ export default function AddTaskModal({
                                 )
                             }
                             placeholder="What needs to be done?"
-                            className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-foreground-secondary focus:border-foreground-secondary"
                         />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Description
                         </label>
 
@@ -779,13 +779,13 @@ export default function AddTaskModal({
                             }
                             placeholder="Add a description..."
                             rows={3}
-                            className="w-full resize-none rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground-secondary focus:border-foreground-secondary"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-[var(--foreground)]">
+                            <label className="text-xs font-medium text-foreground">
                                 Priority
                             </label>
 
@@ -801,7 +801,7 @@ export default function AddTaskModal({
                                         setMemberOpen(false);
                                         setStatusOpen(false);
                                     }}
-                                    className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
+                                    className="flex h-9 w-full items-center gap-2 rounded-md border border-border bg-background px-3 text-left"
                                 >
                                     <span
                                         className={
@@ -813,7 +813,7 @@ export default function AddTaskModal({
                                         {priorityIcon}
                                     </span>
 
-                                    <span className="flex-1 text-sm text-[var(--foreground)]">
+                                    <span className="flex-1 text-sm text-foreground">
                                         {priority}
                                     </span>
 
@@ -823,7 +823,7 @@ export default function AddTaskModal({
                                 </button>
 
                                 {priorityOpen && (
-                                    <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+                                    <div className="absolute left-0 top-10.5 z-20 w-full rounded-md border border-border bg-background p-1 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
                                         {priorities.map(
                                             (item) => (
                                                 <button
@@ -837,7 +837,7 @@ export default function AddTaskModal({
                                                             false,
                                                         );
                                                     }}
-                                                    className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                                    className="flex h-9 w-full items-center gap-2 rounded-md px-2 hover:bg-surface-secondary"
                                                 >
                                                     <span
                                                         className={
@@ -879,7 +879,7 @@ export default function AddTaskModal({
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-[var(--foreground)]">
+                            <label className="text-xs font-medium text-foreground">
                                 Due Date
                             </label>
 
@@ -897,14 +897,14 @@ export default function AddTaskModal({
                                             event.target.value,
                                         )
                                     }
-                                    className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 pl-9 text-sm text-[var(--foreground)]"
+                                    className="h-9 w-full rounded-md border border-border bg-background px-3 pl-9 text-sm text-foreground"
                                 />
                             </div>
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Members
                         </label>
 
@@ -917,7 +917,7 @@ export default function AddTaskModal({
                                                 key={
                                                     member.id
                                                 }
-                                                className="flex h-7 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-secondary)] py-1 pl-1 pr-2 text-xs text-[var(--foreground)]"
+                                                className="flex h-7 items-center gap-1.5 rounded-full border border-border bg-surface-secondary py-1 pl-1 pr-2 text-xs text-foreground"
                                             >
                                                 {member.avatar ? (
                                                     <img
@@ -930,14 +930,14 @@ export default function AddTaskModal({
                                                         className="h-5 w-5 rounded-full object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--foreground)] text-[9px] font-medium text-[var(--background)]">
+                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-foreground text-[9px] font-medium text-background">
                                                         {getInitials(
                                                             member.name,
                                                         )}
                                                     </div>
                                                 )}
 
-                                                <span className="max-w-[120px] truncate">
+                                                <span className="max-w-30 truncate">
                                                     {
                                                         member.name
                                                     }
@@ -950,7 +950,7 @@ export default function AddTaskModal({
                                                             member.id,
                                                         )
                                                     }
-                                                    className="flex h-4 w-4 items-center justify-center rounded-full hover:bg-[var(--border)]"
+                                                    className="flex h-4 w-4 items-center justify-center rounded-full hover:bg-border"
                                                 >
                                                     <X
                                                         size={11}
@@ -979,13 +979,13 @@ export default function AddTaskModal({
                                     setStatusOpen(false);
                                 }}
                                 disabled={isGuest}
-                                className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
+                                className="flex h-9 w-full items-center gap-2 rounded-md border border-border bg-background px-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 <UserPlus
                                     size={14}
                                 />
 
-                                <span className="flex-1 text-sm text-[var(--foreground-secondary)]">
+                                <span className="flex-1 text-sm text-foreground-secondary">
                                     {isGuest
                                         ? "Guest users cannot add members"
                                         : selectedMembers.length >
@@ -1003,11 +1003,11 @@ export default function AddTaskModal({
 
                             {!isGuest &&
                                 memberOpen && (
-                                    <div className="absolute left-0 top-[42px] z-30 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-2 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+                                    <div className="absolute left-0 top-10.5 z-30 w-full rounded-md border border-border bg-background p-2 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
                                         <div className="relative mb-2">
                                             <Search
                                                 size={14}
-                                                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--foreground-secondary)]"
+                                                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground-secondary"
                                             />
 
                                             <input
@@ -1025,13 +1025,13 @@ export default function AddTaskModal({
                                                     )
                                                 }
                                                 placeholder="Search members..."
-                                                className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] pl-8 pr-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                                                className="h-9 w-full rounded-md border border-border bg-background pl-8 pr-3 text-sm text-foreground outline-none placeholder:text-foreground-secondary focus:border-foreground-secondary"
                                             />
                                         </div>
 
-                                        <div className="max-h-[220px] overflow-y-auto">
+                                        <div className="max-h-55 overflow-y-auto">
                                             {membersLoading && (
-                                                <div className="flex h-16 items-center justify-center text-xs text-[var(--foreground-secondary)]">
+                                                <div className="flex h-16 items-center justify-center text-xs text-foreground-secondary">
                                                     Loading members...
                                                 </div>
                                             )}
@@ -1049,7 +1049,7 @@ export default function AddTaskModal({
                                                 !membersError &&
                                                 filteredMembers.length ===
                                                 0 && (
-                                                    <div className="flex h-16 items-center justify-center text-xs text-[var(--foreground-secondary)]">
+                                                    <div className="flex h-16 items-center justify-center text-xs text-foreground-secondary">
                                                         No members found
                                                     </div>
                                                 )}
@@ -1080,7 +1080,7 @@ export default function AddTaskModal({
                                                                         member,
                                                                     )
                                                                 }
-                                                                className="flex min-h-10 w-full items-center gap-2 rounded-md px-2 py-1.5 hover:bg-[var(--surface-secondary)]"
+                                                                className="flex min-h-10 w-full items-center gap-2 rounded-md px-2 py-1.5 hover:bg-surface-secondary"
                                                             >
                                                                 {member.avatar ? (
                                                                     <img
@@ -1093,7 +1093,7 @@ export default function AddTaskModal({
                                                                         className="h-6 w-6 rounded-full object-cover"
                                                                     />
                                                                 ) : (
-                                                                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--foreground)] text-[10px] font-medium text-[var(--background)]">
+                                                                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-[10px] font-medium text-background">
                                                                         {getInitials(
                                                                             member.name,
                                                                         )}
@@ -1101,14 +1101,14 @@ export default function AddTaskModal({
                                                                 )}
 
                                                                 <div className="min-w-0 flex-1 text-left">
-                                                                    <p className="truncate text-sm text-[var(--foreground)]">
+                                                                    <p className="truncate text-sm text-foreground">
                                                                         {
                                                                             member.name
                                                                         }
                                                                     </p>
 
                                                                     {member.email && (
-                                                                        <p className="truncate text-xs text-[var(--foreground-secondary)]">
+                                                                        <p className="truncate text-xs text-foreground-secondary">
                                                                             {
                                                                                 member.email
                                                                             }
@@ -1116,7 +1116,7 @@ export default function AddTaskModal({
                                                                     )}
                                                                 </div>
 
-                                                                <div className="flex h-4 w-4 items-center justify-center rounded border border-[var(--border)]">
+                                                                <div className="flex h-4 w-4 items-center justify-center rounded border border-border">
                                                                     {isSelected && (
                                                                         <Check
                                                                             size={
@@ -1136,7 +1136,7 @@ export default function AddTaskModal({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Status
                         </label>
 
@@ -1152,9 +1152,9 @@ export default function AddTaskModal({
                                     setPriorityOpen(false);
                                     setMemberOpen(false);
                                 }}
-                                className="flex h-9 w-full items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-left"
+                                className="flex h-9 w-full items-center gap-2 rounded-md border border-border bg-background px-3 text-left"
                             >
-                                <span className="flex-1 text-sm text-[var(--foreground)]">
+                                <span className="flex-1 text-sm text-foreground">
                                     {status}
                                 </span>
 
@@ -1164,7 +1164,7 @@ export default function AddTaskModal({
                             </button>
 
                             {statusOpen && (
-                                <div className="absolute left-0 top-[42px] z-20 w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-1 shadow-lg">
+                                <div className="absolute left-0 top-10.5 z-20 w-full rounded-md border border-border bg-background p-1 shadow-lg">
                                     {statuses.map(
                                         (item) => (
                                             <button
@@ -1179,9 +1179,9 @@ export default function AddTaskModal({
                                                         false,
                                                     );
                                                 }}
-                                                className="flex h-9 w-full items-center rounded-md px-2 hover:bg-[var(--surface-secondary)]"
+                                                className="flex h-9 w-full items-center rounded-md px-2 hover:bg-surface-secondary"
                                             >
-                                                <span className="flex-1 text-left text-sm text-[var(--foreground)]">
+                                                <span className="flex-1 text-left text-sm text-foreground">
                                                     {item}
                                                 </span>
 
@@ -1200,7 +1200,7 @@ export default function AddTaskModal({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-[var(--foreground)]">
+                        <label className="text-xs font-medium text-foreground">
                             Labels
                         </label>
 
@@ -1215,7 +1215,7 @@ export default function AddTaskModal({
                                 handleLabelKeyDown
                             }
                             placeholder="Type a label and press Enter"
-                            className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)] focus:border-[var(--foreground-secondary)]"
+                            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-foreground-secondary focus:border-foreground-secondary"
                         />
 
                         {selectedLabels.length >
@@ -1266,12 +1266,12 @@ export default function AddTaskModal({
                     )}
                 </div>
 
-                <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] p-4">
+                <div className="flex items-center justify-end gap-2 border-t border-border p-4">
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="h-9 rounded-md px-3 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                        className="h-9 rounded-md px-3 text-sm font-medium text-foreground hover:bg-surface-secondary"
                     >
                         Cancel
                     </button>
@@ -1283,7 +1283,7 @@ export default function AddTaskModal({
                             isSubmitting
                         }
                         onClick={handleSubmit}
-                        className="flex h-9 items-center gap-1.5 rounded-md bg-[var(--foreground)] px-3 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex h-9 items-center gap-1.5 rounded-md bg-foreground px-3 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         <Plus size={14} />
 

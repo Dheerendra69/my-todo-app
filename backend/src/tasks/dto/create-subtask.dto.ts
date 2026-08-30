@@ -12,7 +12,7 @@ import { TaskPriority, TaskStatus } from '../../entities/task.entity';
 export class CreateSubtaskDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title?: string;
 
   @IsOptional()
   @IsString()

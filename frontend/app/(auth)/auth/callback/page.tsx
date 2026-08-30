@@ -35,7 +35,7 @@ function AuthCallbackContent() {
 
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <p className="text-sm text-[var(--foreground-secondary)]">
+      <p className="text-sm text-foreground-secondary">
         Signing you in...
       </p>
     </main>
@@ -47,7 +47,7 @@ export default function AuthCallbackPage() {
     <Suspense
       fallback={
         <main className="flex min-h-screen items-center justify-center">
-          <p className="text-sm text-[var(--foreground-secondary)]">
+          <p className="text-sm text-foreground-secondary">
             Signing you in...
           </p>
         </main>

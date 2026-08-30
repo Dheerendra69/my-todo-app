@@ -14,7 +14,7 @@ import { User } from '../entities/user.entity';
 
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { CollaborationGateway } from 'src/collaboration/collaboration.gateway';
+import { CollaborationGateway } from '../collaboration/collaboration.gateway';
 
 @Injectable()
 export class CommentsService {
@@ -72,7 +72,7 @@ export class CommentsService {
         throw new NotFoundException('Parent comment not found');
       }
 
-      if (parentComment.task.id !== taskId) {
+      if (parentComment?.task?.id !== taskId) {
         throw new ForbiddenException(
           'You cannot reply to a comment from another task',
         );
@@ -80,7 +80,7 @@ export class CommentsService {
     }
 
     const comment = this.commentRepository.create({
-      content: createCommentDto.content.trim(),
+      content: createCommentDto?.content?.trim(),
       task,
       author,
       parentComment,
@@ -205,11 +205,11 @@ export class CommentsService {
       throw new NotFoundException('Comment not found');
     }
 
-    if (comment.author.id !== userId) {
+    if (comment?.author?.id !== userId) {
       throw new ForbiddenException('You can only edit your own comments');
     }
 
-    comment.content = updateCommentDto.content.trim();
+    comment.content = updateCommentDto?.content?.trim();
 
     await this.commentRepository.save(comment);
 
@@ -233,7 +233,7 @@ export class CommentsService {
       throw new NotFoundException('Comment not found');
     }
 
-    if (comment.author.id !== userId) {
+    if (comment?.author?.id !== userId) {
       throw new ForbiddenException('You can only delete your own comments');
     }
 

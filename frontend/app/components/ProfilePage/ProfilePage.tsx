@@ -128,9 +128,9 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-full border-l border-[var(--border)] bg-[var(--background)]">
-        <div className="flex min-h-[100dvh] items-center justify-center">
-          <p className="text-sm text-[var(--foreground-secondary)]">
+      <main className="min-h-full border-l border-border bg-background">
+        <div className="flex min-h-dvh items-center justify-center">
+          <p className="text-sm text-foreground-secondary">
             Loading profile...
           </p>
         </div>
@@ -150,14 +150,14 @@ export default function ProfilePage() {
 
   if (shouldShowLogin) {
     return (
-      <main className="min-h-[100dvh] border-l border-[var(--border)] bg-[var(--background)]">
-        <div className="flex min-h-[100dvh] w-full items-center justify-center px-4">
+      <main className="min-h-dvh border-l border-border bg-background">
+        <div className="flex min-h-dvh w-full items-center justify-center px-4">
           <button
             type="button"
             onClick={() =>
               router.push("/login")
             }
-            className="h-10 rounded-md bg-[var(--accent-color)] px-8 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
+            className="h-10 rounded-md bg-(--accent-color) px-8 text-sm font-medium text-(--accent-foreground) transition-opacity hover:opacity-90"
           >
             Login
           </button>
@@ -288,25 +288,25 @@ export default function ProfilePage() {
     };
 
   return (
-    <main className="min-h-[100dvh] border-l border-[var(--border)] bg-[var(--background)]">
+    <main className="min-h-dvh border-l border-border bg-background">
       <div
         className={`flex min-h-full w-full items-start justify-center px-4 py-8 sm:px-6 md:items-center lg:px-8 ${hasPendingChanges ? "pb-28" : ""
           }`}
       >
-        <div className="w-full max-w-[640px]">
+        <div className="w-full max-w-160">
           <div className="flex h-8 items-center px-0">
-            <h1 className="text-2xl font-medium leading-none text-[var(--foreground)]">
+            <h1 className="text-2xl font-medium leading-none text-foreground">
               Profile
             </h1>
           </div>
 
-          <section className="mt-10 w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
-            <div className="flex min-h-[76px] items-center justify-between border-b border-[var(--border)] px-7">
-              <span className="text-sm font-normal text-[var(--foreground)]">
+          <section className="mt-10 w-full overflow-hidden rounded-lg border border-border bg-surface">
+            <div className="flex min-h-19 items-center justify-between border-b border-border px-7">
+              <span className="text-sm font-normal text-foreground">
                 Profile picture
               </span>
 
-              <div className="h-[34px] w-[34px] overflow-hidden rounded-full border border-[var(--border)]">
+              <div className="h-8.5 w-8.5 overflow-hidden rounded-full border border-border">
                 <img
                   src={
                     user.avatar ||
@@ -321,12 +321,12 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex min-h-[86px] items-center justify-between gap-6 border-b border-[var(--border)] px-7">
-              <span className="shrink-0 text-sm font-normal text-[var(--foreground)]">
+            <div className="flex min-h-21.5 items-center justify-between gap-6 border-b border-border px-7">
+              <span className="shrink-0 text-sm font-normal text-foreground">
                 Email
               </span>
 
-              <div className="flex w-full max-w-[260px] items-center gap-2">
+              <div className="flex w-full max-w-65 items-center gap-2">
                 <input
                   type="email"
                   value={
@@ -348,10 +348,10 @@ export default function ProfilePage() {
                       ? "Guest account"
                       : "Email"
                   }
-                  className="h-9 min-w-0 flex-1 rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition-shadow focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-9 min-w-0 flex-1 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20 disabled:cursor-not-allowed disabled:opacity-60"
                 />
 
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--accent-color)]">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-(--accent-color)">
                   <Pencil
                     size={13}
                     strokeWidth={2}
@@ -360,8 +360,8 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex min-h-[72px] items-center justify-between gap-6 border-b border-[var(--border)] px-7">
-              <span className="shrink-0 text-sm font-normal text-[var(--foreground)]">
+            <div className="flex min-h-18 items-center justify-between gap-6 border-b border-border px-7">
+              <span className="shrink-0 text-sm font-normal text-foreground">
                 Full name
               </span>
 
@@ -378,17 +378,17 @@ export default function ProfilePage() {
                     event.target.value,
                   )
                 }
-                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition-shadow focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20"
+                className="h-9 w-full max-w-45 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20"
               />
             </div>
 
-            <div className="flex min-h-[96px] items-center justify-between gap-6 border-b border-[var(--border)] px-7">
+            <div className="flex min-h-24 items-center justify-between gap-6 border-b border-border px-7">
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-normal text-[var(--foreground)]">
+                <span className="text-sm font-normal text-foreground">
                   Title
                 </span>
 
-                <span className="text-xs leading-4 text-[var(--foreground-secondary)]">
+                <span className="text-xs leading-4 text-foreground-secondary">
                   Your job title or role
                 </span>
               </div>
@@ -406,17 +406,17 @@ export default function ProfilePage() {
                     event.target.value,
                   )
                 }
-                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition-shadow focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20"
+                className="h-9 w-full max-w-45 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20"
               />
             </div>
 
-            <div className="flex min-h-[96px] items-center justify-between gap-6 px-7">
+            <div className="flex min-h-24 items-center justify-between gap-6 px-7">
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-normal text-[var(--foreground)]">
+                <span className="text-sm font-normal text-foreground">
                   Username
                 </span>
 
-                <span className="text-xs leading-4 text-[var(--foreground-secondary)]">
+                <span className="text-xs leading-4 text-foreground-secondary">
                   One word, like a nickname or first name
                 </span>
               </div>
@@ -434,24 +434,24 @@ export default function ProfilePage() {
                     event.target.value,
                   )
                 }
-                className="h-9 w-full max-w-[180px] rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition-shadow focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20"
+                className="h-9 w-full max-w-45 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20"
               />
             </div>
           </section>
 
           <div className="mt-14">
-            <h2 className="px-0 text-base font-medium leading-6 text-[var(--foreground)]">
+            <h2 className="px-0 text-base font-medium leading-6 text-foreground">
               Workspace access
             </h2>
 
-            <section className="mt-7 flex min-h-[82px] w-full items-center justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-7 shadow-[0px_1px_1px_0px_#0000000A,0px_3px_6px_-2px_#00000005,0px_0px_0px_0.5px_#00000016]">
-              <span className="text-xs font-medium leading-4 text-[var(--foreground)]">
+            <section className="mt-7 flex min-h-20.5 w-full items-center justify-between gap-3 rounded-lg border border-border bg-surface px-7 shadow-[0px_1px_1px_0px_#0000000A,0px_3px_6px_-2px_#00000005,0px_0px_0px_0.5px_#00000016]">
+              <span className="text-xs font-medium leading-4 text-foreground">
                 Remove yourself from the workspace
               </span>
 
               <button
                 type="button"
-                className="h-8 shrink-0 rounded-md bg-[var(--accent-color)] px-3 text-xs font-medium leading-4 text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
+                className="h-8 shrink-0 rounded-md bg-(--accent-color) px-3 text-xs font-medium leading-4 text-(--accent-foreground) transition-opacity hover:opacity-90"
                 onClick={
                   logout
                 }
@@ -464,9 +464,9 @@ export default function ProfilePage() {
       </div>
 
       {hasPendingChanges && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col gap-3 border-t border-border bg-surface px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-end sm:px-8">
           <div className="w-full sm:mr-auto sm:w-auto">
-            <span className="text-sm text-[var(--foreground-secondary)]">
+            <span className="text-sm text-foreground-secondary">
               You have unsaved changes
             </span>
 
@@ -481,7 +481,7 @@ export default function ProfilePage() {
               type="button"
               onClick={discardChanges}
               disabled={isSaving}
-              className="flex-1 rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+              className="flex-1 rounded-md border border-border px-4 py-2 text-sm text-foreground hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
               Discard
             </button>
@@ -490,7 +490,7 @@ export default function ProfilePage() {
               type="button"
               onClick={saveChanges}
               disabled={isSaving}
-              className="flex-1 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+              className="flex-1 rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
               {isSaving ? "Saving..." : "Save Changes"}
             </button>

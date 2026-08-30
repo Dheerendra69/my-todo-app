@@ -12,27 +12,27 @@ import { Project } from './project.entity';
 @Entity('labels')
 export class Label {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string | undefined;
 
   @Column({
     type: 'varchar',
     length: 100,
     unique: true,
   })
-  name: string;
+  name: string | undefined;
 
   @Column({
     type: 'varchar',
     length: 20,
     nullable: true,
   })
-  color: string | null;
+  color: string | null | undefined;
 
   @ManyToMany(() => Task, (task) => task.labels)
-  tasks: Task[];
+  tasks: Task[] | undefined;
 
   @ManyToOne(() => Project, (project) => project.labels, {
     onDelete: 'CASCADE',
   })
-  project: Project;
+  project: Project | undefined;
 }

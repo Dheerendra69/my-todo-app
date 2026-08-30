@@ -10,7 +10,7 @@ export class CreateCommentDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(5000)
-  content: string;
+  content: string | undefined;
 
   @IsOptional()
   @IsUUID()

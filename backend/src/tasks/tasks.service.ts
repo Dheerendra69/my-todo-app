@@ -15,7 +15,7 @@ import { UpdateTaskPriorityDto } from './dto/update-task-priority.dto';
 import { UpdateTaskAssigneeDto } from './dto/update-task-assignee.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
-import { CollaborationGateway } from 'src/collaboration/collaboration.gateway';
+import { CollaborationGateway } from '../collaboration/collaboration.gateway';
 
 @Injectable()
 export class TasksService {
@@ -112,7 +112,7 @@ export class TasksService {
         throw new NotFoundException('Parent task not found');
       }
 
-      if (parentTask.project.id !== project.id) {
+      if (parentTask?.project?.id !== project.id) {
         throw new NotFoundException(
           'Parent task belongs to a different project',
         );
@@ -162,7 +162,7 @@ export class TasksService {
 
     const savedTask = await this.taskRepository.save(task);
 
-    return this.findOne(savedTask.id);
+    return this.findOne(savedTask?.id);
   }
 
   async findAll(query: TaskQueryDto, userId: string) {
@@ -245,7 +245,7 @@ export class TasksService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string | undefined) {
     const task = await this.taskRepository.findOne({
       where: {
         id,

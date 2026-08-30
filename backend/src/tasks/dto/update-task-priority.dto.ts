@@ -3,5 +3,5 @@ import { TaskPriority } from '../../entities/task.entity';
 
 export class UpdateTaskPriorityDto {
   @IsEnum(TaskPriority)
-  priority: TaskPriority;
+  priority?: TaskPriority;
 }

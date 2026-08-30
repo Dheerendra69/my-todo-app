@@ -73,10 +73,10 @@ export default function LoginCard() {
   };
 
   return (
-    <main className="flex h-[100dvh] items-center justify-center overflow-hidden bg-[var(--background)] px-4 text-[var(--foreground)] sm:px-6">
-      <div className="flex w-full max-w-[1200px] flex-col items-center">
+    <main className="flex h-dvh items-center justify-center overflow-hidden bg-background px-4 text-foreground sm:px-6">
+      <div className="flex w-full max-w-300 flex-col items-center">
         <div className="flex h-9 items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--accent-color)]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-(--accent-color)">
             <svg
               width="22"
               height="22"
@@ -101,19 +101,19 @@ export default function LoginCard() {
             </svg>
           </div>
 
-          <span className="text-[14px] font-semibold leading-none text-[var(--foreground)]">
+          <span className="text-[14px] font-semibold leading-none text-foreground">
             Pyramid
           </span>
         </div>
 
-        <div className="mt-[56px] flex w-full flex-col items-center">
-          <section className="w-full max-w-[384px] rounded-[24px] border border-[var(--border)] bg-[var(--background)] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
-            <div className="flex flex-col gap-[6px] text-center">
-              <h1 className="text-xl font-semibold leading-[20px] tracking-normal text-[var(--foreground)]">
+        <div className="mt-14 flex w-full flex-col items-center">
+          <section className="w-full max-w-[384px] rounded-3xl border border-border bg-background p-6 shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+            <div className="flex flex-col gap-1.5 text-center">
+              <h1 className="text-xl font-semibold leading-5 tracking-normal text-foreground">
                 Let&apos;s get back on track
               </h1>
 
-              <p className="text-sm font-normal leading-5 text-[var(--foreground-secondary)]">
+              <p className="text-sm font-normal leading-5 text-foreground-secondary">
                 Enter your email below to login to your account.
               </p>
             </div>
@@ -121,7 +121,7 @@ export default function LoginCard() {
             <div className="mt-6 flex flex-col gap-3">
               <button
                 type="button"
-                className="flex h-9 w-full items-center justify-center rounded-full bg-[var(--accent-color)] px-3 py-2 text-sm font-medium leading-5 text-[var(--accent-foreground)] transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-offset-2 focus:ring-offset-[var(--surface)]"
+                className="flex h-9 w-full items-center justify-center rounded-full bg-(--accent-color) px-3 py-2 text-sm font-medium leading-5 text-(--accent-foreground) transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-(--accent-color) focus:ring-offset-2 focus:ring-offset-surface"
                 onClick={handleGuestLogin}
               >
                 Continue as Guest
@@ -129,10 +129,10 @@ export default function LoginCard() {
 
               <button
                 type="button"
-                className="flex h-9 w-full items-center justify-center gap-[6px] rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium leading-5 text-[var(--foreground)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-offset-2 focus:ring-offset-[var(--surface)]"
+                className="flex h-9 w-full items-center justify-center gap-1.5 rounded-full border border-border bg-surface px-3 py-2 text-sm font-medium leading-5 text-foreground transition-colors hover:bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-(--accent-color) focus:ring-offset-2 focus:ring-offset-surface"
                 onClick={handleGoogleLogin}
               >
-                <span className="flex h-4 w-4 items-center justify-center text-[var(--accent-color)]">
+                <span className="flex h-4 w-4 items-center justify-center text-(--accent-color)">
                   <GoogleIcon />
                 </span>
 
@@ -142,27 +142,27 @@ export default function LoginCard() {
           </section>
 
           <div className="mt-10 flex w-full max-w-[384px] justify-center px-4">
-            <p className="max-w-[208px] text-center text-xs font-normal leading-4 text-[var(--foreground-secondary)]">
+            <p className="max-w-52 text-center text-xs font-normal leading-4 text-foreground-secondary">
               By clicking continue, you agree to
               <br />
               our{" "}
               <a
                 href="/terms"
-                className="text-[var(--accent-color)] underline transition-opacity hover:opacity-80"
+                className="text-(--accent-color) underline transition-opacity hover:opacity-80"
               >
                 Terms of Service
               </a>{" "}
               and{" "}
               <a
                 href="/privacy"
-                className="text-[var(--accent-color)] underline transition-opacity hover:opacity-80"
+                className="text-(--accent-color) underline transition-opacity hover:opacity-80"
               >
                 Privacy
               </a>
               <br />
               <a
                 href="/privacy"
-                className="text-[var(--accent-color)] underline transition-opacity hover:opacity-80"
+                className="text-(--accent-color) underline transition-opacity hover:opacity-80"
               >
                 Policy
               </a>

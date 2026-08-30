@@ -33,42 +33,42 @@ export enum TaskPriority {
 @Entity('tasks')
 export class Task {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string | undefined;
 
-  @Column({ length: 200 })
-  title: string;
+  @Column({ type: 'text', nullable: false })
+  title?: string;
 
   @Column({
     type: 'text',
     nullable: true,
   })
-  description: string | null;
+  description: string | null | undefined;
 
   @Column({
     type: 'date',
     nullable: true,
   })
-  dueDate: Date | null;
+  dueDate: Date | null | undefined;
 
   @Column({
     type: 'enum',
     enum: TaskStatus,
     default: TaskStatus.TODO,
   })
-  status: TaskStatus;
+  status: TaskStatus | undefined;
 
   @Column({
     type: 'enum',
     enum: TaskPriority,
     default: TaskPriority.NO_PRIORITY,
   })
-  priority: TaskPriority;
+  priority: TaskPriority | undefined;
 
   @ManyToOne(() => User, (user) => user.tasks, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  assignee: User | null;
+  assignee: User | null | undefined;
 
   @ManyToMany(() => User, (user) => user.memberTasks)
   @JoinTable({
@@ -82,24 +82,24 @@ export class Task {
       referencedColumnName: 'id',
     },
   })
-  members: User[];
+  members: User[] | undefined;
 
   @ManyToOne(() => Project, (project) => project.tasks, {
     onDelete: 'CASCADE',
   })
-  project: Project;
+  project: Project | undefined;
 
   @ManyToOne(() => Task, (task) => task.subtasks, {
     nullable: true,
     onDelete: 'CASCADE',
   })
-  parentTask: Task | null;
+  parentTask: Task | null | undefined;
 
   @OneToMany(() => Task, (task) => task.parentTask)
-  subtasks: Task[];
+  subtasks: Task[] | undefined;
 
   @OneToMany(() => Comment, (comment) => comment.task)
-  comments: Comment[];
+  comments: Comment[] | undefined;
 
   @ManyToMany(() => Label, (label) => label.tasks, {
     cascade: false,
@@ -115,11 +115,11 @@ export class Task {
       referencedColumnName: 'id',
     },
   })
-  labels: Label[];
+  labels: Label[] | undefined;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date | undefined;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date | undefined;
 }

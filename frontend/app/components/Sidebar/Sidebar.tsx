@@ -260,9 +260,9 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-[var(--border)] bg-[var(--surface)] transition-transform duration-200 ${isOpen
-          ? "translate-x-0"
-          : "-translate-x-full"
+      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-surface transition-transform duration-200 ${isOpen
+        ? "translate-x-0"
+        : "-translate-x-full"
         }`}
     >
       <div
@@ -271,36 +271,36 @@ export default function Sidebar({
       >
         {isSettingsView ? (
           <>
-            <div className="flex h-[52px] w-full items-center p-2">
+            <div className="flex h-13 w-full items-center p-2">
               <button
                 type="button"
                 onClick={backToApp}
-                className="flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
+                className="flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-surface-secondary"
               >
                 <ArrowLeft
                   size={16}
                   strokeWidth={2}
-                  className="shrink-0 text-[var(--foreground)]"
+                  className="shrink-0 text-foreground"
                 />
 
-                <span className="text-sm font-normal leading-[100%] text-[var(--foreground)]">
+                <span className="text-sm font-normal leading-[100%] text-foreground">
                   Back to app
                 </span>
               </button>
             </div>
 
             <div className="flex w-full flex-col gap-2 p-2">
-              <div className="flex h-8 w-full items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 focus-within:border-[var(--accent-color)] focus-within:ring-1 focus-within:ring-[var(--accent-color)]">
+              <div className="flex h-8 w-full items-center gap-1 rounded-md border border-border bg-background px-3 focus-within:border-(--accent-color) focus-within:ring-1 focus-within:ring-(--accent-color)">
                 <Search
                   size={16}
                   strokeWidth={2}
-                  className="shrink-0 text-[var(--foreground-secondary)]"
+                  className="shrink-0 text-foreground-secondary"
                 />
 
                 <input
                   type="text"
                   placeholder="Search"
-                  className="min-w-0 flex-1 bg-transparent text-sm font-normal leading-5 text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)]"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-normal leading-5 text-foreground outline-none placeholder:text-foreground-secondary"
                 />
               </div>
 
@@ -312,9 +312,9 @@ export default function Sidebar({
                   )
                 }
                 className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem ===
-                    "profile"
-                    ? "bg-[var(--accent-color)] text-[var(--accent-foreground)]"
-                    : "text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                  "profile"
+                  ? "bg-(--accent-color) text-(--accent-foreground)"
+                  : "text-foreground hover:bg-surface-secondary"
                   }`}
               >
                 <User
@@ -323,8 +323,8 @@ export default function Sidebar({
                   className={
                     settingsItem ===
                       "profile"
-                      ? "shrink-0 text-[var(--accent-foreground)]"
-                      : "shrink-0 text-[var(--foreground)]"
+                      ? "shrink-0 text-(--accent-foreground)"
+                      : "shrink-0 text-foreground"
                   }
                 />
 
@@ -336,15 +336,15 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={handleThemeClick}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors hover:bg-surface-secondary"
               >
                 <Sun
                   size={16}
                   strokeWidth={2}
-                  className="shrink-0 text-[var(--foreground)]"
+                  className="shrink-0 text-foreground"
                 />
 
-                <span className="min-w-0 flex-1 truncate text-sm font-normal leading-[100%] text-[var(--foreground)]">
+                <span className="min-w-0 flex-1 truncate text-sm font-normal leading-[100%] text-foreground">
                   Theme
                 </span>
               </button>
@@ -352,7 +352,7 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={handleColorClick}
-                className="flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors hover:bg-surface-secondary"
               >
                 <div
                   className="h-4 w-4 shrink-0 rounded-xs"
@@ -367,7 +367,7 @@ export default function Sidebar({
                   }}
                 />
 
-                <span className="min-w-0 flex-1 truncate text-sm font-normal leading-[100%] text-[var(--foreground)]">
+                <span className="min-w-0 flex-1 truncate text-sm font-normal leading-[100%] text-foreground">
                   Color
                 </span>
               </button>
@@ -379,9 +379,9 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={handleProfileClick}
-                className="flex h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[var(--surface-secondary)]"
+                className="flex h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-surface-secondary"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--surface-secondary)]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-secondary">
                   <img
                     src={
                       user?.avatar ||
@@ -396,7 +396,7 @@ export default function Sidebar({
                 </div>
 
                 <div className="flex min-w-0 flex-1 items-center">
-                  <span className="truncate text-sm font-medium leading-5 text-[var(--foreground)]">
+                  <span className="truncate text-sm font-medium leading-5 text-foreground">
                     {user?.name ||
                       "User"}
                   </span>
@@ -405,15 +405,15 @@ export default function Sidebar({
                 <ChevronsUpDown
                   size={16}
                   strokeWidth={2}
-                  className="shrink-0 text-[var(--foreground)]"
+                  className="shrink-0 text-foreground"
                 />
               </button>
             </div>
 
             {isProfileOpen && (
-              <div className="absolute left-4 top-[107px] z-50 w-[240px] max-w-[calc(100vw-32px)] rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
-                <div className="flex h-[120px] w-full flex-col items-center justify-center gap-4 px-3">
-                  <div className="h-10 w-10 overflow-hidden rounded-full bg-[var(--surface-secondary)] ring-2 ring-[var(--accent-color)]/20">
+              <div className="absolute left-4 top-26.75 z-50 w-60 max-w-[calc(100vw-32px)] rounded-md border border-border bg-surface p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)]">
+                <div className="flex h-30 w-full flex-col items-center justify-center gap-4 px-3">
+                  <div className="h-10 w-10 overflow-hidden rounded-full bg-surface-secondary ring-2 ring-(--accent-color)/20">
                     <img
                       src={
                         user?.avatar ||
@@ -428,47 +428,47 @@ export default function Sidebar({
                   </div>
 
                   <div className="flex w-full min-w-0 flex-col items-center">
-                    <span className="max-w-[109px] truncate text-sm font-normal leading-4 text-[var(--foreground)]">
+                    <span className="max-w-27.25 truncate text-sm font-normal leading-4 text-foreground">
                       {user?.name ||
                         "User"}
                     </span>
 
-                    <span className="max-w-[109px] truncate text-xs font-medium leading-4 text-[var(--foreground-secondary)]">
+                    <span className="max-w-27.25 truncate text-xs font-medium leading-4 text-foreground-secondary">
                       {user?.email ||
                         "Guest account"}
                     </span>
                   </div>
                 </div>
 
-                <div className="h-px w-full bg-[var(--border)]" />
+                <div className="h-px w-full bg-border" />
 
                 <div className="relative mt-1 flex flex-col gap-1">
                   <button
                     type="button"
                     onClick={handleThemeClick}
-                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[var(--surface-secondary)]"
+                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-surface-secondary"
                   >
                     <Sun
                       size={16}
                       strokeWidth={2}
-                      className="shrink-0 text-[var(--foreground)]"
+                      className="shrink-0 text-foreground"
                     />
 
-                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[var(--foreground)]">
+                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-foreground">
                       Change Theme
                     </span>
 
                     <ChevronRight
                       size={16}
                       strokeWidth={2}
-                      className="shrink-0 text-[var(--foreground-secondary)]"
+                      className="shrink-0 text-foreground-secondary"
                     />
                   </button>
 
                   <button
                     type="button"
                     onClick={handleColorClick}
-                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[var(--surface-secondary)]"
+                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-surface-secondary"
                   >
                     <div
                       className="h-4 w-4 shrink-0 rounded-xs"
@@ -483,29 +483,29 @@ export default function Sidebar({
                       }}
                     />
 
-                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[var(--foreground)]">
+                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-foreground">
                       Color Mode
                     </span>
 
                     <ChevronRight
                       size={16}
                       strokeWidth={2}
-                      className="shrink-0 text-[var(--foreground-secondary)]"
+                      className="shrink-0 text-foreground-secondary"
                     />
                   </button>
 
                   <button
                     type="button"
                     onClick={openSettings}
-                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-[var(--surface-secondary)]"
+                    className="flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors hover:bg-surface-secondary"
                   >
                     <Settings
                       size={16}
                       strokeWidth={2}
-                      className="shrink-0 text-[var(--foreground)]"
+                      className="shrink-0 text-foreground"
                     />
 
-                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-[var(--foreground)]">
+                    <span className="min-w-0 flex-1 truncate text-left text-sm font-normal leading-5 text-foreground">
                       Settings
                     </span>
                   </button>
@@ -521,18 +521,18 @@ export default function Sidebar({
                     (prev) => !prev,
                   )
                 }
-                className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left hover:bg-[var(--surface-secondary)]"
+                className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left hover:bg-surface-secondary"
               >
-                <span className="text-sm font-medium leading-5 text-[var(--foreground)]">
+                <span className="text-sm font-medium leading-5 text-foreground">
                   Workspace
                 </span>
 
                 <ChevronDown
                   size={16}
                   strokeWidth={2}
-                  className={`text-[var(--foreground)] transition-transform ${isWorkspaceOpen
-                      ? ""
-                      : "rotate-180"
+                  className={`text-foreground transition-transform ${isWorkspaceOpen
+                    ? ""
+                    : "rotate-180"
                     }`}
                 />
               </button>
@@ -573,8 +573,8 @@ export default function Sidebar({
                             );
                           }}
                           className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors ${isActive
-                              ? "bg-[var(--accent-color)] text-[var(--accent-foreground)]"
-                              : "text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                            ? "bg-(--accent-color) text-(--accent-foreground)"
+                            : "text-foreground hover:bg-surface-secondary"
                             }`}
                         >
                           <Icon
@@ -600,13 +600,13 @@ export default function Sidebar({
         {activeMenu ===
           "theme" && (
             <div
-              className={`absolute z-[60] w-[192px] rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
-                  ? "left-[calc(100%-80px)] top-[150px] md:left-[calc(100%-80px)] md:top-[150px]"
-                  : "left-[calc(100%-60px)] top-[250px] md:left-[calc(100%+20px)] md:top-[250px]"
+              className={`absolute z-60 w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
+                ? "left-[calc(100%-80px)] top-37.5 md:left-[calc(100%-80px)] md:top-37.5"
+                : "left-[calc(100%-60px)] top-62.5 md:left-[calc(100%+20px)] md:top-62.5"
                 }`}
             >
               <div className="flex h-9 items-center px-3 py-2">
-                <span className="text-sm font-medium leading-5 text-[var(--foreground-secondary)]">
+                <span className="text-sm font-medium leading-5 text-foreground-secondary">
                   Theme
                 </span>
               </div>
@@ -623,8 +623,8 @@ export default function Sidebar({
                   );
                 }}
                 className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${theme === "light"
-                    ? "bg-[var(--accent-color)] text-[var(--accent-foreground)]"
-                    : "text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                  ? "bg-(--accent-color) text-(--accent-foreground)"
+                  : "text-foreground hover:bg-surface-secondary"
                   }`}
               >
                 <Sun
@@ -657,8 +657,8 @@ export default function Sidebar({
                   );
                 }}
                 className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${theme === "dark"
-                    ? "bg-[var(--accent-color)] text-[var(--accent-foreground)]"
-                    : "text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                  ? "bg-(--accent-color) text-(--accent-foreground)"
+                  : "text-foreground hover:bg-surface-secondary"
                   }`}
               >
                 <Moon
@@ -684,13 +684,13 @@ export default function Sidebar({
         {activeMenu ===
           "color" && (
             <div
-              className={`absolute z-[60] w-[192px] rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
-                  ? "left-[calc(100%-80px)] top-[200px] md:left-[calc(100%-80px)] md:top-[200px]"
-                  : "left-[calc(100%-60px)] top-[300px] md:left-[calc(100%+20px)] md:top-[300px]"
+              className={`absolute z-60 w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
+                ? "left-[calc(100%-80px)] top-50 md:left-[calc(100%-80px)] md:top-50"
+                : "left-[calc(100%-60px)] top-75 md:left-[calc(100%+20px)] md:top-75"
                 }`}
             >
               <div className="flex h-9 items-center px-3 py-2">
-                <span className="text-sm font-medium leading-5 text-[var(--foreground-secondary)]">
+                <span className="text-sm font-medium leading-5 text-foreground-secondary">
                   Color Mode
                 </span>
               </div>
@@ -717,8 +717,8 @@ export default function Sidebar({
                         );
                       }}
                       className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${isSelected
-                          ? "bg-[var(--accent-color)] text-[var(--accent-foreground)]"
-                          : "text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                        ? "bg-(--accent-color) text-(--accent-foreground)"
+                        : "text-foreground hover:bg-surface-secondary"
                         }`}
                     >
                       <span

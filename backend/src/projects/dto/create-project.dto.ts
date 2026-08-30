@@ -9,7 +9,7 @@ import {
 export class CreateProjectDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name: string | undefined;
 
   @IsOptional()
   @IsString()
@@ -24,5 +24,5 @@ export class CreateProjectDto {
   dueDate?: string;
 
   @IsUUID()
-  ownerId: string;
+  ownerId: string | undefined;
 }

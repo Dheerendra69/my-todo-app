@@ -185,7 +185,7 @@ function CommentAvatar({
   }
 
   return (
-    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
+    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-muted text-[10px] font-medium text-primary">
       {name.charAt(0).toUpperCase()}
     </span>
   );
@@ -200,7 +200,7 @@ const priorityConfig: Record<
 > = {
   "No Priority": {
     icon: Circle,
-    className: "text-[var(--foreground-secondary)]",
+    className: "text-foreground-secondary",
   },
   Urgent: {
     icon: SignalHigh,
@@ -783,9 +783,9 @@ function TaskActionMenu({
         top: position.top,
         left: position.left,
       }}
-      className="z-[9999] flex gap-2"
+      className="z-9999 flex gap-2"
     >
-      <div className="relative w-48 min-w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+      <div className="relative w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-xl">
         <button
           type="button"
           onClick={() =>
@@ -796,10 +796,10 @@ function TaskActionMenu({
                 : "Status",
             )
           }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeCategory ===
             "Status"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+            ? "bg-surface-secondary"
+            : "hover:bg-surface-secondary"
             }`}
         >
           <Signal
@@ -827,10 +827,10 @@ function TaskActionMenu({
                 : "Priority",
             )
           }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeCategory ===
             "Priority"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+            ? "bg-surface-secondary"
+            : "hover:bg-surface-secondary"
             }`}
         >
           <SignalHigh
@@ -858,10 +858,10 @@ function TaskActionMenu({
                 : "Due Date",
             )
           }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-[var(--foreground)] ${activeCategory ===
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeCategory ===
             "Due Date"
-            ? "bg-[var(--surface-secondary)]"
-            : "hover:bg-[var(--surface-secondary)]"
+            ? "bg-surface-secondary"
+            : "hover:bg-surface-secondary"
             }`}
         >
           <Calendar
@@ -879,7 +879,7 @@ function TaskActionMenu({
           />
         </button>
 
-        <div className="my-1 border-t border-[var(--border)]" />
+        <div className="my-1 border-t border-border" />
 
         <button
           type="button"
@@ -890,7 +890,7 @@ function TaskActionMenu({
 
             onClose();
           }}
-          className="flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-red-500 hover:bg-[var(--surface-secondary)]"
+          className="flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-red-500 hover:bg-surface-secondary"
         >
           <Trash2
             size={16}
@@ -905,9 +905,9 @@ function TaskActionMenu({
 
       {activeCategory ===
         "Status" && (
-          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-border bg-surface p-1.5 shadow-xl">
             <div className="flex h-9 items-center px-3">
-              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+              <span className="text-xs font-medium text-foreground-secondary">
                 Status
               </span>
             </div>
@@ -925,11 +925,11 @@ function TaskActionMenu({
                         option.value,
                     })
                   }
-                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-surface-secondary"
                 >
 
 
-                  <span className="text-sm text-[var(--foreground)]">
+                  <span className="text-sm text-foreground">
                     {option.label}
                   </span>
 
@@ -949,9 +949,9 @@ function TaskActionMenu({
 
       {activeCategory ===
         "Priority" && (
-          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5 shadow-xl">
+          <div className="absolute right-[calc(100%+10px)] top-0 w-48 rounded-md border border-border bg-surface p-1.5 shadow-xl">
             <div className="flex h-9 items-center px-3">
-              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+              <span className="text-xs font-medium text-foreground-secondary">
                 Priority
               </span>
             </div>
@@ -967,7 +967,7 @@ function TaskActionMenu({
                         option,
                     })
                   }
-                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-[var(--surface-secondary)]"
+                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-surface-secondary"
                 >
 
 
@@ -993,9 +993,9 @@ function TaskActionMenu({
 
       {activeCategory ===
         "Due Date" && (
-          <div className="absolute right-[calc(100%+10px)] top-0 w-56 rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 shadow-xl">
+          <div className="absolute right-[calc(100%+10px)] top-0 w-56 rounded-md border border-border bg-surface p-2 shadow-xl">
             <div className="flex h-9 items-center px-2">
-              <span className="text-xs font-medium text-[var(--foreground-secondary)]">
+              <span className="text-xs font-medium text-foreground-secondary">
                 Due Date
               </span>
             </div>
@@ -1010,7 +1010,7 @@ function TaskActionMenu({
                   event.target.value,
                 )
               }
-              className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 text-sm text-[var(--foreground)] outline-none"
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground outline-none"
             />
 
             <button
@@ -1022,7 +1022,7 @@ function TaskActionMenu({
                     null,
                 })
               }
-              className="mt-2 h-9 w-full rounded-md bg-[var(--foreground)] text-sm font-medium text-[var(--background)]"
+              className="mt-2 h-9 w-full rounded-md bg-foreground text-sm font-medium text-background"
             >
               Apply
             </button>
@@ -1036,7 +1036,7 @@ function TaskActionMenu({
                       null,
                   })
                 }
-                className="mt-1.5 h-8 w-full rounded-md text-left text-xs text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)]"
+                className="mt-1.5 h-8 w-full rounded-md text-left text-xs text-foreground-secondary hover:bg-surface-secondary"
               >
                 Clear due date
               </button>
@@ -1080,7 +1080,7 @@ function SubtaskRow({
     );
 
   return (
-    <div className="grid min-h-11 grid-cols-[1.2fr_1fr_1fr_1.2fr_80px] items-center border-b border-[var(--border)] bg-[var(--background)] text-sm text-[var(--foreground)] last:border-b-0">
+    <div className="grid min-h-11 grid-cols-[1.2fr_1fr_1fr_1.2fr_80px] items-center border-b border-border bg-background text-sm text-foreground last:border-b-0">
       <button
         type="button"
         onClick={() =>
@@ -1088,7 +1088,7 @@ function SubtaskRow({
             subtask.id,
           )
         }
-        className="px-3 py-3 text-left font-medium transition-colors hover:text-[var(--primary)] hover:underline"
+        className="px-3 py-3 text-left font-medium transition-colors hover:text-primary hover:underline"
       >
         {subtask.title}
       </button>
@@ -1115,7 +1115,7 @@ function SubtaskRow({
           ) : (
             <div
               title={subtask.assignee.name}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]"
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-muted text-[10px] font-medium text-primary"
             >
               {subtask.assignee.name
                 .charAt(0)
@@ -1123,13 +1123,13 @@ function SubtaskRow({
             </div>
           )
         ) : (
-          <span className="text-xs text-[var(--foreground-secondary)]">
+          <span className="text-xs text-foreground-secondary">
             Unassigned
           </span>
         )}
       </div>
 
-      <div className="px-3 text-xs text-[var(--foreground-secondary)]">
+      <div className="px-3 text-xs text-foreground-secondary">
         {formatDate(
           subtask.dueDate,
         ) || "-"}
@@ -1146,7 +1146,7 @@ function SubtaskRow({
 
             onToggleActions();
           }}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
         >
           <MoreHorizontal
             size={16}
@@ -2096,8 +2096,8 @@ export default function TaskDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-[var(--foreground)]">
-        <span className="text-sm text-[var(--foreground-secondary)]">
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <span className="text-sm text-foreground-secondary">
           Loading task...
         </span>
       </div>
@@ -2106,7 +2106,7 @@ export default function TaskDetailsPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--background)]">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
         <p className="text-sm text-red-500">
           {error}
         </p>
@@ -2118,7 +2118,7 @@ export default function TaskDetailsPage() {
               "/tasks",
             )
           }
-          className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)]"
+          className="rounded-md bg-foreground px-4 py-2 text-sm text-background"
         >
           Back to Tasks
         </button>
@@ -2127,9 +2127,9 @@ export default function TaskDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-x-auto bg-[var(--background)] text-[var(--foreground)]">
-      <div className="min-w-[1050px]">
-        <div className="mx-auto w-full max-w-[1180px] px-4 py-4">
+    <div className="min-h-screen overflow-x-auto bg-background text-foreground">
+      <div className="min-w-262.5">
+        <div className="mx-auto w-full max-w-295 px-4 py-4">
           <div className="grid grid-cols-[minmax(680px,1fr)_323px] gap-5">
             <div className="col-span-2 flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
@@ -2143,7 +2143,7 @@ export default function TaskDetailsPage() {
                         ),
                     )
                   }
-                  className="w-full bg-transparent text-2xl font-semibold tracking-[-0.4px] text-[var(--foreground)] outline-none"
+                  className="w-full bg-transparent text-2xl font-semibold tracking-[-0.4px] text-foreground outline-none"
                 />
 
                 <textarea
@@ -2157,21 +2157,21 @@ export default function TaskDetailsPage() {
                     )
                   }
                   rows={2}
-                  className="mt-1 w-full resize-none bg-transparent text-sm leading-5 text-[var(--foreground-secondary)] outline-none"
+                  className="mt-1 w-full resize-none bg-transparent text-sm leading-5 text-foreground-secondary outline-none"
                 />
               </div>
 
               <div className="flex shrink-0 items-center gap-2 pt-1">
                 <button
                   type="button"
-                  className="flex h-8 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                  className="flex h-8 items-center gap-2 rounded-md border border-border px-3 text-foreground hover:bg-surface-secondary"
                 >
                   <Lock size={14} />
                 </button>
 
                 <button
                   type="button"
-                  className="flex h-8 items-center gap-1.5 rounded-md border border-[var(--border)] px-3 text-xs text-indigo-500 hover:bg-[var(--surface-secondary)]"
+                  className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-indigo-500 hover:bg-surface-secondary"
                 >
                   <Eye size={14} />
 
@@ -2180,7 +2180,7 @@ export default function TaskDetailsPage() {
 
                 <button
                   type="button"
-                  className="flex h-8 items-center rounded-md border border-[var(--border)] px-3 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                  className="flex h-8 items-center rounded-md border border-border px-3 text-foreground hover:bg-surface-secondary"
                 >
                   <Share2 size={14} />
                 </button>
@@ -2188,17 +2188,17 @@ export default function TaskDetailsPage() {
                 <button
                   type="button"
                   onClick={closeTask}
-                  className="flex h-8 items-center rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-3 text-[var(--foreground)] hover:bg-[var(--surface)]"
+                  className="flex h-8 items-center rounded-md border border-border bg-surface-secondary px-3 text-foreground hover:bg-surface"
                 >
                   <X size={15} />
                 </button>
               </div>
             </div>
 
-            <main className="min-w-[680px]">
+            <main className="min-w-170">
               <div className="space-y-2">
                 <div className="flex min-h-7 items-center gap-3">
-                  <span className="w-20 text-sm font-medium text-[var(--foreground-secondary)]">
+                  <span className="w-20 text-sm font-medium text-foreground-secondary">
                     Properties
                   </span>
 
@@ -2211,12 +2211,12 @@ export default function TaskDetailsPage() {
                           className="h-6 w-6 rounded-full object-cover"
                         />
                       ) : (
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-xs text-[var(--foreground)]">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-secondary text-xs text-foreground">
                           {assignee?.name?.charAt(0) ?? "?"}
                         </span>
                       )}
 
-                      <span className="text-sm font-medium text-[var(--foreground)]">
+                      <span className="text-sm font-medium text-foreground">
                         {assignee?.name ?? "Unassigned"}
                       </span>
                     </div>
@@ -2235,7 +2235,7 @@ export default function TaskDetailsPage() {
                 </div>
 
                 <div className="mt-2 flex min-h-7 items-start gap-3">
-                  <span className="w-20 shrink-0 pt-0.5 text-sm font-medium text-[var(--foreground-secondary)]">
+                  <span className="w-20 shrink-0 pt-0.5 text-sm font-medium text-foreground-secondary">
                     Labels
                   </span>
 
@@ -2244,7 +2244,7 @@ export default function TaskDetailsPage() {
                       labels.map((label) => (
                         <div
                           key={label.id}
-                          className="flex h-5 items-center gap-1 rounded-3xl border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-xs font-medium leading-4 text-[var(--foreground)]"
+                          className="flex h-5 items-center gap-1 rounded-3xl border border-border bg-surface-secondary px-2 py-0.5 text-xs font-medium leading-4 text-foreground"
                         >
                           <Tag
                             size={12}
@@ -2257,7 +2257,7 @@ export default function TaskDetailsPage() {
                         </div>
                       ))
                     ) : (
-                      <span className="pt-0.5 text-xs text-[var(--foreground-secondary)]">
+                      <span className="pt-0.5 text-xs text-foreground-secondary">
                         No labels
                       </span>
                     )}
@@ -2274,7 +2274,7 @@ export default function TaskDetailsPage() {
                         !showSubtasks,
                       )
                     }
-                    className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
                   >
                     <ChevronDown
                       size={16}
@@ -2287,7 +2287,7 @@ export default function TaskDetailsPage() {
                     />
                   </button>
 
-                  <span className="text-sm font-medium text-[var(--foreground)]">
+                  <span className="text-sm font-medium text-foreground">
                     Subtasks
                   </span>
                 </div>
@@ -2299,8 +2299,8 @@ export default function TaskDetailsPage() {
                     }`}
                 >
                   <div className="min-h-0 overflow-hidden">
-                    <div className="overflow-visible rounded-md border border-[var(--border)]">
-                      <div className="grid grid-cols-[1.2fr_1fr_1fr_1.2fr_75px] border-b border-[var(--border)] text-sm font-medium text-[var(--foreground)]">
+                    <div className="overflow-visible rounded-md border border-border">
+                      <div className="grid grid-cols-[1.2fr_1fr_1fr_1.2fr_75px] border-b border-border text-sm font-medium text-foreground">
                         <div className="px-3 py-4">
                           Task
                         </div>
@@ -2323,7 +2323,7 @@ export default function TaskDetailsPage() {
                       </div>
 
                       {subtasks.length === 0 && (
-                        <div className="px-3 py-8 text-center text-sm text-[var(--foreground-secondary)]">
+                        <div className="px-3 py-8 text-center text-sm text-foreground-secondary">
                           No subtasks yet
                         </div>
                       )}
@@ -2369,7 +2369,7 @@ export default function TaskDetailsPage() {
                             true,
                           )
                         }
-                        className="flex h-12 w-full items-center gap-1 border-t border-[var(--border)] px-3 text-sm font-medium text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--primary-muted)] hover:text-[var(--primary)]"
+                        className="flex h-12 w-full items-center gap-1 border-t border-border px-3 text-sm font-medium text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
                       >
                         <Plus
                           size={16}
@@ -2383,8 +2383,8 @@ export default function TaskDetailsPage() {
                 </div>
               </section>
 
-              <section className="mt-6 min-w-[680px]">
-                <h3 className="mb-5 h-5 text-sm font-medium text-[var(--foreground)]">
+              <section className="mt-6 min-w-170">
+                <h3 className="mb-5 h-5 text-sm font-medium text-foreground">
                   Comments
                 </h3>
 
@@ -2393,11 +2393,11 @@ export default function TaskDetailsPage() {
                     (comment) => (
                       <div
                         key={comment.id}
-                        className="min-h-[135px] overflow-visible rounded-md border border-[var(--border)] bg-[var(--background)]"
+                        className="min-h-33.75 overflow-visible rounded-md border border-border bg-background"
                       >
-                        <div className="min-h-[86px] rounded-t-md border-b border-[var(--border)] p-4">
+                        <div className="min-h-21.5 rounded-t-md border-b border-border p-4">
                           <div className="flex h-full flex-col gap-2">
-                            <div className="flex h-[21px] items-center justify-between">
+                            <div className="flex h-5.25 items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <CommentAvatar
                                   name={
@@ -2410,7 +2410,7 @@ export default function TaskDetailsPage() {
                                   }
                                 />
 
-                                <span className="text-xs font-medium text-[var(--foreground)]">
+                                <span className="text-xs font-medium text-foreground">
                                   {
                                     comment.author
                                       .name
@@ -2419,7 +2419,7 @@ export default function TaskDetailsPage() {
                               </div>
 
                               <div className="flex items-center gap-3">
-                                <span className="text-xs text-[var(--foreground-secondary)]">
+                                <span className="text-xs text-foreground-secondary">
                                   {formatCommentTime(
                                     comment.createdAt,
                                   )}
@@ -2427,7 +2427,7 @@ export default function TaskDetailsPage() {
 
                                 <button
                                   type="button"
-                                  className="flex h-4 w-4 items-center justify-center text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
+                                  className="flex h-4 w-4 items-center justify-center text-foreground-secondary hover:text-foreground"
                                   aria-label="Add reaction"
                                 >
                                   <SmilePlus
@@ -2447,7 +2447,7 @@ export default function TaskDetailsPage() {
                                           : comment.id,
                                       )
                                     }
-                                    className="flex h-5 w-5 items-center justify-center text-[var(--foreground)]"
+                                    className="flex h-5 w-5 items-center justify-center text-foreground"
                                     aria-label="Comment actions"
                                   >
                                     <MoreHorizontal
@@ -2458,7 +2458,7 @@ export default function TaskDetailsPage() {
 
                                   {commentMenuId ===
                                     comment.id && (
-                                      <div className="absolute right-0 top-6 z-20 w-24 rounded-md border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg">
+                                      <div className="absolute right-0 top-6 z-20 w-24 rounded-md border border-border bg-surface p-1 shadow-lg">
                                         <button
                                           type="button"
                                           onClick={() =>
@@ -2466,7 +2466,7 @@ export default function TaskDetailsPage() {
                                               comment.id,
                                             )
                                           }
-                                          className="flex h-8 w-full items-center rounded px-2 text-xs text-red-500 hover:bg-[var(--surface-secondary)]"
+                                          className="flex h-8 w-full items-center rounded px-2 text-xs text-red-500 hover:bg-surface-secondary"
                                         >
                                           Delete
                                         </button>
@@ -2476,18 +2476,18 @@ export default function TaskDetailsPage() {
                               </div>
                             </div>
 
-                            <p className="text-base leading-6 text-[var(--foreground)]">
+                            <p className="text-base leading-6 text-foreground">
                               {comment.content}
                             </p>
                           </div>
                         </div>
 
                         {comment.replies?.length > 0 && (
-                          <div className="border-b border-[var(--border)]">
+                          <div className="border-b border-border">
                             {comment.replies.map((reply) => (
                               <div
                                 key={reply.id}
-                                className="ml-8 border-t border-[var(--border)] px-4 py-3"
+                                className="ml-8 border-t border-border px-4 py-3"
                               >
                                 <div className="flex items-center gap-2">
                                   <CommentAvatar
@@ -2495,16 +2495,16 @@ export default function TaskDetailsPage() {
                                     avatar={reply.author.avatar}
                                   />
 
-                                  <span className="text-xs font-medium text-[var(--foreground)]">
+                                  <span className="text-xs font-medium text-foreground">
                                     {reply.author.name}
                                   </span>
 
-                                  <span className="text-xs text-[var(--foreground-secondary)]">
+                                  <span className="text-xs text-foreground-secondary">
                                     {formatCommentTime(reply.createdAt)}
                                   </span>
                                 </div>
 
-                                <p className="mt-2 text-sm leading-5 text-[var(--foreground)]">
+                                <p className="mt-2 text-sm leading-5 text-foreground">
                                   {reply.content}
                                 </p>
                               </div>
@@ -2540,7 +2540,7 @@ export default function TaskDetailsPage() {
                                   }
                                 }}
                                 placeholder="Write a reply..."
-                                className="min-w-0 flex-1 bg-transparent text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)]"
+                                className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-secondary"
                               />
 
                               <button
@@ -2549,7 +2549,7 @@ export default function TaskDetailsPage() {
                                   addReply(comment.id)
                                 }
                                 disabled={!replyContent.trim()}
-                                className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--foreground-secondary)] hover:bg-[var(--surface-secondary)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
+                                className="flex h-8 w-8 items-center justify-center rounded-md text-foreground-secondary hover:bg-surface-secondary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                               >
                                 <SendHorizontal
                                   size={16}
@@ -2558,7 +2558,7 @@ export default function TaskDetailsPage() {
                               </button>
                             </div>
                           ) : (
-                            <div className="flex h-[24px] items-center gap-2">
+                            <div className="flex h-6 items-center gap-2">
                               <CommentAvatar
                                 name={user?.name ?? "You"}
                                 avatar={user?.avatar}
@@ -2570,7 +2570,7 @@ export default function TaskDetailsPage() {
                                   setReplyingToCommentId(comment.id);
                                   setReplyContent("");
                                 }}
-                                className="text-sm text-neutral-400 transition-colors hover:text-[var(--foreground)]"
+                                className="text-sm text-neutral-400 transition-colors hover:text-foreground"
                               >
                                 Leave a reply
                               </button>
@@ -2581,7 +2581,7 @@ export default function TaskDetailsPage() {
                     ),
                   )}
 
-                  <div className="flex h-16 items-center gap-3 rounded-md border border-[var(--border)] bg-[var(--background)] px-4">
+                  <div className="flex h-16 items-center gap-3 rounded-md border border-border bg-background px-4">
                     <input
                       type="text"
                       value={newComment}
@@ -2600,12 +2600,12 @@ export default function TaskDetailsPage() {
                         }
                       }}
                       placeholder="Add a comment..."
-                      className="min-w-0 flex-1 bg-transparent text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-secondary)]"
+                      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-secondary"
                     />
 
                     <button
                       type="button"
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--foreground)]"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-surface-secondary hover:text-foreground"
                       aria-label="Attach file"
                     >
                       <Paperclip
@@ -2620,7 +2620,7 @@ export default function TaskDetailsPage() {
                       disabled={
                         !newComment.trim()
                       }
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-surface-secondary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                       aria-label="Send comment"
                     >
                       <SendHorizontal
@@ -2633,8 +2633,8 @@ export default function TaskDetailsPage() {
               </section>
             </main>
 
-            <aside className="w-[323px] min-w-[323px]">
-              <section className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 shadow-sm">
+            <aside className="w-80.75 min-w-80.75">
+              <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
                 <div className="flex items-center justify-between">
                   <button
                     type="button"
@@ -2643,7 +2643,7 @@ export default function TaskDetailsPage() {
                         !showDetails,
                       )
                     }
-                    className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]"
+                    className="flex items-center gap-2 text-sm font-medium text-foreground"
                   >
                     {showDetails ? (
                       <ChevronDown
@@ -2658,7 +2658,7 @@ export default function TaskDetailsPage() {
                     Details
                   </button>
 
-                  <div className="flex items-center gap-4 text-[var(--foreground)]">
+                  <div className="flex items-center gap-4 text-foreground">
                     <Plus size={16} />
 
                     <Settings size={16} />
@@ -2668,7 +2668,7 @@ export default function TaskDetailsPage() {
                 {showDetails && (
                   <div className="mt-5 space-y-5">
                     <div className="grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-[var(--foreground-secondary)]">
+                      <span className="text-xs text-foreground-secondary">
                         Status
                       </span>
 
@@ -2687,7 +2687,7 @@ export default function TaskDetailsPage() {
                     </div>
 
                     <div className="relative grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-[var(--foreground-secondary)]">
+                      <span className="text-xs text-foreground-secondary">
                         Priority
                       </span>
 
@@ -2698,7 +2698,7 @@ export default function TaskDetailsPage() {
                             !showPriorityMenu,
                           )
                         }
-                        className="flex items-center gap-1 text-xs font-medium text-[var(--foreground)]"
+                        className="flex items-center gap-1 text-xs font-medium text-foreground"
                       >
                         <PriorityBadge
                           priority={
@@ -2712,8 +2712,8 @@ export default function TaskDetailsPage() {
                       </button>
 
                       {showPriorityMenu && (
-                        <div className="absolute right-0 top-7 z-50 w-52 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--foreground)] shadow-lg">
-                          <p className="px-2 py-2 text-xs text-[var(--foreground-secondary)]">
+                        <div className="absolute right-0 top-7 z-50 w-52 rounded-lg border border-border bg-surface p-2 text-foreground shadow-lg">
+                          <p className="px-2 py-2 text-xs text-foreground-secondary">
                             Priority
                           </p>
 
@@ -2742,7 +2742,7 @@ export default function TaskDetailsPage() {
                                     false,
                                   );
                                 }}
-                                className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm hover:bg-[var(--surface-secondary)]"
+                                className="flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm hover:bg-surface-secondary"
                               >
                                 <PriorityBadge
                                   priority={
@@ -2764,7 +2764,7 @@ export default function TaskDetailsPage() {
                     </div>
 
                     <div className="grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-[var(--foreground-secondary)]">
+                      <span className="text-xs text-foreground-secondary">
                         Members
                       </span>
 
@@ -2784,17 +2784,17 @@ export default function TaskDetailsPage() {
                                   <Image
                                     src={member.avatar}
                                     alt={toTitleCase(member.name)}
-                                    className="h-7 w-7 rounded-full border-2 border-[var(--surface)] object-cover"
+                                    className="h-7 w-7 rounded-full border-2 border-surface object-cover"
                                   />
                                 ) : (
-                                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[var(--surface)] bg-[var(--primary-muted)] text-[10px] font-medium text-[var(--primary)]">
+                                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-surface bg-primary-muted text-[10px] font-medium text-primary">
                                     {member.name
                                       .charAt(0)
                                       .toUpperCase()}
                                   </div>
                                 )}
 
-                                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--foreground)] px-2 py-1 text-xs text-[var(--background)] shadow-lg group-hover:block">
+                                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-lg group-hover:block">
                                   {toTitleCase(member.name)}
                                 </div>
                               </div>
@@ -2802,7 +2802,7 @@ export default function TaskDetailsPage() {
                           )}
                         </div>
                       ) : (
-                        <span className="flex items-center gap-2 text-xs text-[var(--foreground-secondary)]">
+                        <span className="flex items-center gap-2 text-xs text-foreground-secondary">
                           <UserRound size={14} />
 
                           No members
@@ -2811,7 +2811,7 @@ export default function TaskDetailsPage() {
                     </div>
 
                     <div className="relative grid grid-cols-[90px_1fr] items-center">
-                      <span className="text-xs text-[var(--foreground-secondary)]">
+                      <span className="text-xs text-foreground-secondary">
                         Due Date
                       </span>
 
@@ -2822,7 +2822,7 @@ export default function TaskDetailsPage() {
                             !showDueDateMenu,
                           )
                         }
-                        className="flex w-fit items-center gap-1 rounded-full border border-[var(--border)] px-2 py-1 text-xs text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                        className="flex w-fit items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-foreground hover:bg-surface-secondary"
                       >
                         <Calendar
                           size={12}
@@ -2838,7 +2838,7 @@ export default function TaskDetailsPage() {
                       </button>
 
                       {showDueDateMenu && (
-                        <div className="absolute right-0 top-8 z-50 w-[300px] rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 shadow-lg">
+                        <div className="absolute right-0 top-8 z-50 w-75 rounded-lg border border-border bg-surface p-3 shadow-lg">
                           <div className="flex items-center justify-between">
                             <button
                               type="button"
@@ -2851,7 +2851,7 @@ export default function TaskDetailsPage() {
                                   ),
                                 )
                               }
-                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-surface-secondary"
                             >
                               <ChevronRight
                                 size={16}
@@ -2859,7 +2859,7 @@ export default function TaskDetailsPage() {
                               />
                             </button>
 
-                            <span className="text-sm font-medium text-[var(--foreground)]">
+                            <span className="text-sm font-medium text-foreground">
                               {calendarDate.toLocaleDateString(
                                 "en-US",
                                 {
@@ -2880,7 +2880,7 @@ export default function TaskDetailsPage() {
                                   ),
                                 )
                               }
-                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-[var(--surface-secondary)]"
+                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-surface-secondary"
                             >
                               <ChevronRight
                                 size={16}
@@ -2900,7 +2900,7 @@ export default function TaskDetailsPage() {
                             ].map((day) => (
                               <span
                                 key={day}
-                                className="py-2 text-[10px] font-medium text-[var(--foreground-secondary)]"
+                                className="py-2 text-[10px] font-medium text-foreground-secondary"
                               >
                                 {day}
                               </span>
@@ -2974,14 +2974,14 @@ export default function TaskDetailsPage() {
                                       );
                                     }}
                                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-md text-xs transition-colors ${!currentMonth
-                                      ? "text-[var(--foreground-secondary)] opacity-40"
-                                      : "text-[var(--foreground)]"
+                                      ? "text-foreground-secondary opacity-40"
+                                      : "text-foreground"
                                       } ${isSelected
-                                        ? "bg-[var(--primary)] text-white"
-                                        : "hover:bg-[var(--surface-secondary)]"
+                                        ? "bg-primary text-white"
+                                        : "hover:bg-surface-secondary"
                                       } ${isToday &&
                                         !isSelected
-                                        ? "border border-[var(--primary)]"
+                                        ? "border border-primary"
                                         : ""
                                       }`}
                                   >
@@ -2992,8 +2992,8 @@ export default function TaskDetailsPage() {
                             )}
                           </div>
 
-                          <div className="mt-4 border-t border-[var(--border)] pt-3">
-                            <label className="mb-1.5 block text-xs text-[var(--foreground-secondary)]">
+                          <div className="mt-4 border-t border-border pt-3">
+                            <label className="mb-1.5 block text-xs text-foreground-secondary">
                               Enter date manually
                             </label>
 
@@ -3048,7 +3048,7 @@ export default function TaskDetailsPage() {
                                 );
                               }}
                               placeholder="DD/MM/YYYY"
-                              className="h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"
                             />
 
                             {dueDateError && (
@@ -3104,7 +3104,7 @@ export default function TaskDetailsPage() {
                                   false,
                                 );
                               }}
-                              className="h-9 flex-1 rounded-md bg-[var(--foreground)] text-sm font-medium text-[var(--background)]"
+                              className="h-9 flex-1 rounded-md bg-foreground text-sm font-medium text-background"
                             >
                               Apply
                             </button>
@@ -3131,7 +3131,7 @@ export default function TaskDetailsPage() {
                                     false,
                                   );
                                 }}
-                                className="h-9 rounded-md px-3 text-xs text-red-500 hover:bg-[var(--surface-secondary)]"
+                                className="h-9 rounded-md px-3 text-xs text-red-500 hover:bg-surface-secondary"
                               >
                                 Clear
                               </button>
@@ -3144,7 +3144,7 @@ export default function TaskDetailsPage() {
                 )}
               </section>
 
-              <section className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 shadow-sm">
+              <section className="mt-5 rounded-lg border border-border bg-surface p-3 shadow-sm">
                 <button
                   type="button"
                   onClick={() =>
@@ -3152,7 +3152,7 @@ export default function TaskDetailsPage() {
                       !showUpdates,
                     )
                   }
-                  className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]"
+                  className="flex items-center gap-2 text-sm font-medium text-foreground"
                 >
                   {showUpdates ? (
                     <ChevronDown
@@ -3178,11 +3178,11 @@ export default function TaskDetailsPage() {
                       </div>
 
                       <div>
-                        <p className="text-sm font-medium text-[var(--foreground)]">
+                        <p className="text-sm font-medium text-foreground">
                           Task
                         </p>
 
-                        <p className="mt-1 text-xs text-[var(--foreground-secondary)]">
+                        <p className="mt-1 text-xs text-foreground-secondary">
                           Task details are ready to edit
                         </p>
                       </div>
@@ -3196,8 +3196,8 @@ export default function TaskDetailsPage() {
       </div>
 
       {showAddSubtask && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30">
-          <div className="w-[480px] rounded-xl bg-[var(--surface)] p-6 text-[var(--foreground)] shadow-2xl">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/30">
+          <div className="w-120 rounded-xl bg-surface p-6 text-foreground shadow-2xl">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">
                 Add Subtask
@@ -3210,7 +3210,7 @@ export default function TaskDetailsPage() {
                     false,
                   )
                 }
-                className="rounded-md p-1 hover:bg-[var(--surface-secondary)]"
+                className="rounded-md p-1 hover:bg-surface-secondary"
               >
                 <X size={18} />
               </button>
@@ -3227,7 +3227,7 @@ export default function TaskDetailsPage() {
                   )
                 }
                 placeholder="Subtask title"
-                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+                className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none"
               />
 
               <select
@@ -3240,7 +3240,7 @@ export default function TaskDetailsPage() {
                       .value as Priority,
                   )
                 }
-                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+                className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none"
               >
                 <option>
                   No Priority
@@ -3273,7 +3273,7 @@ export default function TaskDetailsPage() {
                       .value as TaskStatus,
                   )
                 }
-                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+                className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none"
               >
                 <option value="todo">
                   To Do
@@ -3302,7 +3302,7 @@ export default function TaskDetailsPage() {
                     e.target.value,
                   )
                 }
-                className="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none"
+                className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none"
               />
             </div>
 
@@ -3314,7 +3314,7 @@ export default function TaskDetailsPage() {
                     false,
                   )
                 }
-                className="rounded-md border border-[var(--border)] px-4 py-2 text-sm hover:bg-[var(--surface-secondary)]"
+                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface-secondary"
               >
                 Cancel
               </button>
@@ -3324,7 +3324,7 @@ export default function TaskDetailsPage() {
                 onClick={
                   createSubtask
                 }
-                className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)]"
+                className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
               >
                 Create Subtask
               </button>
@@ -3334,8 +3334,8 @@ export default function TaskDetailsPage() {
       )}
 
       {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-8 shadow-lg">
-          <span className="mr-3 text-sm text-[var(--foreground-secondary)]">
+        <div className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-end gap-3 border-t border-border bg-surface px-8 shadow-lg">
+          <span className="mr-3 text-sm text-foreground-secondary">
             You have unsaved changes
           </span>
 
@@ -3345,7 +3345,7 @@ export default function TaskDetailsPage() {
               setIsDirty(false);
               setSaved(false);
             }}
-            className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+            className="rounded-md border border-border px-4 py-2 text-sm text-foreground hover:bg-surface-secondary"
           >
             Discard
           </button>
@@ -3353,7 +3353,7 @@ export default function TaskDetailsPage() {
           <button
             type="button"
             onClick={saveChanges}
-            className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)]"
+            className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
           >
             Save Changes
           </button>
@@ -3361,21 +3361,21 @@ export default function TaskDetailsPage() {
       )}
 
       {saved && (
-        <div className="fixed bottom-5 right-5 z-50 rounded-md bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] shadow-lg">
+        <div className="fixed bottom-5 right-5 z-50 rounded-md bg-foreground px-4 py-2 text-sm text-background shadow-lg">
           Changes saved
         </div>
       )}
 
       {showUnsavedModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30">
-          <div className="w-[400px] rounded-xl bg-[var(--surface)] p-6 text-[var(--foreground)] shadow-2xl">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/30">
+          <div className="w-100 rounded-xl bg-surface p-6 text-foreground shadow-2xl">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-lg font-semibold">
                   Unsaved changes
                 </h2>
 
-                <p className="mt-2 text-sm leading-5 text-[var(--foreground-secondary)]">
+                <p className="mt-2 text-sm leading-5 text-foreground-secondary">
                   You have made changes to this task. Do you want to save them before closing?
                 </p>
               </div>
@@ -3387,7 +3387,7 @@ export default function TaskDetailsPage() {
                     false,
                   )
                 }
-                className="rounded-md p-1 text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                className="rounded-md p-1 text-foreground hover:bg-surface-secondary"
               >
                 <X size={18} />
               </button>
@@ -3407,7 +3407,7 @@ export default function TaskDetailsPage() {
                     "/tasks",
                   );
                 }}
-                className="rounded-md border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface-secondary)]"
+                className="rounded-md border border-border px-4 py-2 text-sm text-foreground hover:bg-surface-secondary"
               >
                 Discard
               </button>
@@ -3425,7 +3425,7 @@ export default function TaskDetailsPage() {
                     "/tasks",
                   );
                 }}
-                className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)]"
+                className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
               >
                 Save Changes
               </button>
