@@ -9,9 +9,13 @@ import { Project } from '../entities/project.entity';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { Label } from 'src/entities/label.entity';
+import { CollaborationModule } from 'src/collaboration/collaboration.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, User, Project, Label])],
+  imports: [
+    TypeOrmModule.forFeature([Task, User, Project, Label]),
+    CollaborationModule,
+  ],
   controllers: [TasksController],
   providers: [TasksService],
 })

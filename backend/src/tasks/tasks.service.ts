@@ -15,6 +15,7 @@ import { UpdateTaskPriorityDto } from './dto/update-task-priority.dto';
 import { UpdateTaskAssigneeDto } from './dto/update-task-assignee.dto';
 import { TaskQueryDto } from './dto/task-query.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
+import { CollaborationGateway } from 'src/collaboration/collaboration.gateway';
 
 @Injectable()
 export class TasksService {
@@ -30,6 +31,8 @@ export class TasksService {
 
     @InjectRepository(Label)
     private readonly labelRepository: Repository<Label>,
+
+    private readonly collaborationGateway: CollaborationGateway,
   ) {}
 
   async create(dto: CreateTaskDto, userId: string) {
@@ -329,7 +332,13 @@ export class TasksService {
 
     const savedSubtask = await this.taskRepository.save(subtask);
 
-    return this.findOne(savedSubtask.id);
+    const createdSubtask = await this.findOne(savedSubtask.id);
+
+    this.collaborationGateway.emitToTask(taskId, 'subtask.created', {
+      subtaskId: createdSubtask.id,
+    });
+
+    return createdSubtask;
   }
 
   async update(id: string, dto: UpdateTaskDto) {

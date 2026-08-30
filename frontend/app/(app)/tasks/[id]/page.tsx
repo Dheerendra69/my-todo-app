@@ -1651,6 +1651,11 @@ export default function TaskDetailsPage() {
       handleJoinTaskError,
     );
 
+    socket.on(
+      "subtask.created",
+      fetchSubtasks,
+    );
+
     return () => {
       socket.emit(
         "leave-task",
