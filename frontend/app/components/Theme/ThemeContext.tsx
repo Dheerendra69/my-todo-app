@@ -81,7 +81,7 @@ export function ThemeProvider({
     ) as ColorMode | null;
 
     const initialTheme = savedTheme || "light";
-    const initialColor = savedColor || "Blue";
+    const initialColor = savedColor || "Black";
 
     setThemeState(initialTheme);
     setColorModeState(initialColor);

@@ -2404,7 +2404,7 @@ export default function TaskBoard() {
         onClick={() =>
           setIsAddTaskOpen(true)
         }
-        className="fixed bottom-6 right-6 z-30 flex h-10 items-center gap-2 rounded-full bg-background px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
+        className="fixed bottom-12 right-6 z-30 flex h-10 items-center gap-2 rounded-full bg-background px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
       >
         <Plus size={16} />
 
