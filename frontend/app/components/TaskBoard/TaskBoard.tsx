@@ -2346,9 +2346,11 @@ export default function TaskBoard() {
                     toggleSection(section.id)
                   }
                   onAddTask={openAddTaskModal}
-                  onOpenTask={(taskId) =>
-                    router.push(`/tasks/${taskId}`)
-                  }
+                  onOpenTask={(taskId) => {
+                    if (!isGuest) {
+                      router.push(`/tasks/${taskId}`)
+                    }
+                  }}
                   openActionTaskId={openActionTaskId}
                   onOpenActions={(taskId) =>
                     setOpenActionTaskId(taskId || null)
@@ -2376,11 +2378,11 @@ export default function TaskBoard() {
                   onAddTask={
                     openAddTaskModal
                   }
-                  onOpenTask={(taskId) =>
-                    router.push(
-                      `/tasks/${taskId}`,
-                    )
-                  }
+                  onOpenTask={(taskId) => {
+                    if (!isGuest) {
+                      router.push(`/tasks/${taskId}`)
+                    }
+                  }}
                   openActionTaskId={
                     openActionTaskId
                   }
