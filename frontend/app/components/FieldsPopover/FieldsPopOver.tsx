@@ -131,8 +131,6 @@ export default function FieldsPopover({
       "
     >
       <div className="flex w-full flex-col gap-4">
-        {/* VIEW SWITCHER */}
-
         <div className="flex h-9 w-full">
           <button
             type="button"
@@ -182,8 +180,6 @@ export default function FieldsPopover({
             <span>Board</span>
           </button>
         </div>
-
-        {/* OPTIONAL FIELDS */}
 
         <div className="flex w-full flex-col">
           {FIELD_OPTIONS.map(

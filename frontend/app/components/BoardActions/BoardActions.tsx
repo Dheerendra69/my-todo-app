@@ -128,8 +128,6 @@ export default function BoardActions({
 
   return (
     <div className="relative flex flex-wrap items-center gap-2">
-      {/* SEARCH */}
-
       {isSearchOpen ? (
         <div className="order-last flex h-9 basis-full items-center gap-1.5 rounded border border-border bg-background px-3 md:order-0 md:h-8 md:w-93.25 md:basis-auto">
           <Search
@@ -189,8 +187,6 @@ export default function BoardActions({
         </button>
       )}
 
-      {/* FIELDS */}
-
       <button
         type="button"
         onClick={() =>
@@ -218,8 +214,6 @@ export default function BoardActions({
         onChange={onFilterChange}
       />
 
-      {/* FIELDS POPOVER */}
-
       <FieldsPopover
         open={isFieldsOpen}
         onClose={() =>
@@ -236,8 +230,6 @@ export default function BoardActions({
           onSelectedFieldsChange
         }
       />
-
-      {/* ADD */}
 
       <button
         type="button"

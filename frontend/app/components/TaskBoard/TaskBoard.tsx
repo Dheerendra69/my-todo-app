@@ -1448,16 +1448,11 @@ function BoardTaskCard({
   onChangeTask,
 }: {
   task: Task;
-
   selectedFields: FieldOption[];
 
-  onOpenTask: (
-    taskId: string,
-  ) => void;
+  onOpenTask: (taskId: string) => void;
 
-  onOpenActions: (
-    taskId: string,
-  ) => void;
+  onOpenActions: (taskId: string) => void;
 
   actionOpen: boolean;
 
@@ -1472,6 +1467,22 @@ function BoardTaskCard({
 }) {
   const actionButtonRef =
     useRef<HTMLButtonElement>(null);
+
+  const hasReporter =
+    selectedFields.includes("Reporter");
+
+  const hasMembers =
+    selectedFields.includes("Members");
+
+  const hasDueDate =
+    selectedFields.includes("Due Date") &&
+    !!task.dueDate;
+
+  const hasStatus =
+    selectedFields.includes("Status");
+
+  const hasLabels =
+    selectedFields.includes("Labels");
 
   return (
     <div className="mx-3 mb-3 rounded-md border border-border bg-background p-3 transition-all hover:border-primary hover:shadow-sm">
@@ -1491,102 +1502,114 @@ function BoardTaskCard({
           type="button"
           onClick={() =>
             onOpenActions(
-              actionOpen
-                ? ""
-                : task.id,
+              actionOpen ? "" : task.id,
             )
           }
           className="flex h-6 w-6 shrink-0 items-center justify-center text-foreground-secondary hover:text-primary"
         >
-          <MoreHorizontal
-            size={16}
-          />
+          <MoreHorizontal size={16} />
         </button>
       </div>
 
       <div className="mt-3">
-        <PriorityBadge
-          priority={task.priority}
-        />
+        <PriorityBadge priority={task.priority} />
       </div>
 
-      {selectedFields.includes(
-        "Reporter",
-      ) && (
-          <div className="mt-3">
-            <p className="mb-1 text-xs text-foreground-secondary">
-              Reporter
-            </p>
+      {(hasReporter || hasMembers) && (
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {hasReporter ? (
+            <div className="min-w-0">
+              <p className="mb-1 text-xs text-foreground-secondary">
+                Reporter
+              </p>
 
-            <ReporterAvatar
-              assignee={task.assignee}
-            />
+              <ReporterAvatar
+                assignee={task.assignee}
+              />
+            </div>
+          ) : (
+            <div />
+          )}
+
+          {hasMembers ? (
+            <div className="min-w-0">
+              <p className="mb-1 text-xs text-foreground-secondary">
+                Members
+              </p>
+
+              <MemberAvatarStack
+                members={task.members}
+              />
+            </div>
+          ) : (
+            <div />
+          )}
+        </div>
+      )}
+
+      {(hasDueDate || hasStatus) && (
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {hasDueDate ? (
+            <div className="min-w-0">
+              <p className="mb-1 text-xs text-foreground-secondary">
+                Due Date
+              </p>
+
+              <span className="text-xs font-medium text-foreground">
+                {task.dueDate}
+              </span>
+            </div>
+          ) : (
+            <div />
+          )}
+
+          {hasStatus ? (
+            <div className="min-w-0">
+              <p className="mb-1 text-xs text-foreground-secondary">
+                Status
+              </p>
+
+              <StatusBadge status={task.status} />
+            </div>
+          ) : (
+            <div />
+          )}
+        </div>
+      )}
+
+      {hasLabels && (
+        <div className="mt-3 min-w-0">
+          <p className="mb-1 text-xs text-foreground-secondary">
+            Labels
+          </p>
+
+          <div className="flex flex-wrap items-center justify-start gap-1">
+            {task.labels
+              ?.slice(0, 4)
+              .map((label) => (
+                <div
+                  key={label.id}
+                  title={label.name}
+                  className="flex h-6 max-w-32 items-center gap-1 rounded-3xl border border-border bg-surface-secondary px-2 text-xs font-medium text-foreground"
+                >
+                  <Tag
+                    size={12}
+                    className="shrink-0"
+                  />
+
+                  <span className="truncate">
+                    {label.name}
+                  </span>
+                </div>
+              ))}
           </div>
-        )}
-
-      {selectedFields.includes(
-        "Members",
-      ) && (
-          <div className="mt-3">
-            <p className="mb-1 text-xs text-foreground-secondary">
-              Members
-            </p>
-
-            <MemberAvatarStack
-              members={task.members}
-            />
-          </div>
-        )}
-
-      {selectedFields.includes(
-        "Labels",
-      ) && (
-          <div className="mt-3">
-            <p className="mb-1 text-xs text-foreground-secondary">
-              Labels
-            </p>
-
-            <TaskLabels
-              labels={task.labels}
-            />
-          </div>
-        )}
-
-      {selectedFields.includes(
-        "Due Date",
-      ) &&
-        task.dueDate && (
-          <div className="mt-3">
-            <p className="mb-1 text-xs text-foreground-secondary">
-              Due Date
-            </p>
-
-            <span className="text-xs font-medium text-foreground">
-              {task.dueDate}
-            </span>
-          </div>
-        )}
-
-      {selectedFields.includes(
-        "Status",
-      ) && (
-          <div className="mt-3">
-            <p className="mb-1 text-xs text-foreground-secondary">
-              Status
-            </p>
-
-            <StatusBadge
-              status={task.status}
-            />
-          </div>
-        )}
+        </div>
+      )}
 
       {actionOpen && (
         <TaskActionMenu
           task={task}
-          anchorRef={
-            actionButtonRef
-          }
+          anchorRef={actionButtonRef}
           onClose={() =>
             onOpenActions("")
           }
