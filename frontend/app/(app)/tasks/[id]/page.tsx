@@ -33,6 +33,7 @@ import {
   Check,
   Signal,
   Tag,
+  Info,
 } from "lucide-react";
 import { useAuth } from "@/app/components/Auth/AuthContext";
 import { toTitleCase } from "@/helpers";
@@ -1180,7 +1181,7 @@ export default function TaskDetailsPage() {
   const params =
     useParams();
 
-
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   const router =
     useRouter();
@@ -1412,6 +1413,17 @@ export default function TaskDetailsPage() {
         );
       }
     };
+
+  useEffect(() => {
+    const textarea =
+      descriptionRef.current;
+
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    textarea.style.height =
+      `${textarea.scrollHeight}px`;
+  }, [description]);
 
   useEffect(() => {
     if (!taskId) {
@@ -2130,38 +2142,60 @@ export default function TaskDetailsPage() {
     <div className="min-h-screen overflow-x-auto bg-background text-foreground">
       <div className="min-w-262.5">
         <div className="mx-auto w-full max-w-295 px-4 py-4">
-          <div className="grid grid-cols-[minmax(680px,1fr)_323px] gap-5">
+          <div className="grid grid-cols-[minmax(680px,1fr)_323px] gap-x-5 gap-y-2">
             <div className="col-span-2 flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
-                <input
-                  value={title}
-                  onChange={(e) =>
-                    updateField(
-                      () =>
-                        setTitle(
-                          e.target.value,
-                        ),
-                    )
-                  }
-                  className="w-full bg-transparent text-2xl font-semibold tracking-[-0.4px] text-foreground outline-none"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    value={title}
+                    onChange={(e) =>
+                      updateField(() =>
+                        setTitle(e.target.value),
+                      )
+                    }
+                    className="min-w-0 flex-1 bg-transparent text-2xl font-semibold tracking-[-0.4px] text-foreground outline-none"
+                  />
+
+                  <div className="group relative flex shrink-0">
+                    <Info
+                      size={16}
+                      className="cursor-help text-foreground-secondary"
+                    />
+
+                    <div
+                      className="
+          pointer-events-none absolute right-0 top-7 z-50
+          hidden w-52 rounded-md
+          bg-foreground px-3 py-2
+          text-xs text-background shadow-lg
+          group-hover:block
+        "
+                    >
+                      Click on the title and description to edit them.
+                    </div>
+                  </div>
+                </div>
 
                 <textarea
+                  ref={descriptionRef}
                   value={description}
                   onChange={(e) =>
-                    updateField(
-                      () =>
-                        setDescription(
-                          e.target.value,
-                        ),
+                    updateField(() =>
+                      setDescription(e.target.value),
                     )
                   }
-                  rows={2}
-                  className="mt-1 w-full resize-none bg-transparent text-sm leading-5 text-foreground-secondary outline-none"
+                  rows={1}
+                  placeholder="Add a description..."
+                  className="
+    mt-1 w-full resize-none
+    overflow-hidden
+    bg-transparent text-sm leading-5
+    text-foreground-secondary outline-none
+  "
                 />
               </div>
 
-              <div className="flex shrink-0 items-center gap-2 pt-1">
+              <div className="flex shrink-0 items-center gap-2">
                 <button
                   type="button"
                   className="flex h-8 items-center gap-2 rounded-md border border-border px-3 text-foreground hover:bg-surface-secondary"
