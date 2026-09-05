@@ -176,7 +176,7 @@ function CommentAvatar({
 }) {
   if (avatar) {
     return (
-      <Image
+      <img
         src={avatar}
         alt={name}
         className="h-5 w-5 rounded-full object-cover"
@@ -1106,7 +1106,7 @@ function SubtaskRow({
       <div className="flex items-center px-3">
         {subtask.assignee ? (
           subtask.assignee.avatar ? (
-            <Image
+            <img
               src={subtask.assignee.avatar}
               alt={subtask.assignee.name}
               title={subtask.assignee.name}
@@ -2205,7 +2205,7 @@ export default function TaskDetailsPage() {
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5">
                       {assignee?.avatar ? (
-                        <Image
+                        <img
                           src={assignee.avatar}
                           alt={assignee.name}
                           className="h-6 w-6 rounded-full object-cover"
@@ -2781,7 +2781,7 @@ export default function TaskDetailsPage() {
                                   }`}
                               >
                                 {member.avatar ? (
-                                  <Image
+                                  <img
                                     src={member.avatar}
                                     alt={toTitleCase(member.name)}
                                     className="h-7 w-7 rounded-full border-2 border-surface object-cover"

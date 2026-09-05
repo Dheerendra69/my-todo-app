@@ -15,6 +15,7 @@ import {
 
 import FieldsPopover, {
   ViewMode,
+  SelectedFields,
 } from "../FieldsPopover/FieldsPopOver";
 
 import TaskFilter, {
@@ -23,15 +24,27 @@ import TaskFilter, {
 
 type BoardActionsProps = {
   viewMode: ViewMode;
+
   onViewModeChange: (
     mode: ViewMode,
   ) => void;
+
+  selectedFields: SelectedFields;
+
+  onSelectedFieldsChange: (
+    fields: SelectedFields,
+  ) => void;
+
   addButtonLabel: string;
+
   onAdd: () => void;
+
   onFilterChange?: (
     filters: FilterState,
   ) => void;
+
   searchValue?: string;
+
   onSearchChange?: (
     value: string,
   ) => void;
@@ -40,6 +53,8 @@ type BoardActionsProps = {
 export default function BoardActions({
   viewMode,
   onViewModeChange,
+  selectedFields,
+  onSelectedFieldsChange,
   addButtonLabel,
   onAdd,
   onFilterChange,
@@ -72,7 +87,8 @@ export default function BoardActions({
       if (
         (event.metaKey ||
           event.ctrlKey) &&
-        event.key.toLowerCase() === "f"
+        event.key.toLowerCase() ===
+        "f"
       ) {
         event.preventDefault();
 
@@ -112,6 +128,8 @@ export default function BoardActions({
 
   return (
     <div className="relative flex flex-wrap items-center gap-2">
+      {/* SEARCH */}
+
       {isSearchOpen ? (
         <div className="order-last flex h-9 basis-full items-center gap-1.5 rounded border border-border bg-background px-3 md:order-0 md:h-8 md:w-93.25 md:basis-auto">
           <Search
@@ -171,6 +189,8 @@ export default function BoardActions({
         </button>
       )}
 
+      {/* FIELDS */}
+
       <button
         type="button"
         onClick={() =>
@@ -198,6 +218,8 @@ export default function BoardActions({
         onChange={onFilterChange}
       />
 
+      {/* FIELDS POPOVER */}
+
       <FieldsPopover
         open={isFieldsOpen}
         onClose={() =>
@@ -207,7 +229,15 @@ export default function BoardActions({
         onViewModeChange={
           onViewModeChange
         }
+        selectedFields={
+          selectedFields
+        }
+        onSelectedFieldsChange={
+          onSelectedFieldsChange
+        }
       />
+
+      {/* ADD */}
 
       <button
         type="button"

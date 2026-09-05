@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { createPortal } from "react-dom";
 
@@ -25,17 +20,11 @@ import AddProjectModal, {
   type Project,
 } from "../AddProjectModal/AddProjectModal";
 
-import type {
-  ViewMode,
-} from "../FieldsPopover/FieldsPopOver";
+import type { ViewMode, SelectedFields } from "../FieldsPopover/FieldsPopOver";
 
-import type {
-  FilterState,
-} from "../TaskFilter/TaskFilter";
+import type { FilterState } from "../TaskFilter/TaskFilter";
 
-import {
-  useAuth,
-} from "../Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 
 type Priority = Project["priority"];
 
@@ -72,50 +61,31 @@ const priorityOptions: Priority[] = [
   "Low",
 ];
 
-const priorityStyles: Partial<
-  Record<Priority, string>
-> = {
+const priorityStyles: Partial<Record<Priority, string>> = {
   High: "text-[#EF4444]",
   Medium: "text-[#F97316]",
   Low: "text-[#9CA3AF]",
   Urgent: "text-[#DC2626]",
 };
 
-function PriorityBadge({
-  priority,
-}: {
-  priority: Priority;
-}) {
+function PriorityBadge({ priority }: { priority: Priority }) {
   return (
     <div
-      className={`flex items-center gap-1 ${priorityStyles[priority] ??
-        "text-foreground"
+      className={`flex items-center gap-1 ${priorityStyles[priority] ?? "text-foreground"
         }`}
     >
       {priority === "Low" ? (
-        <SignalLow
-          size={12}
-          strokeWidth={2}
-        />
+        <SignalLow size={12} strokeWidth={2} />
       ) : (
-        <SignalHigh
-          size={12}
-          strokeWidth={2}
-        />
+        <SignalHigh size={12} strokeWidth={2} />
       )}
 
-      <span className="text-xs font-medium">
-        {priority}
-      </span>
+      <span className="text-xs font-medium">{priority}</span>
     </div>
   );
 }
 
-function ProjectMember({
-  project,
-}: {
-  project: Project;
-}) {
+function ProjectMember({ project }: { project: Project }) {
   return (
     <div className="flex items-center gap-2">
       {project.avatar ? (
@@ -140,37 +110,22 @@ function ProjectActionMenu({
   onPriorityChange,
 }: {
   project: Project;
-  anchorRef: React.RefObject<
-    HTMLButtonElement | null
-  >;
+  anchorRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
-  onPriorityChange: (
-    projectId: string,
-    priority: Priority,
-  ) => void;
+  onPriorityChange: (projectId: string, priority: Priority) => void;
 }) {
-  const [
-    activeMenu,
-    setActiveMenu,
-  ] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(false);
 
-  const [
-    position,
-    setPosition,
-  ] = useState({
+  const [position, setPosition] = useState({
     top: 0,
     left: 0,
   });
 
-  const [
-    submenuPlacement,
-    setSubmenuPlacement,
-  ] = useState<
+  const [submenuPlacement, setSubmenuPlacement] = useState<
     "left" | "right" | "top" | "bottom"
   >("left");
 
-  const menuRef =
-    useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const MAIN_MENU_WIDTH = 192;
 
@@ -188,76 +143,43 @@ function ProjectActionMenu({
         return;
       }
 
-      const rect =
-        anchorRef.current.getBoundingClientRect();
+      const rect = anchorRef.current.getBoundingClientRect();
 
-      const viewportWidth =
-        window.innerWidth;
+      const viewportWidth = window.innerWidth;
 
-      const viewportHeight =
-        window.innerHeight;
+      const viewportHeight = window.innerHeight;
 
-      const isMobile =
-        viewportWidth < 768;
+      const isMobile = viewportWidth < 768;
 
-      const spaceBelow =
-        viewportHeight -
-        rect.bottom;
+      const spaceBelow = viewportHeight - rect.bottom;
 
-      const spaceAbove =
-        rect.top;
+      const spaceAbove = rect.top;
 
       const shouldOpenAbove =
-        spaceBelow <
-        MAIN_MENU_HEIGHT +
-        VIEWPORT_PADDING &&
+        spaceBelow < MAIN_MENU_HEIGHT + VIEWPORT_PADDING &&
         spaceAbove > spaceBelow;
 
       let top: number;
 
       if (shouldOpenAbove) {
-        top =
-          rect.top -
-          MAIN_MENU_HEIGHT -
-          GAP;
+        top = rect.top - MAIN_MENU_HEIGHT - GAP;
       } else {
-        top =
-          rect.bottom +
-          GAP;
+        top = rect.bottom + GAP;
       }
 
       top = Math.max(
         VIEWPORT_PADDING,
-        Math.min(
-          top,
-          viewportHeight -
-          MAIN_MENU_HEIGHT -
-          VIEWPORT_PADDING,
-        ),
+        Math.min(top, viewportHeight - MAIN_MENU_HEIGHT - VIEWPORT_PADDING),
       );
 
-      let left =
-        rect.right -
-        MAIN_MENU_WIDTH;
+      let left = rect.right - MAIN_MENU_WIDTH;
 
-      if (
-        left +
-        MAIN_MENU_WIDTH >
-        viewportWidth -
-        VIEWPORT_PADDING
-      ) {
-        left =
-          viewportWidth -
-          MAIN_MENU_WIDTH -
-          VIEWPORT_PADDING;
+      if (left + MAIN_MENU_WIDTH > viewportWidth - VIEWPORT_PADDING) {
+        left = viewportWidth - MAIN_MENU_WIDTH - VIEWPORT_PADDING;
       }
 
-      if (
-        left <
-        VIEWPORT_PADDING
-      ) {
-        left =
-          VIEWPORT_PADDING;
+      if (left < VIEWPORT_PADDING) {
+        left = VIEWPORT_PADDING;
       }
 
       setPosition({
@@ -266,198 +188,98 @@ function ProjectActionMenu({
       });
 
       if (isMobile) {
-        const submenuSpaceBelow =
-          viewportHeight -
-          (top +
-            MAIN_MENU_HEIGHT);
+        const submenuSpaceBelow = viewportHeight - (top + MAIN_MENU_HEIGHT);
 
-        const submenuSpaceAbove =
-          top;
+        const submenuSpaceAbove = top;
 
-        if (
-          submenuSpaceBelow >=
-          SUBMENU_HEIGHT +
-          GAP
-        ) {
-          setSubmenuPlacement(
-            "bottom",
-          );
-        } else if (
-          submenuSpaceAbove >=
-          SUBMENU_HEIGHT +
-          GAP
-        ) {
-          setSubmenuPlacement(
-            "top",
-          );
+        if (submenuSpaceBelow >= SUBMENU_HEIGHT + GAP) {
+          setSubmenuPlacement("bottom");
+        } else if (submenuSpaceAbove >= SUBMENU_HEIGHT + GAP) {
+          setSubmenuPlacement("top");
         } else {
           setSubmenuPlacement(
-            submenuSpaceBelow >=
-              submenuSpaceAbove
-              ? "bottom"
-              : "top",
+            submenuSpaceBelow >= submenuSpaceAbove ? "bottom" : "top",
           );
         }
 
         return;
       }
 
-      const spaceLeft =
-        left;
+      const spaceLeft = left;
 
-      const spaceRight =
-        viewportWidth -
-        (left +
-          MAIN_MENU_WIDTH);
+      const spaceRight = viewportWidth - (left + MAIN_MENU_WIDTH);
 
-      if (
-        spaceLeft >=
-        MAIN_MENU_WIDTH +
-        GAP
-      ) {
-        setSubmenuPlacement(
-          "left",
-        );
-      } else if (
-        spaceRight >=
-        MAIN_MENU_WIDTH +
-        GAP
-      ) {
-        setSubmenuPlacement(
-          "right",
-        );
+      if (spaceLeft >= MAIN_MENU_WIDTH + GAP) {
+        setSubmenuPlacement("left");
+      } else if (spaceRight >= MAIN_MENU_WIDTH + GAP) {
+        setSubmenuPlacement("right");
       } else {
-        setSubmenuPlacement(
-          spaceLeft >=
-            spaceRight
-            ? "left"
-            : "right",
-        );
+        setSubmenuPlacement(spaceLeft >= spaceRight ? "left" : "right");
       }
     };
 
     updatePosition();
 
-    window.addEventListener(
-      "resize",
-      updatePosition,
-    );
+    window.addEventListener("resize", updatePosition);
 
-    window.addEventListener(
-      "scroll",
-      updatePosition,
-      true,
-    );
+    window.addEventListener("scroll", updatePosition, true);
 
     return () => {
-      window.removeEventListener(
-        "resize",
-        updatePosition,
-      );
+      window.removeEventListener("resize", updatePosition);
 
-      window.removeEventListener(
-        "scroll",
-        updatePosition,
-        true,
-      );
+      window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [
-    anchorRef,
-    activeMenu,
-  ]);
+  }, [anchorRef, activeMenu]);
 
   useEffect(() => {
-    const handleOutsideClick = (
-      event: MouseEvent,
-    ) => {
-      const target =
-        event.target as Node;
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
 
-      if (
-        menuRef.current?.contains(
-          target,
-        )
-      ) {
+      if (menuRef.current?.contains(target)) {
         return;
       }
 
-      if (
-        anchorRef.current?.contains(
-          target,
-        )
-      ) {
+      if (anchorRef.current?.contains(target)) {
         return;
       }
 
       onClose();
     };
 
-    const handleEscape = (
-      event: KeyboardEvent,
-    ) => {
-      if (
-        event.key ===
-        "Escape"
-      ) {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
         onClose();
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleOutsideClick,
-    );
+    document.addEventListener("mousedown", handleOutsideClick);
 
-    document.addEventListener(
-      "keydown",
-      handleEscape,
-    );
+    document.addEventListener("keydown", handleEscape);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideClick,
-      );
+      document.removeEventListener("mousedown", handleOutsideClick);
 
-      document.removeEventListener(
-        "keydown",
-        handleEscape,
-      );
+      document.removeEventListener("keydown", handleEscape);
     };
-  }, [
-    anchorRef,
-    onClose,
-  ]);
+  }, [anchorRef, onClose]);
 
   const getSubmenuClassName = () => {
-    if (
-      submenuPlacement ===
-      "bottom"
-    ) {
+    if (submenuPlacement === "bottom") {
       return "absolute left-0 top-[calc(100%+10px)] w-48";
     }
 
-    if (
-      submenuPlacement ===
-      "top"
-    ) {
+    if (submenuPlacement === "top") {
       return "absolute bottom-[calc(100%+10px)] left-0 w-48";
     }
 
-    if (
-      submenuPlacement ===
-      "right"
-    ) {
+    if (submenuPlacement === "right") {
       return "absolute left-[calc(100%+10px)] top-0 w-48";
     }
 
     return "absolute right-[calc(100%+10px)] top-0 w-48";
   };
 
-  if (
-    typeof document ===
-    "undefined"
-  ) {
+  if (typeof document === "undefined") {
     return null;
   }
 
@@ -474,29 +296,15 @@ function ProjectActionMenu({
       <div className="relative w-48 min-w-48 rounded-md border border-border bg-surface p-1.5 shadow-xl">
         <button
           type="button"
-          onClick={() =>
-            setActiveMenu(
-              !activeMenu,
-            )
-          }
-          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeMenu
-            ? "bg-surface-secondary"
-            : "hover:bg-surface-secondary"
+          onClick={() => setActiveMenu(!activeMenu)}
+          className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground ${activeMenu ? "bg-surface-secondary" : "hover:bg-surface-secondary"
             }`}
         >
-          <SignalHigh
-            size={18}
-            strokeWidth={1.8}
-          />
+          <SignalHigh size={18} strokeWidth={1.8} />
 
-          <span className="text-sm">
-            Priority
-          </span>
+          <span className="text-sm">Priority</span>
 
-          <ChevronRight
-            size={16}
-            className="ml-auto"
-          />
+          <ChevronRight size={16} className="ml-auto" />
         </button>
       </div>
 
@@ -510,36 +318,24 @@ function ProjectActionMenu({
             </span>
           </div>
 
-          {priorityOptions.map(
-            (option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => {
-                  onPriorityChange(
-                    project.id,
-                    option,
-                  );
+          {priorityOptions.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => {
+                onPriorityChange(project.id, option);
 
-                  onClose();
-                }}
-                className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-surface-secondary"
-              >
-                <PriorityBadge
-                  priority={option}
-                />
+                onClose();
+              }}
+              className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-left hover:bg-surface-secondary"
+            >
+              <PriorityBadge priority={option} />
 
-                <span className="flex h-4 w-4 items-center justify-center">
-                  {project.priority ===
-                    option && (
-                      <Check
-                        size={16}
-                      />
-                    )}
-                </span>
-              </button>
-            ),
-          )}
+              <span className="flex h-4 w-4 items-center justify-center">
+                {project.priority === option && <Check size={16} />}
+              </span>
+            </button>
+          ))}
         </div>
       )}
     </div>,
@@ -555,16 +351,10 @@ function ProjectRow({
 }: {
   project: Project;
   actionOpen: boolean;
-  onOpenActions: (
-    projectId: string,
-  ) => void;
-  onPriorityChange: (
-    projectId: string,
-    priority: Priority,
-  ) => void;
+  onOpenActions: (projectId: string) => void;
+  onPriorityChange: (projectId: string, priority: Priority) => void;
 }) {
-  const actionButtonRef =
-    useRef<HTMLButtonElement>(null);
+  const actionButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="grid min-w-212.5 grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-border last:border-b-0">
@@ -573,29 +363,20 @@ function ProjectRow({
       </div>
 
       <div className="justify-self-center py-3">
-        <PriorityBadge
-          priority={project.priority}
-        />
+        <PriorityBadge priority={project.priority} />
       </div>
 
       <div className="justify-self-center py-3">
-        <ProjectMember
-          project={project}
-        />
+        <ProjectMember project={project} />
       </div>
 
       <div className="justify-self-center py-3 text-sm text-foreground">
         {project.dueDate
-          ? new Date(
-            project.dueDate,
-          ).toLocaleDateString(
-            "en-GB",
-            {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            },
-          )
+          ? new Date(project.dueDate).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
           : "-"}
       </div>
 
@@ -603,31 +384,18 @@ function ProjectRow({
         <button
           ref={actionButtonRef}
           type="button"
-          onClick={() =>
-            onOpenActions(
-              actionOpen
-                ? ""
-                : project.id,
-            )
-          }
+          onClick={() => onOpenActions(actionOpen ? "" : project.id)}
           className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-surface-secondary"
         >
-          <MoreHorizontal
-            size={16}
-            strokeWidth={2}
-          />
+          <MoreHorizontal size={16} strokeWidth={2} />
         </button>
 
         {actionOpen && (
           <ProjectActionMenu
             project={project}
             anchorRef={actionButtonRef}
-            onClose={() =>
-              onOpenActions("")
-            }
-            onPriorityChange={
-              onPriorityChange
-            }
+            onClose={() => onOpenActions("")}
+            onPriorityChange={onPriorityChange}
           />
         )}
       </div>
@@ -643,16 +411,10 @@ function ProjectCard({
 }: {
   project: Project;
   actionOpen: boolean;
-  onOpenActions: (
-    projectId: string,
-  ) => void;
-  onPriorityChange: (
-    projectId: string,
-    priority: Priority,
-  ) => void;
+  onOpenActions: (projectId: string) => void;
+  onPriorityChange: (projectId: string, priority: Priority) => void;
 }) {
-  const actionButtonRef =
-    useRef<HTMLButtonElement>(null);
+  const actionButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="mx-3 mb-3 rounded-md border border-border bg-background p-3">
@@ -672,40 +434,25 @@ function ProjectCard({
         <button
           ref={actionButtonRef}
           type="button"
-          onClick={() =>
-            onOpenActions(
-              actionOpen
-                ? ""
-                : project.id,
-            )
-          }
+          onClick={() => onOpenActions(actionOpen ? "" : project.id)}
           className="flex h-5 w-5 shrink-0 items-center justify-center"
         >
-          <MoreHorizontal
-            size={14}
-            strokeWidth={2}
-          />
+          <MoreHorizontal size={14} strokeWidth={2} />
         </button>
 
         {actionOpen && (
           <ProjectActionMenu
             project={project}
             anchorRef={actionButtonRef}
-            onClose={() =>
-              onOpenActions("")
-            }
-            onPriorityChange={
-              onPriorityChange
-            }
+            onClose={() => onOpenActions("")}
+            onPriorityChange={onPriorityChange}
           />
         )}
       </div>
 
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ProjectMember
-            project={project}
-          />
+          <ProjectMember project={project} />
 
           <span className="text-xs font-medium text-foreground">
             {project.lead}
@@ -715,24 +462,17 @@ function ProjectCard({
         {project.dueDate && (
           <div className="flex h-6 items-center rounded-3xl bg-[#DC26261A] px-3 text-[#DC2626]">
             <span className="text-xs font-medium">
-              {new Date(
-                project.dueDate,
-              ).toLocaleDateString(
-                "en-GB",
-                {
-                  day: "numeric",
-                  month: "short",
-                },
-              )}
+              {new Date(project.dueDate).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+              })}
             </span>
           </div>
         )}
       </div>
 
       <div className="mt-3">
-        <PriorityBadge
-          priority={project.priority}
-        />
+        <PriorityBadge priority={project.priority} />
       </div>
     </div>
   );
@@ -741,149 +481,89 @@ function ProjectCard({
 export default function ProjectBoard() {
   const { user } = useAuth();
 
-  const [
-    projects,
-    setProjects,
-  ] = useState<Project[]>([]);
+  const [selectedFields, setSelectedFields] =
+    useState<SelectedFields>({
+      list: [],
+      board: [],
+    });
 
-  const [
-    originalProjects,
-    setOriginalProjects,
-  ] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
-  const [
-    filters,
-    setFilters,
-  ] = useState<FilterState>(
-    initialFilters,
+  const [originalProjects, setOriginalProjects] = useState<Project[]>([]);
+
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+
+  const [openActionProjectId, setOpenActionProjectId] = useState<string | null>(
+    null,
   );
 
-  const [
-    searchQuery,
-    setSearchQuery,
-  ] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
 
-  const [
-    viewMode,
-    setViewMode,
-  ] = useState<ViewMode>(
-    "list",
-  );
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [
-    isAddProjectOpen,
-    setIsAddProjectOpen,
-  ] = useState(false);
-
-  const [
-    openActionProjectId,
-    setOpenActionProjectId,
-  ] = useState<
-    string | null
-  >(null);
-
-  const [
-    isDirty,
-    setIsDirty,
-  ] = useState(false);
-
-  const [
-    isSaving,
-    setIsSaving,
-  ] = useState(false);
-
-  const [
-    saved,
-    setSaved,
-  ] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!user?.id) {
       return;
     }
 
-    const fetchProjects =
-      async () => {
-        try {
-          const response =
-            await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/projects/owner/${user.id}`,
-            );
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/owner/${user.id}`,
+        );
 
-          if (!response.ok) {
-            throw new Error(
-              "Failed to fetch projects",
-            );
-          }
-
-          const data:
-            BackendProject[] =
-            await response.json();
-
-          const formattedProjects:
-            Project[] = data.map(
-              (project) => ({
-                id: project.id,
-                title: project.name,
-                description:
-                  project.description ||
-                  "",
-                priority:
-                  project.priority,
-
-                lead:
-                  project.owner.name,
-
-                avatar:
-                  project.owner.avatar,
-
-                dueDate:
-                  project.dueDate ||
-                  "",
-              }),
-            );
-
-          setProjects(
-            formattedProjects,
-          );
-
-          setOriginalProjects(
-            formattedProjects,
-          );
-
-          setIsDirty(false);
-        } catch (error) {
-          console.error(
-            "Failed to fetch projects:",
-            error,
-          );
+        if (!response.ok) {
+          throw new Error("Failed to fetch projects");
         }
-      };
+
+        const data: BackendProject[] = await response.json();
+
+        const formattedProjects: Project[] = data.map((project) => ({
+          id: project.id,
+          title: project.name,
+          description: project.description || "",
+          priority: project.priority,
+
+          lead: project.owner.name,
+
+          avatar: project.owner.avatar,
+
+          dueDate: project.dueDate || "",
+        }));
+
+        setProjects(formattedProjects);
+
+        setOriginalProjects(formattedProjects);
+
+        setIsDirty(false);
+      } catch (error) {
+        console.error("Failed to fetch projects:", error);
+      }
+    };
 
     fetchProjects();
   }, [user?.id]);
 
-  const updateProjectPriority = (
-    projectId: string,
-    priority: Priority,
-  ) => {
-    setProjects(
-      (currentProjects) =>
-        currentProjects.map(
-          (project) => {
-            if (
-              project.id !==
-              projectId
-            ) {
-              return project;
-            }
+  const updateProjectPriority = (projectId: string, priority: Priority) => {
+    setProjects((currentProjects) =>
+      currentProjects.map((project) => {
+        if (project.id !== projectId) {
+          return project;
+        }
 
-            return {
-              ...project,
-              priority,
-            };
-          },
-        ),
+        return {
+          ...project,
+          priority,
+        };
+      }),
     );
 
     setIsDirty(true);
@@ -892,170 +572,97 @@ export default function ProjectBoard() {
   };
 
   const discardChanges = () => {
-    setProjects(
-      originalProjects,
-    );
+    setProjects(originalProjects);
 
     setIsDirty(false);
 
-    setOpenActionProjectId(
-      null,
-    );
+    setOpenActionProjectId(null);
   };
 
-  const saveChanges =
-    async () => {
-      try {
-        setIsSaving(true);
+  const saveChanges = async () => {
+    try {
+      setIsSaving(true);
 
-        const changedProjects =
-          projects.filter(
-            (project) => {
-              const originalProject =
-                originalProjects.find(
-                  (original) =>
-                    original.id ===
-                    project.id,
-                );
+      const changedProjects = projects.filter((project) => {
+        const originalProject = originalProjects.find(
+          (original) => original.id === project.id,
+        );
 
-              return (
-                originalProject &&
-                originalProject.priority !==
-                project.priority
-              );
+        return originalProject && originalProject.priority !== project.priority;
+      });
+
+      await Promise.all(
+        changedProjects.map(async (project) => {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/projects/${project.id}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                priority: project.priority,
+              }),
             },
           );
 
-        await Promise.all(
-          changedProjects.map(
-            async (project) => {
-              const response =
-                await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL}/projects/${project.id}`,
-                  {
-                    method: "PATCH",
-                    headers: {
-                      "Content-Type":
-                        "application/json",
-                    },
-                    body: JSON.stringify({
-                      priority:
-                        project.priority,
-                    }),
-                  },
-                );
-
-              if (!response.ok) {
-                throw new Error(
-                  `Failed to update project ${project.id}`,
-                );
-              }
-            },
-          ),
-        );
-
-        setOriginalProjects(
-          projects,
-        );
-
-        setIsDirty(false);
-
-        setSaved(true);
-
-        setTimeout(() => {
-          setSaved(false);
-        }, 2500);
-      } catch (error) {
-        console.error(
-          "Failed to save projects:",
-          error,
-        );
-      } finally {
-        setIsSaving(false);
-      }
-    };
-
-  const normalizedSearchQuery =
-    searchQuery
-      .trim()
-      .toLowerCase();
-
-  const filteredProjects =
-    projects
-      .filter(
-        (project) => {
-          const matchesSearch =
-            normalizedSearchQuery ===
-            "" ||
-            project.title
-              .toLowerCase()
-              .includes(
-                normalizedSearchQuery,
-              ) ||
-            project.description
-              ?.toLowerCase()
-              .includes(
-                normalizedSearchQuery,
-              );
-
-          const matchesPriority =
-            filters.priority
-              .length === 0 ||
-            filters.priority.includes(
-              project.priority,
-            );
-
-          return (
-            matchesSearch &&
-            matchesPriority
-          );
-        },
-      )
-      .sort(
-        (a, b) => {
-          if (
-            !filters.dueDate
-          ) {
-            return 0;
+          if (!response.ok) {
+            throw new Error(`Failed to update project ${project.id}`);
           }
-
-          const aDate =
-            a.dueDate
-              ? new Date(
-                a.dueDate,
-              ).getTime()
-              : Number.MAX_SAFE_INTEGER;
-
-          const bDate =
-            b.dueDate
-              ? new Date(
-                b.dueDate,
-              ).getTime()
-              : Number.MAX_SAFE_INTEGER;
-
-          return filters.dueDate ===
-            "Increasing"
-            ? aDate - bDate
-            : bDate - aDate;
-        },
+        }),
       );
 
-  const addProject = (
-    project: Project,
-  ) => {
-    setProjects(
-      (currentProjects) => [
-        ...currentProjects,
-        project,
-      ],
-    );
+      setOriginalProjects(projects);
 
-    setOriginalProjects(
-      (currentProjects) => [
-        ...currentProjects,
-        project,
-      ],
-    );
+      setIsDirty(false);
+
+      setSaved(true);
+
+      setTimeout(() => {
+        setSaved(false);
+      }, 2500);
+    } catch (error) {
+      console.error("Failed to save projects:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+
+  const filteredProjects = projects
+    .filter((project) => {
+      const matchesSearch =
+        normalizedSearchQuery === "" ||
+        project.title.toLowerCase().includes(normalizedSearchQuery) ||
+        project.description?.toLowerCase().includes(normalizedSearchQuery);
+
+      const matchesPriority =
+        filters.priority.length === 0 ||
+        filters.priority.includes(project.priority);
+
+      return matchesSearch && matchesPriority;
+    })
+    .sort((a, b) => {
+      if (!filters.dueDate) {
+        return 0;
+      }
+
+      const aDate = a.dueDate
+        ? new Date(a.dueDate).getTime()
+        : Number.MAX_SAFE_INTEGER;
+
+      const bDate = b.dueDate
+        ? new Date(b.dueDate).getTime()
+        : Number.MAX_SAFE_INTEGER;
+
+      return filters.dueDate === "Increasing" ? aDate - bDate : bDate - aDate;
+    });
+
+  const addProject = (project: Project) => {
+    setProjects((currentProjects) => [...currentProjects, project]);
+
+    setOriginalProjects((currentProjects) => [...currentProjects, project]);
   };
 
   return (
@@ -1069,29 +676,18 @@ export default function ProjectBoard() {
 
             <BoardActions
               viewMode={viewMode}
-              onViewModeChange={
-                setViewMode
-              }
+              onViewModeChange={setViewMode}
+              selectedFields={selectedFields}
+              onSelectedFieldsChange={setSelectedFields}
               addButtonLabel="Add Project"
-              onAdd={() =>
-                setIsAddProjectOpen(
-                  true,
-                )
-              }
-              onFilterChange={
-                setFilters
-              }
-              searchValue={
-                searchQuery
-              }
-              onSearchChange={
-                setSearchQuery
-              }
+              onAdd={() => setIsAddProjectOpen(true)}
+              onFilterChange={setFilters}
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
             />
           </div>
 
-          {viewMode ===
-            "list" ? (
+          {viewMode === "list" ? (
             <div className="w-full overflow-x-auto rounded-lg border border-border">
               <div className="min-w-212.5">
                 <div className="grid h-12 grid-cols-[minmax(240px,1fr)_140px_160px_150px_140px] items-center border-b border-border bg-surface-secondary">
@@ -1116,44 +712,27 @@ export default function ProjectBoard() {
                   </div>
                 </div>
 
-                {filteredProjects.map(
-                  (project) => (
-                    <ProjectRow
-                      key={project.id}
-                      project={project}
-                      actionOpen={
-                        openActionProjectId ===
-                        project.id
-                      }
-                      onOpenActions={(
-                        projectId,
-                      ) =>
-                        setOpenActionProjectId(
-                          projectId ||
-                          null,
-                        )
-                      }
-                      onPriorityChange={
-                        updateProjectPriority
-                      }
-                    />
-                  ),
-                )}
+                {filteredProjects.map((project) => (
+                  <ProjectRow
+                    key={project.id}
+                    project={project}
+                    actionOpen={openActionProjectId === project.id}
+                    onOpenActions={(projectId) =>
+                      setOpenActionProjectId(projectId || null)
+                    }
+                    onPriorityChange={updateProjectPriority}
+                  />
+                ))}
 
-                {filteredProjects.length ===
-                  0 && (
-                    <div className="flex h-24 items-center justify-center text-sm text-foreground-secondary">
-                      No projects found.
-                    </div>
-                  )}
+                {filteredProjects.length === 0 && (
+                  <div className="flex h-24 items-center justify-center text-sm text-foreground-secondary">
+                    No projects found.
+                  </div>
+                )}
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setIsAddProjectOpen(
-                      true,
-                    )
-                  }
+                  onClick={() => setIsAddProjectOpen(true)}
                   className="flex h-12 items-center gap-1 px-3 text-sm font-medium text-foreground hover:bg-surface-secondary"
                 >
                   <Plus size={16} />
@@ -1165,10 +744,7 @@ export default function ProjectBoard() {
             <section className="w-full overflow-hidden rounded-lg border border-border bg-surface-secondary">
               <div className="flex h-9.75 items-center justify-between px-3">
                 <div className="flex items-center gap-2">
-                  <Columns3
-                    size={14}
-                    strokeWidth={2}
-                  />
+                  <Columns3 size={14} strokeWidth={2} />
 
                   <span className="text-xs font-semibold text-foreground">
                     Projects
@@ -1178,82 +754,50 @@ export default function ProjectBoard() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      setIsAddProjectOpen(
-                        true,
-                      )
-                    }
+                    onClick={() => setIsAddProjectOpen(true)}
                     className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-background"
                   >
-                    <Plus
-                      size={14}
-                      strokeWidth={2}
-                    />
+                    <Plus size={14} strokeWidth={2} />
                   </button>
 
                   <button
                     type="button"
                     className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-background"
                   >
-                    <MoreHorizontal
-                      size={14}
-                      strokeWidth={2}
-                    />
+                    <MoreHorizontal size={14} strokeWidth={2} />
                   </button>
                 </div>
               </div>
 
               <div className="flex flex-col">
-                {filteredProjects.map(
-                  (project) => (
-                    <ProjectCard
-                      key={project.id}
-                      project={project}
-                      actionOpen={
-                        openActionProjectId ===
-                        project.id
-                      }
-                      onOpenActions={(
-                        projectId,
-                      ) =>
-                        setOpenActionProjectId(
-                          projectId ||
-                          null,
-                        )
-                      }
-                      onPriorityChange={
-                        updateProjectPriority
-                      }
-                    />
-                  ),
-                )}
+                {filteredProjects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    actionOpen={openActionProjectId === project.id}
+                    onOpenActions={(projectId) =>
+                      setOpenActionProjectId(projectId || null)
+                    }
+                    onPriorityChange={updateProjectPriority}
+                  />
+                ))}
 
-                {filteredProjects.length ===
-                  0 && (
-                    <div className="flex h-24 items-center justify-center text-sm text-foreground-secondary">
-                      No projects found.
-                    </div>
-                  )}
+                {filteredProjects.length === 0 && (
+                  <div className="flex h-24 items-center justify-center text-sm text-foreground-secondary">
+                    No projects found.
+                  </div>
+                )}
               </div>
 
               <div className="flex h-13 items-center px-3">
                 <button
                   type="button"
-                  onClick={() =>
-                    setIsAddProjectOpen(
-                      true,
-                    )
-                  }
+                  onClick={() => setIsAddProjectOpen(true)}
                   className="flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium text-foreground hover:bg-background"
                 >
-                  <Plus
-                    size={12}
-                    strokeWidth={2}
-                  />
+                  <Plus size={12} strokeWidth={2} />
 
-                  <span>
-                    Add Project
-                  </span>
+                  <span>Add Project</span>
                 </button>
               </div>
             </section>
@@ -1285,9 +829,7 @@ export default function ProjectBoard() {
               disabled={isSaving}
               className="flex-1 rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
-              {isSaving
-                ? "Saving..."
-                : "Save Changes"}
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </div>
@@ -1301,35 +843,21 @@ export default function ProjectBoard() {
 
       <button
         type="button"
-        onClick={() =>
-          setIsAddProjectOpen(
-            true,
-          )
-        }
+        onClick={() => setIsAddProjectOpen(true)}
         className="fixed bottom-12 right-6 flex h-10 items-center gap-2 rounded-full bg-background px-3 shadow-lg ring-1 ring-[#E5E5E5] md:hidden"
       >
         <Plus size={16} />
 
-        <span className="text-xs font-medium">
-          Add Project
-        </span>
+        <span className="text-xs font-medium">Add Project</span>
       </button>
 
       <AddProjectModal
-        isOpen={
-          isAddProjectOpen
-        }
-        onClose={() =>
-          setIsAddProjectOpen(
-            false,
-          )
-        }
+        isOpen={isAddProjectOpen}
+        onClose={() => setIsAddProjectOpen(false)}
         onCreate={(project) => {
           addProject(project);
 
-          setIsAddProjectOpen(
-            false,
-          );
+          setIsAddProjectOpen(false);
         }}
       />
     </div>

@@ -21,12 +21,18 @@ import {
   SignalHigh,
   SignalLow,
   SignalMedium,
+  Tag,
+  User,
 } from "lucide-react";
+
+import type {
+  ViewMode,
+  SelectedFields,
+  FieldOption,
+} from "../FieldsPopover/FieldsPopOver";
 
 import BoardActions from "../BoardActions/BoardActions";
 import AddTaskModal from "../AddTaskModal/AddTaskModal";
-
-import type { ViewMode } from "../FieldsPopover/FieldsPopOver";
 
 import {
   type FilterState,
@@ -39,13 +45,26 @@ import {
 } from "next/navigation";
 import { Priority, TaskStatus } from "@/app/constants";
 
+type TaskUser = {
+  id: string;
+  name: string;
+  avatar?: string | null;
+};
+
+type TaskLabel = {
+  id?: string;
+  name: string;
+  color?: string | null;
+};
+
 type Task = {
   id: string;
   title: string;
   description: string;
   priority: Priority;
-  member: string;
-  avatar?: string;
+  assignee: TaskUser | null;
+  members: TaskUser[];
+  labels: TaskLabel[];
   dueDate: string;
   dueDateValue: string | null;
   status: TaskStatus;
@@ -73,16 +92,9 @@ type BackendTask = {
     id: string;
     name: string;
   };
-  assignee: {
-    id: string;
-    name: string;
-    avatar?: string | null;
-  } | null;
-  members: {
-    id: string;
-    name: string;
-    avatar?: string | null;
-  }[];
+  assignee: TaskUser | null;
+  members: TaskUser[];
+  labels: TaskLabel[];
 };
 
 type BackendProject = {
@@ -219,6 +231,228 @@ function formatDueDate(
   );
 }
 
+function MemberAvatarStack({
+  members,
+}: {
+  members: TaskUser[];
+}) {
+  if (members.length === 0) {
+    return (
+      <span className="text-xs text-foreground-secondary">
+        No members
+      </span>
+    );
+  }
+
+  const visibleMembers =
+    members.slice(0, 4);
+
+  const remainingCount =
+    members.length -
+    visibleMembers.length;
+
+  return (
+    <div className="flex items-center">
+      {visibleMembers.map(
+        (member, index) => (
+          <div
+            key={member.id}
+            title={member.name}
+            className="group relative"
+            style={{
+              marginLeft:
+                index === 0
+                  ? 0
+                  : -6,
+              zIndex:
+                visibleMembers.length -
+                index,
+            }}
+          >
+            {member.avatar ? (
+              <img
+                src={member.avatar}
+                alt={member.name}
+                className="h-7 w-7 rounded-full border-2 border-background object-cover"
+              />
+            ) : (
+              <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary-muted text-xs font-medium text-primary">
+                {member.name.charAt(0)}
+              </div>
+            )}
+
+            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-md group-hover:block">
+              {member.name}
+            </div>
+          </div>
+        ),
+      )}
+
+      {remainingCount > 0 && (
+        <div className="ml-1 flex h-7 w-7 items-center justify-center rounded-full bg-surface-secondary text-xs font-medium text-foreground-secondary">
+          +{remainingCount}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReporterAvatar({
+  assignee,
+}: {
+  assignee: TaskUser | null;
+}) {
+  if (!assignee) {
+    return (
+      <span className="text-xs text-foreground-secondary">
+        Unassigned
+      </span>
+    );
+  }
+
+  return (
+    <div
+      className="group relative"
+      title={assignee.name}
+    >
+      {assignee.avatar ? (
+        <img
+          src={assignee.avatar}
+          alt={assignee.name}
+          className="h-7 w-7 rounded-full border-2 border-background object-cover"
+        />
+      ) : (
+        <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary-muted text-xs font-medium text-primary">
+          {assignee.name.charAt(0)}
+        </div>
+      )}
+
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-md group-hover:block">
+        {assignee.name}
+      </div>
+    </div>
+  );
+}
+
+function TaskLabels({
+  labels,
+}: {
+  labels: TaskLabel[];
+}) {
+  const visibleLabels =
+    labels.slice(0, 4);
+
+  if (visibleLabels.length === 0) {
+    return (
+      <span className="text-xs text-foreground-secondary">
+        No labels
+      </span>
+    );
+  }
+
+  const renderLabel = (
+    label: TaskLabel,
+  ) => (
+    <div
+      key={label.id ?? label.name}
+      title={label.name}
+      className="
+        flex h-6 min-w-0 items-center gap-1
+        rounded-3xl border border-border
+        bg-surface-secondary px-2
+        text-xs font-medium text-foreground
+      "
+    >
+      <Tag
+        size={12}
+        strokeWidth={2}
+        className="shrink-0"
+      />
+
+      <span className="truncate">
+        {label.name}
+      </span>
+    </div>
+  );
+
+  // One label → centered
+  if (visibleLabels.length === 1) {
+    return (
+      <div className="flex w-full justify-center">
+        {renderLabel(visibleLabels[0])}
+      </div>
+    );
+  }
+
+  // Three labels → third label centered
+  if (visibleLabels.length === 3) {
+    return (
+      <div className="grid w-full grid-cols-2 gap-1.5">
+        {renderLabel(visibleLabels[0])}
+
+        {renderLabel(visibleLabels[1])}
+
+        <div className="col-span-2 flex justify-center">
+          {renderLabel(visibleLabels[2])}
+        </div>
+      </div>
+    );
+  }
+
+  // Two or four labels
+  return (
+    <div className="grid w-full grid-cols-2 gap-1.5">
+      {visibleLabels.map(renderLabel)}
+    </div>
+  );
+}
+
+function StatusBadge({
+  status,
+}: {
+  status: TaskStatus;
+}) {
+  return (
+    <span className="text-xs font-medium text-foreground">
+      {statusLabels[status]}
+    </span>
+  );
+}
+
+function getListGridColumns(
+  fields: FieldOption[],
+) {
+  const columns = [
+    "minmax(240px,1fr)",
+
+    ...(fields.includes("Reporter")
+      ? ["150px"]
+      : []),
+
+    "120px",
+
+    ...(fields.includes("Members")
+      ? ["130px"]
+      : []),
+
+    ...(fields.includes("Labels")
+      ? ["minmax(180px,220px)"]
+      : []),
+
+    ...(fields.includes("Due Date")
+      ? ["140px"]
+      : []),
+
+    ...(fields.includes("Status")
+      ? ["130px"]
+      : []),
+
+    "80px",
+  ];
+
+  return columns.join(" ");
+}
+
 function formatTask(
   task: BackendTask,
 ): Task {
@@ -231,12 +465,12 @@ function formatTask(
       priorityLabels[
       task.priority
       ],
-    member:
-      task.assignee?.name ??
-      "Unassigned",
-    avatar:
-      task.assignee?.avatar ??
-      undefined,
+    assignee:
+      task.assignee ?? null,
+    members:
+      task.members ?? [],
+    labels:
+      task.labels ?? [],
     dueDate:
       formatDueDate(
         task.dueDate,
@@ -1052,19 +1286,26 @@ function TaskActionMenu({
 
 function TaskRow({
   task,
+  selectedFields,
   onOpenTask,
   onOpenActions,
   actionOpen,
   onChangeTask,
 }: {
   task: Task;
+
+  selectedFields: FieldOption[];
+
   onOpenTask: (
     taskId: string,
   ) => void;
+
   onOpenActions: (
     taskId: string,
   ) => void;
+
   actionOpen: boolean;
+
   onChangeTask: (
     taskId: string,
     changes: {
@@ -1077,17 +1318,42 @@ function TaskRow({
   const actionButtonRef =
     useRef<HTMLButtonElement>(null);
 
+  const gridTemplateColumns =
+    getListGridColumns(
+      selectedFields,
+    );
+
   return (
-    <div className="grid min-w-195 grid-cols-[minmax(240px,1fr)_140px_120px_140px_140px] items-center border-b border-border bg-background last:border-b-0">
+    <div
+      style={{
+        gridTemplateColumns,
+      }}
+      className="grid items-center border-b border-border bg-background last:border-b-0"
+    >
+
       <button
         type="button"
         onClick={() =>
           onOpenTask(task.id)
         }
-        className="px-3 py-3 text-left text-sm font-medium text-foreground transition-colors hover:text-primary hover:underline"
+        className="min-w-0 px-3 py-3 text-left text-sm font-medium text-foreground hover:text-primary hover:underline"
       >
-        {task.title}
+        <span className="block truncate">
+          {task.title}
+        </span>
       </button>
+
+      {selectedFields.includes(
+        "Reporter",
+      ) && (
+          <div className="flex items-center justify-center px-3 py-3">
+            <ReporterAvatar
+              assignee={
+                task.assignee
+              }
+            />
+          </div>
+        )}
 
       <div className="flex items-center justify-center px-3 py-3">
         <PriorityBadge
@@ -1095,16 +1361,43 @@ function TaskRow({
         />
       </div>
 
-      <div className="flex items-center justify-center px-3 py-3">
-        <MemberAvatar
-          member={task.member}
-          avatar={task.avatar}
-        />
-      </div>
+      {selectedFields.includes(
+        "Members",
+      ) && (
+          <div className="flex items-center justify-center px-3 py-3">
+            <MemberAvatarStack
+              members={task.members}
+            />
+          </div>
+        )}
 
-      <div className="flex items-center justify-center px-3 py-3 text-sm text-foreground-secondary">
-        {task.dueDate || "-"}
-      </div>
+      {selectedFields.includes(
+        "Labels",
+      ) && (
+          <div className="min-w-0 px-3 py-3">
+            <TaskLabels
+              labels={task.labels}
+            />
+          </div>
+        )}
+
+      {selectedFields.includes(
+        "Due Date",
+      ) && (
+          <div className="flex items-center justify-center px-3 py-3 text-sm text-foreground-secondary">
+            {task.dueDate || "-"}
+          </div>
+        )}
+
+      {selectedFields.includes(
+        "Status",
+      ) && (
+          <div className="flex items-center justify-center px-3 py-3">
+            <StatusBadge
+              status={task.status}
+            />
+          </div>
+        )}
 
       <div className="flex items-center justify-center px-3 py-3">
         <button
@@ -1119,7 +1412,7 @@ function TaskRow({
                 : task.id,
             );
           }}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-foreground-secondary transition-colors hover:bg-primary-muted hover:text-primary"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-foreground-secondary hover:bg-primary-muted hover:text-primary"
         >
           <MoreHorizontal
             size={16}
@@ -1148,19 +1441,26 @@ function TaskRow({
 
 function BoardTaskCard({
   task,
+  selectedFields,
   onOpenTask,
   onOpenActions,
   actionOpen,
   onChangeTask,
 }: {
   task: Task;
+
+  selectedFields: FieldOption[];
+
   onOpenTask: (
     taskId: string,
   ) => void;
+
   onOpenActions: (
     taskId: string,
   ) => void;
+
   actionOpen: boolean;
+
   onChangeTask: (
     taskId: string,
     changes: {
@@ -1174,14 +1474,14 @@ function BoardTaskCard({
     useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="mx-3 mb-3 block w-[calc(100%-24px)] rounded-md border border-border bg-background p-3 transition-all hover:border-primary hover:shadow-sm">
+    <div className="mx-3 mb-3 rounded-md border border-border bg-background p-3 transition-all hover:border-primary hover:shadow-sm">
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
           onClick={() =>
             onOpenTask(task.id)
           }
-          className="min-w-0 flex-1 truncate text-left text-sm font-medium leading-5 text-foreground"
+          className="min-w-0 flex-1 truncate text-left text-sm font-medium text-foreground"
         >
           {task.title}
         </button>
@@ -1189,46 +1489,19 @@ function BoardTaskCard({
         <button
           ref={actionButtonRef}
           type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-
+          onClick={() =>
             onOpenActions(
               actionOpen
                 ? ""
                 : task.id,
-            );
-          }}
-          className="flex h-5 w-5 shrink-0 items-center justify-center text-foreground-secondary hover:text-primary"
+            )
+          }
+          className="flex h-6 w-6 shrink-0 items-center justify-center text-foreground-secondary hover:text-primary"
         >
           <MoreHorizontal
-            size={14}
-            strokeWidth={2}
+            size={16}
           />
         </button>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-1">
-          <MemberAvatar
-            member={task.member}
-            avatar={task.avatar}
-          />
-
-          <span className="truncate text-xs font-medium leading-4 text-foreground-secondary">
-            {task.member}
-          </span>
-        </div>
-
-        {task.dueDate && (
-          <div className="flex h-5 shrink-0 items-center gap-1 rounded-3xl bg-primary-muted px-2 text-primary">
-            <span className="text-xs font-medium leading-4">
-              {task.dueDate.replace(
-                /\s\d{4}$/,
-                "",
-              )}
-            </span>
-          </div>
-        )}
       </div>
 
       <div className="mt-3">
@@ -1236,6 +1509,77 @@ function BoardTaskCard({
           priority={task.priority}
         />
       </div>
+
+      {selectedFields.includes(
+        "Reporter",
+      ) && (
+          <div className="mt-3">
+            <p className="mb-1 text-xs text-foreground-secondary">
+              Reporter
+            </p>
+
+            <ReporterAvatar
+              assignee={task.assignee}
+            />
+          </div>
+        )}
+
+      {selectedFields.includes(
+        "Members",
+      ) && (
+          <div className="mt-3">
+            <p className="mb-1 text-xs text-foreground-secondary">
+              Members
+            </p>
+
+            <MemberAvatarStack
+              members={task.members}
+            />
+          </div>
+        )}
+
+      {selectedFields.includes(
+        "Labels",
+      ) && (
+          <div className="mt-3">
+            <p className="mb-1 text-xs text-foreground-secondary">
+              Labels
+            </p>
+
+            <TaskLabels
+              labels={task.labels}
+            />
+          </div>
+        )}
+
+      {selectedFields.includes(
+        "Due Date",
+      ) &&
+        task.dueDate && (
+          <div className="mt-3">
+            <p className="mb-1 text-xs text-foreground-secondary">
+              Due Date
+            </p>
+
+            <span className="text-xs font-medium text-foreground">
+              {task.dueDate}
+            </span>
+          </div>
+        )}
+
+      {selectedFields.includes(
+        "Status",
+      ) && (
+          <div className="mt-3">
+            <p className="mb-1 text-xs text-foreground-secondary">
+              Status
+            </p>
+
+            <StatusBadge
+              status={task.status}
+            />
+          </div>
+        )}
 
       {actionOpen && (
         <TaskActionMenu
@@ -1246,9 +1590,7 @@ function BoardTaskCard({
           onClose={() =>
             onOpenActions("")
           }
-          onChange={
-            onChangeTask
-          }
+          onChange={onChangeTask}
         />
       )}
     </div>
@@ -1264,6 +1606,7 @@ function ListTaskSection({
   openActionTaskId,
   onOpenActions,
   onChangeTask,
+  selectedFields,
 }: {
   section: TaskSection;
   collapsed: boolean;
@@ -1286,7 +1629,11 @@ function ListTaskSection({
       dueDate?: string | null;
     },
   ) => void;
+  selectedFields: FieldOption[];
 }) {
+  const gridTemplateColumns =
+    getListGridColumns(selectedFields);
+
   return (
     <section>
       <div className="flex h-10 items-center gap-2">
@@ -1319,23 +1666,60 @@ function ListTaskSection({
       >
         <div className="min-h-0 overflow-hidden">
           <div className="w-full overflow-x-auto rounded-lg border border-border bg-background">
-            <div className="min-w-195">
-              <div className="grid h-12 min-w-195 grid-cols-[minmax(240px,1fr)_140px_120px_140px_140px] items-center border-b border-border bg-surface-secondary">
-                <div className="px-3 text-left text-sm font-medium text-foreground">
+            <div className="min-w-fit">
+              <div
+                style={{
+                  gridTemplateColumns,
+                }}
+                className="grid min-w-max h-12 items-center border-b border-border bg-surface-secondary"
+              >
+                <div className="px-3 text-sm font-medium text-foreground">
                   Task
                 </div>
+
+                {selectedFields.includes(
+                  "Reporter",
+                ) && (
+                    <div className="px-3 text-center text-sm font-medium text-foreground">
+                      Reporter
+                    </div>
+                  )}
 
                 <div className="px-3 text-center text-sm font-medium text-foreground">
                   Priority
                 </div>
 
-                <div className="px-3 text-center text-sm font-medium text-foreground">
-                  Members
-                </div>
+                {selectedFields.includes(
+                  "Members",
+                ) && (
+                    <div className="px-3 text-center text-sm font-medium text-foreground">
+                      Members
+                    </div>
+                  )}
 
-                <div className="px-3 text-center text-sm font-medium text-foreground">
-                  Due Date
-                </div>
+                {selectedFields.includes(
+                  "Labels",
+                ) && (
+                    <div className="px-3 text-center text-sm font-medium text-foreground">
+                      Labels
+                    </div>
+                  )}
+
+                {selectedFields.includes(
+                  "Due Date",
+                ) && (
+                    <div className="px-3 text-center text-sm font-medium text-foreground">
+                      Due Date
+                    </div>
+                  )}
+
+                {selectedFields.includes(
+                  "Status",
+                ) && (
+                    <div className="px-3 text-center text-sm font-medium text-foreground">
+                      Status
+                    </div>
+                  )}
 
                 <div className="px-3 text-center text-sm font-medium text-foreground">
                   Actions
@@ -1347,19 +1731,13 @@ function ListTaskSection({
                   <TaskRow
                     key={task.id}
                     task={task}
-                    onOpenTask={
-                      onOpenTask
-                    }
-                    onOpenActions={
-                      onOpenActions
-                    }
+                    selectedFields={selectedFields}
+                    onOpenTask={onOpenTask}
+                    onOpenActions={onOpenActions}
                     actionOpen={
-                      openActionTaskId ===
-                      task.id
+                      openActionTaskId === task.id
                     }
-                    onChangeTask={
-                      onChangeTask
-                    }
+                    onChangeTask={onChangeTask}
                   />
                 ),
               )}
@@ -1390,6 +1768,7 @@ function ListTaskSection({
 
 function BoardSection({
   section,
+  selectedFields,
   collapsed,
   onToggle,
   onAddTask,
@@ -1399,25 +1778,13 @@ function BoardSection({
   onChangeTask,
 }: {
   section: TaskSection;
-
+  selectedFields: FieldOption[];
   collapsed: boolean;
-
   onToggle: () => void;
-
-  onAddTask: (
-    sectionId: TaskStatus,
-  ) => void;
-
-  onOpenTask: (
-    taskId: string,
-  ) => void;
-
+  onAddTask: (sectionId: TaskStatus) => void;
+  onOpenTask: (taskId: string) => void;
   openActionTaskId: string | null;
-
-  onOpenActions: (
-    taskId: string,
-  ) => void;
-
+  onOpenActions: (taskId: string) => void;
   onChangeTask: (
     taskId: string,
     changes: {
@@ -1512,6 +1879,7 @@ function BoardSection({
                   onChangeTask={
                     onChangeTask
                   }
+                  selectedFields={selectedFields}
                 />
               ),
             )}
@@ -1640,6 +2008,20 @@ export default function TaskBoard() {
     searchQuery,
     setSearchQuery,
   ] = useState("");
+
+  const [
+    selectedFields,
+    setSelectedFields,
+  ] = useState<SelectedFields>({
+    list: [
+      "Members",
+      "Due Date",
+    ],
+
+    board: [
+      "Members",
+    ],
+  });
 
   useEffect(() => {
     if (!user) {
@@ -2314,22 +2696,16 @@ export default function TaskBoard() {
 
             <BoardActions
               viewMode={viewMode}
-              onViewModeChange={
-                setViewMode
+              onViewModeChange={setViewMode}
+              selectedFields={selectedFields}
+              onSelectedFieldsChange={
+                setSelectedFields
               }
               addButtonLabel="Add Task"
-              onAdd={
-                addTaskToFirstSection
-              }
-              onFilterChange={
-                setFilters
-              }
-              searchValue={
-                searchQuery
-              }
-              onSearchChange={
-                setSearchQuery
-              }
+              onAdd={addTaskToFirstSection}
+              onFilterChange={setFilters}
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
             />
           </div>
 
@@ -2339,8 +2715,12 @@ export default function TaskBoard() {
                 <ListTaskSection
                   key={section.id}
                   section={section}
+                  selectedFields={
+                    selectedFields.list
+                  }
                   collapsed={
-                    collapsedSections[section.id] ?? false
+                    collapsedSections[section.id] ??
+                    false
                   }
                   onToggle={() =>
                     toggleSection(section.id)
@@ -2348,12 +2728,16 @@ export default function TaskBoard() {
                   onAddTask={openAddTaskModal}
                   onOpenTask={(taskId) => {
                     if (!isGuest) {
-                      router.push(`/tasks/${taskId}`)
+                      router.push(`/tasks/${taskId}`);
                     }
                   }}
-                  openActionTaskId={openActionTaskId}
+                  openActionTaskId={
+                    openActionTaskId
+                  }
                   onOpenActions={(taskId) =>
-                    setOpenActionTaskId(taskId || null)
+                    setOpenActionTaskId(
+                      taskId || null,
+                    )
                   }
                   onChangeTask={changeTaskLocally}
                 />
@@ -2365,22 +2749,21 @@ export default function TaskBoard() {
                 <BoardSection
                   key={section.id}
                   section={section}
+                  selectedFields={
+                    selectedFields.board
+                  }
                   collapsed={
                     collapsedSections[
                     section.id
                     ] ?? false
                   }
                   onToggle={() =>
-                    toggleSection(
-                      section.id,
-                    )
+                    toggleSection(section.id)
                   }
-                  onAddTask={
-                    openAddTaskModal
-                  }
+                  onAddTask={openAddTaskModal}
                   onOpenTask={(taskId) => {
                     if (!isGuest) {
-                      router.push(`/tasks/${taskId}`)
+                      router.push(`/tasks/${taskId}`);
                     }
                   }}
                   openActionTaskId={
@@ -2391,9 +2774,7 @@ export default function TaskBoard() {
                       taskId || null,
                     )
                   }
-                  onChangeTask={
-                    changeTaskLocally
-                  }
+                  onChangeTask={changeTaskLocally}
                 />
               ))}
             </div>

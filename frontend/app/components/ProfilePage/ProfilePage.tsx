@@ -1,21 +1,12 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
-import {
-  useRouter,
-} from "next/navigation";
+import { useRouter } from "next/navigation";
 
-import {
-  Pencil,
-} from "lucide-react";
+import { Pencil } from "lucide-react";
 
-import {
-  useAuth,
-} from "../Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 
 type ProfileDetails = {
   name: string;
@@ -24,56 +15,37 @@ type ProfileDetails = {
   username: string;
 };
 
-const getGuestProfileKey = (
-  userId: string,
-) => `guest-profile-${userId}`;
+const getGuestProfileKey = (userId: string) => `guest-profile-${userId}`;
 
 export default function ProfilePage() {
   const router = useRouter();
 
-  const {
-    user,
-    loading,
-    logout,
-  } = useAuth();
+  const { user, loading, logout } = useAuth();
 
-  const [
-    details,
-    setDetails,
-  ] = useState<ProfileDetails>({
+  const [details, setDetails] = useState<ProfileDetails>({
     name: "",
     email: "",
     title: "Designer",
     username: "",
   });
 
-  const [
-    savedDetails,
-    setSavedDetails,
-  ] = useState<ProfileDetails>({
+  const [savedDetails, setSavedDetails] = useState<ProfileDetails>({
     name: "",
     email: "",
     title: "Designer",
     username: "",
   });
 
-  const [
-    isSaving,
-    setIsSaving,
-  ] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [
-    saveError,
-    setSaveError,
-  ] = useState("");
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
     if (!user) {
       return;
     }
 
-    const isGuest =
-      user.isGuest === true;
+    const isGuest = user.isGuest === true;
 
     const defaultDetails: ProfileDetails = {
       name: user.name ?? "",
@@ -82,49 +54,27 @@ export default function ProfilePage() {
       username: user.username ?? "",
     };
     if (isGuest) {
-      const storedProfile =
-        localStorage.getItem(
-          getGuestProfileKey(
-            user.id,
-          ),
-        );
+      const storedProfile = localStorage.getItem(getGuestProfileKey(user.id));
 
       if (storedProfile) {
         try {
-          const parsedProfile =
-            JSON.parse(
-              storedProfile,
-            ) as ProfileDetails;
+          const parsedProfile = JSON.parse(storedProfile) as ProfileDetails;
 
-          setDetails(
-            parsedProfile,
-          );
+          setDetails(parsedProfile);
 
-          setSavedDetails(
-            parsedProfile,
-          );
+          setSavedDetails(parsedProfile);
 
           return;
         } catch {
-          localStorage.removeItem(
-            getGuestProfileKey(
-              user.id,
-            ),
-          );
+          localStorage.removeItem(getGuestProfileKey(user.id));
         }
       }
     }
 
-    setDetails(
-      defaultDetails,
-    );
+    setDetails(defaultDetails);
 
-    setSavedDetails(
-      defaultDetails,
-    );
-  }, [
-    user,
-  ]);
+    setSavedDetails(defaultDetails);
+  }, [user]);
 
   if (loading) {
     return (
@@ -142,11 +92,9 @@ export default function ProfilePage() {
     return null;
   }
 
-  const isGuest =
-    user?.isGuest === true;
+  const isGuest = user?.isGuest === true;
 
-  const shouldShowLogin =
-    !user || isGuest;
+  const shouldShowLogin = !user || isGuest;
 
   if (shouldShowLogin) {
     return (
@@ -154,9 +102,7 @@ export default function ProfilePage() {
         <div className="flex min-h-dvh w-full items-center justify-center px-4">
           <button
             type="button"
-            onClick={() =>
-              router.push("/login")
-            }
+            onClick={() => router.push("/login")}
             className="h-10 rounded-md bg-(--accent-color) px-8 text-sm font-medium text-(--accent-foreground) transition-opacity hover:opacity-90"
           >
             Login
@@ -167,125 +113,87 @@ export default function ProfilePage() {
   }
 
   const hasPendingChanges =
-    details.name !==
-    savedDetails.name ||
-    details.email !==
-    savedDetails.email ||
-    details.title !==
-    savedDetails.title ||
-    details.username !==
-    savedDetails.username;
+    details.name !== savedDetails.name ||
+    details.email !== savedDetails.email ||
+    details.title !== savedDetails.title ||
+    details.username !== savedDetails.username;
 
-  const updateDetail = (
-    field: keyof ProfileDetails,
-    value: string,
-  ) => {
+  const updateDetail = (field: keyof ProfileDetails, value: string) => {
     setSaveError("");
 
-    setDetails(
-      (current) => ({
-        ...current,
-        [field]: value,
-      }),
-    );
+    setDetails((current) => ({
+      ...current,
+      [field]: value,
+    }));
   };
 
   const discardChanges = () => {
-    setDetails(
-      savedDetails,
-    );
+    setDetails(savedDetails);
 
     setSaveError("");
   };
 
-  const saveChanges =
-    async () => {
-      if (
-        !hasPendingChanges ||
-        isSaving
-      ) {
+  const saveChanges = async () => {
+    if (!hasPendingChanges || isSaving) {
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      setSaveError("");
+
+      if (isGuest) {
+        localStorage.setItem(
+          getGuestProfileKey(user.id),
+          JSON.stringify(details),
+        );
+
+        setSavedDetails(details);
+
         return;
       }
 
-      try {
-        setIsSaving(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${user.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: details.name.trim(),
+            email: details.email.trim(),
+            title: details.title.trim() || undefined,
+            username: details.username.trim() || undefined,
+          }),
+        },
+      );
 
-        setSaveError("");
+      const data = await response.json();
 
-        if (isGuest) {
-          localStorage.setItem(
-            getGuestProfileKey(
-              user.id,
-            ),
-            JSON.stringify(
-              details,
-            ),
-          );
-
-          setSavedDetails(
-            details,
-          );
-
-          return;
-        }
-
-        const response =
-          await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/users/${user.id}`,
-            {
-              method: "PATCH",
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-              body: JSON.stringify({
-                name: details.name.trim(),
-                email: details.email.trim(),
-                title: details.title.trim() || undefined,
-                username:
-                  details.username.trim() || undefined,
-              }),
-            },
-          );
-
-        const data =
-          await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data?.message ||
-            "Failed to save profile",
-          );
-        }
-
-        const updatedDetails: ProfileDetails = {
-          name: data.name ?? details.name,
-          email: data.email ?? details.email,
-          title: data.title ?? details.title,
-          username:
-            data.username ??
-            details.username,
-        };
-
-
-
-        setDetails(
-          updatedDetails,
-        );
-
-        setSavedDetails(
-          updatedDetails,
-        );
-      } catch (error) {
-        setSaveError(
-          error instanceof Error
-            ? error.message
-            : "Failed to save changes",
-        );
-      } finally {
-        setIsSaving(false);
+      if (!response.ok) {
+        throw new Error(data?.message || "Failed to save profile");
       }
-    };
+
+      const updatedDetails: ProfileDetails = {
+        name: data.name ?? details.name,
+        email: data.email ?? details.email,
+        title: data.title ?? details.title,
+        username: data.username ?? details.username,
+      };
+
+      setDetails(updatedDetails);
+
+      setSavedDetails(updatedDetails);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error ? error.message : "Failed to save changes",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <main className="min-h-dvh border-l border-border bg-background">
@@ -308,14 +216,8 @@ export default function ProfilePage() {
 
               <div className="h-8.5 w-8.5 overflow-hidden rounded-full border border-border">
                 <img
-                  src={
-                    user.avatar ||
-                    "/default-avatar.jpeg"
-                  }
-                  alt={
-                    details.name ||
-                    "User"
-                  }
+                  src={user.avatar || "/default-avatar.jpeg"}
+                  alt={details.name || "User"}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -329,33 +231,17 @@ export default function ProfilePage() {
               <div className="flex w-full max-w-65 items-center gap-2">
                 <input
                   type="email"
-                  value={
-                    details.email
+                  value={details.email}
+                  disabled={isGuest}
+                  onChange={(event) =>
+                    updateDetail("email", event.target.value)
                   }
-                  disabled={
-                    isGuest
-                  }
-                  onChange={(
-                    event,
-                  ) =>
-                    updateDetail(
-                      "email",
-                      event.target.value,
-                    )
-                  }
-                  placeholder={
-                    isGuest
-                      ? "Guest account"
-                      : "Email"
-                  }
+                  placeholder={isGuest ? "Guest account" : "Email"}
                   className="h-9 min-w-0 flex-1 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20 disabled:cursor-not-allowed disabled:opacity-60"
                 />
 
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-(--accent-color)">
-                  <Pencil
-                    size={13}
-                    strokeWidth={2}
-                  />
+                  <Pencil size={13} strokeWidth={2} />
                 </div>
               </div>
             </div>
@@ -367,17 +253,8 @@ export default function ProfilePage() {
 
               <input
                 type="text"
-                value={
-                  details.name
-                }
-                onChange={(
-                  event,
-                ) =>
-                  updateDetail(
-                    "name",
-                    event.target.value,
-                  )
-                }
+                value={details.name}
+                onChange={(event) => updateDetail("name", event.target.value)}
                 className="h-9 w-full max-w-45 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20"
               />
             </div>
@@ -395,17 +272,8 @@ export default function ProfilePage() {
 
               <input
                 type="text"
-                value={
-                  details.title
-                }
-                onChange={(
-                  event,
-                ) =>
-                  updateDetail(
-                    "title",
-                    event.target.value,
-                  )
-                }
+                value={details.title}
+                onChange={(event) => updateDetail("title", event.target.value)}
                 className="h-9 w-full max-w-45 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20"
               />
             </div>
@@ -423,16 +291,9 @@ export default function ProfilePage() {
 
               <input
                 type="text"
-                value={
-                  details.username
-                }
-                onChange={(
-                  event,
-                ) =>
-                  updateDetail(
-                    "username",
-                    event.target.value,
-                  )
+                value={details.username}
+                onChange={(event) =>
+                  updateDetail("username", event.target.value)
                 }
                 className="h-9 w-full max-w-45 rounded-md border border-border bg-surface-secondary px-3 text-sm text-foreground outline-none transition-shadow focus:border-(--accent-color) focus:ring-2 focus:ring-(--accent-color)/20"
               />
@@ -452,9 +313,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="h-8 shrink-0 rounded-md bg-(--accent-color) px-3 text-xs font-medium leading-4 text-(--accent-foreground) transition-opacity hover:opacity-90"
-                onClick={
-                  logout
-                }
+                onClick={logout}
               >
                 Leave Workspace
               </button>
@@ -471,9 +330,7 @@ export default function ProfilePage() {
             </span>
 
             {saveError && (
-              <p className="mt-1 text-xs text-red-500">
-                {saveError}
-              </p>
+              <p className="mt-1 text-xs text-red-500">{saveError}</p>
             )}
           </div>
           <div className="flex w-full justify-end gap-3 sm:w-auto">

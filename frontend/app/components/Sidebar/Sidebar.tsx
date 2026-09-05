@@ -14,22 +14,15 @@ import {
   Settings,
   CheckSquare,
   BriefcaseBusiness,
+  LogIn,
   User,
 } from "lucide-react";
 
-import {
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import {
-  useAuth,
-} from "../Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 
-import {
-  useTheme,
-  ColorMode,
-} from "../Theme/ThemeContext";
+import { useTheme, ColorMode } from "../Theme/ThemeContext";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -46,6 +39,11 @@ const navigation = [
     label: "Projects",
     icon: BriefcaseBusiness,
     route: "/projects",
+  },
+  {
+    label: "Login",
+    icon: LogIn,
+    route: "/login",
   },
 ];
 
@@ -76,199 +74,102 @@ const colorModes = [
   },
 ];
 
-export default function Sidebar({
-  isOpen,
-  onClose,
-}: SidebarProps) {
-  const {
-    user,
-  } = useAuth();
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const { user } = useAuth();
 
-  const [
-    isWorkspaceOpen,
-    setIsWorkspaceOpen,
-  ] = useState(true);
+  const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(true);
 
-  const [
-    isProfileOpen,
-    setIsProfileOpen,
-  ] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const [
-    activeMenu,
-    setActiveMenu,
-  ] = useState<
-    "theme" | "color" | null
-  >(null);
+  const [activeMenu, setActiveMenu] = useState<"theme" | "color" | null>(null);
 
-  const {
-    theme,
-    colorMode,
-    setTheme,
-    setColorMode,
-  } = useTheme();
+  const { theme, colorMode, setTheme, setColorMode } = useTheme();
 
-  const router =
-    useRouter();
+  const router = useRouter();
 
-  const pathname =
-    usePathname();
+  const pathname = usePathname();
 
-  const isSettingsView =
-    pathname.startsWith(
-      "/settings",
-    );
+  const isSettingsView = pathname.startsWith("/settings");
 
-  const settingsItem =
-    "profile";
+  const settingsItem = "profile";
 
-  const profileRef =
-    useRef<HTMLDivElement>(
-      null,
-    );
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
-      setIsProfileOpen(
-        false,
-      );
+      setIsProfileOpen(false);
 
-      setActiveMenu(
-        null,
-      );
+      setActiveMenu(null);
     }
   }, [isOpen]);
 
   useEffect(() => {
-    const handleClickOutside = (
-      event: MouseEvent,
-    ) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         profileRef.current &&
-        !profileRef.current.contains(
-          event.target as Node,
-        )
+        !profileRef.current.contains(event.target as Node)
       ) {
-        setIsProfileOpen(
-          false,
-        );
+        setIsProfileOpen(false);
 
-        setActiveMenu(
-          null,
-        );
+        setActiveMenu(null);
       }
     };
 
-    const handleEscape = (
-      event: KeyboardEvent,
-    ) => {
-      if (
-        event.key ===
-        "Escape"
-      ) {
-        setIsProfileOpen(
-          false,
-        );
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsProfileOpen(false);
 
-        setActiveMenu(
-          null,
-        );
+        setActiveMenu(null);
 
         onClose();
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside,
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
-    document.addEventListener(
-      "keydown",
-      handleEscape,
-    );
+    document.addEventListener("keydown", handleEscape);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside,
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
 
-      document.removeEventListener(
-        "keydown",
-        handleEscape,
-      );
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [onClose]);
 
-  const handleProfileClick =
-    () => {
-      setIsProfileOpen(
-        (prev) => !prev,
-      );
+  const handleProfileClick = () => {
+    setIsProfileOpen((prev) => !prev);
 
-      setActiveMenu(
-        null,
-      );
-    };
+    setActiveMenu(null);
+  };
 
-  const handleThemeClick =
-    () => {
-      setActiveMenu(
-        (prev) =>
-          prev === "theme"
-            ? null
-            : "theme",
-      );
-    };
+  const handleThemeClick = () => {
+    setActiveMenu((prev) => (prev === "theme" ? null : "theme"));
+  };
 
-  const handleColorClick =
-    () => {
-      setActiveMenu(
-        (prev) =>
-          prev === "color"
-            ? null
-            : "color",
-      );
-    };
+  const handleColorClick = () => {
+    setActiveMenu((prev) => (prev === "color" ? null : "color"));
+  };
 
-  const openSettings =
-    () => {
-      setIsProfileOpen(
-        false,
-      );
+  const openSettings = () => {
+    setIsProfileOpen(false);
 
-      setActiveMenu(
-        null,
-      );
+    setActiveMenu(null);
 
-      router.push(
-        "/settings/profile",
-      );
-    };
+    router.push("/settings/profile");
+  };
 
-  const backToApp =
-    () => {
-      setActiveMenu(
-        null,
-      );
+  const backToApp = () => {
+    setActiveMenu(null);
 
-      router.push(
-        "/tasks",
-      );
-    };
+    router.push("/tasks");
+  };
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-surface transition-transform duration-200 ${isOpen
-        ? "translate-x-0"
-        : "-translate-x-full"
+      className={`fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-surface transition-transform duration-200 ${isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
     >
-      <div
-        ref={profileRef}
-        className="relative h-full w-full"
-      >
+      <div ref={profileRef} className="relative h-full w-full">
         {isSettingsView ? (
           <>
             <div className="flex h-13 w-full items-center p-2">
@@ -306,23 +207,17 @@ export default function Sidebar({
 
               <button
                 type="button"
-                onClick={() =>
-                  router.push(
-                    "/settings/profile",
-                  )
-                }
-                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem ===
-                  "profile"
-                  ? "bg-(--accent-color) text-(--accent-foreground)"
-                  : "text-foreground hover:bg-surface-secondary"
+                onClick={() => router.push("/settings/profile")}
+                className={`flex h-9 w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${settingsItem === "profile"
+                    ? "bg-(--accent-color) text-(--accent-foreground)"
+                    : "text-foreground hover:bg-surface-secondary"
                   }`}
               >
                 <User
                   size={16}
                   strokeWidth={2}
                   className={
-                    settingsItem ===
-                      "profile"
+                    settingsItem === "profile"
                       ? "shrink-0 text-(--accent-foreground)"
                       : "shrink-0 text-foreground"
                   }
@@ -358,12 +253,8 @@ export default function Sidebar({
                   className="h-4 w-4 shrink-0 rounded-xs"
                   style={{
                     backgroundColor:
-                      colorModes.find(
-                        (item) =>
-                          item.name ===
-                          colorMode,
-                      )?.color ||
-                      "#171717",
+                      colorModes.find((item) => item.name === colorMode)
+                        ?.color || "#171717",
                   }}
                 />
 
@@ -383,22 +274,15 @@ export default function Sidebar({
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-secondary">
                   <img
-                    src={
-                      user?.avatar ||
-                      "/default-avatar.jpeg"
-                    }
-                    alt={
-                      user?.name ||
-                      "User"
-                    }
+                    src={user?.avatar || "/default-avatar.jpeg"}
+                    alt={user?.name || "User"}
                     className="h-full w-full object-cover"
                   />
                 </div>
 
                 <div className="flex min-w-0 flex-1 items-center">
                   <span className="truncate text-sm font-medium leading-5 text-foreground">
-                    {user?.name ||
-                      "User"}
+                    {user?.name || "User"}
                   </span>
                 </div>
 
@@ -415,27 +299,19 @@ export default function Sidebar({
                 <div className="flex h-30 w-full flex-col items-center justify-center gap-4 px-3">
                   <div className="h-10 w-10 overflow-hidden rounded-full bg-surface-secondary ring-2 ring-(--accent-color)/20">
                     <img
-                      src={
-                        user?.avatar ||
-                        "/default-avatar.jpeg"
-                      }
-                      alt={
-                        user?.name ||
-                        "User"
-                      }
+                      src={user?.avatar || "/default-avatar.jpeg"}
+                      alt={user?.name || "User"}
                       className="h-full w-full object-cover"
                     />
                   </div>
 
                   <div className="flex w-full min-w-0 flex-col items-center">
                     <span className="max-w-27.25 truncate text-sm font-normal leading-4 text-foreground">
-                      {user?.name ||
-                        "User"}
+                      {user?.name || "User"}
                     </span>
 
                     <span className="max-w-27.25 truncate text-xs font-medium leading-4 text-foreground-secondary">
-                      {user?.email ||
-                        "Guest account"}
+                      {user?.email || "Guest account"}
                     </span>
                   </div>
                 </div>
@@ -474,12 +350,8 @@ export default function Sidebar({
                       className="h-4 w-4 shrink-0 rounded-xs"
                       style={{
                         backgroundColor:
-                          colorModes.find(
-                            (item) =>
-                              item.name ===
-                              colorMode,
-                          )?.color ||
-                          "#9333EA",
+                          colorModes.find((item) => item.name === colorMode)
+                            ?.color || "#9333EA",
                       }}
                     />
 
@@ -516,11 +388,7 @@ export default function Sidebar({
             <div className="w-full p-2">
               <button
                 type="button"
-                onClick={() =>
-                  setIsWorkspaceOpen(
-                    (prev) => !prev,
-                  )
-                }
+                onClick={() => setIsWorkspaceOpen((prev) => !prev)}
                 className="flex h-8 w-full items-center justify-between rounded-xl px-3 text-left hover:bg-surface-secondary"
               >
                 <span className="text-sm font-medium leading-5 text-foreground">
@@ -530,9 +398,7 @@ export default function Sidebar({
                 <ChevronDown
                   size={16}
                   strokeWidth={2}
-                  className={`text-foreground transition-transform ${isWorkspaceOpen
-                    ? ""
-                    : "rotate-180"
+                  className={`text-foreground transition-transform ${isWorkspaceOpen ? "" : "rotate-180"
                     }`}
                 />
               </button>
@@ -541,212 +407,143 @@ export default function Sidebar({
             {isWorkspaceOpen && (
               <nav className="w-full px-2">
                 <div className="flex w-full flex-col">
-                  {navigation.map(
-                    (item) => {
-                      const Icon =
-                        item.icon;
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
 
-                      const isActive =
-                        pathname ===
-                        item.route ||
-                        pathname.startsWith(
-                          `${item.route}/`,
-                        );
+                    const isActive =
+                      pathname === item.route ||
+                      pathname.startsWith(`${item.route}/`);
 
-                      return (
-                        <button
-                          key={
-                            item.label
-                          }
-                          type="button"
-                          onClick={() => {
-                            setIsProfileOpen(
-                              false,
-                            );
+                    return (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => {
+                          setIsProfileOpen(false);
 
-                            setActiveMenu(
-                              null,
-                            );
+                          setActiveMenu(null);
 
-                            router.push(
-                              item.route,
-                            );
-                          }}
-                          className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors ${isActive
+                          router.push(item.route);
+                        }}
+                        className={`flex h-9 w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors ${isActive
                             ? "bg-(--accent-color) text-(--accent-foreground)"
                             : "text-foreground hover:bg-surface-secondary"
-                            }`}
-                        >
-                          <Icon
-                            size={16}
-                            strokeWidth={2}
-                          />
+                          }`}
+                      >
+                        <Icon size={16} strokeWidth={2} />
 
-                          <span className="text-sm font-medium leading-[100%]">
-                            {
-                              item.label
-                            }
-                          </span>
-                        </button>
-                      );
-                    },
-                  )}
+                        <span className="text-sm font-medium leading-[100%]">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </nav>
             )}
           </>
         )}
 
-        {activeMenu ===
-          "theme" && (
-            <div
-              className={`absolute z-60 w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
+        {activeMenu === "theme" && (
+          <div
+            className={`absolute z-60 w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
                 ? "left-[calc(100%-80px)] top-37.5 md:left-[calc(100%-80px)] md:top-37.5"
                 : "left-[calc(100%-60px)] top-62.5 md:left-[calc(100%+20px)] md:top-62.5"
+              }`}
+          >
+            <div className="flex h-9 items-center px-3 py-2">
+              <span className="text-sm font-medium leading-5 text-foreground-secondary">
+                Theme
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTheme("light");
+
+                setActiveMenu(null);
+              }}
+              className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${theme === "light"
+                  ? "bg-(--accent-color) text-(--accent-foreground)"
+                  : "text-foreground hover:bg-surface-secondary"
                 }`}
             >
-              <div className="flex h-9 items-center px-3 py-2">
-                <span className="text-sm font-medium leading-5 text-foreground-secondary">
-                  Theme
-                </span>
-              </div>
+              <Sun size={16} strokeWidth={2} />
 
-              <button
-                type="button"
-                onClick={() => {
-                  setTheme(
-                    "light",
-                  );
+              <span className="min-w-0 flex-1 text-left text-sm">Light</span>
 
-                  setActiveMenu(
-                    null,
-                  );
-                }}
-                className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${theme === "light"
+              {theme === "light" && <Check size={16} strokeWidth={2} />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTheme("dark");
+
+                setActiveMenu(null);
+              }}
+              className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${theme === "dark"
                   ? "bg-(--accent-color) text-(--accent-foreground)"
                   : "text-foreground hover:bg-surface-secondary"
-                  }`}
-              >
-                <Sun
-                  size={16}
-                  strokeWidth={2}
-                />
+                }`}
+            >
+              <Moon size={16} strokeWidth={2} />
 
-                <span className="min-w-0 flex-1 text-left text-sm">
-                  Light
-                </span>
+              <span className="min-w-0 flex-1 text-left text-sm">Dark</span>
 
-                {theme ===
-                  "light" && (
-                    <Check
-                      size={16}
-                      strokeWidth={2}
-                    />
-                  )}
-              </button>
+              {theme === "dark" && <Check size={16} strokeWidth={2} />}
+            </button>
+          </div>
+        )}
 
-              <button
-                type="button"
-                onClick={() => {
-                  setTheme(
-                    "dark",
-                  );
-
-                  setActiveMenu(
-                    null,
-                  );
-                }}
-                className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${theme === "dark"
-                  ? "bg-(--accent-color) text-(--accent-foreground)"
-                  : "text-foreground hover:bg-surface-secondary"
-                  }`}
-              >
-                <Moon
-                  size={16}
-                  strokeWidth={2}
-                />
-
-                <span className="min-w-0 flex-1 text-left text-sm">
-                  Dark
-                </span>
-
-                {theme ===
-                  "dark" && (
-                    <Check
-                      size={16}
-                      strokeWidth={2}
-                    />
-                  )}
-              </button>
-            </div>
-          )}
-
-        {activeMenu ===
-          "color" && (
-            <div
-              className={`absolute z-60 w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
+        {activeMenu === "color" && (
+          <div
+            className={`absolute z-60 w-48 rounded-md border border-border bg-surface p-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.08)] ${isSettingsView
                 ? "left-[calc(100%-80px)] top-50 md:left-[calc(100%-80px)] md:top-50"
                 : "left-[calc(100%-60px)] top-75 md:left-[calc(100%+20px)] md:top-75"
-                }`}
-            >
-              <div className="flex h-9 items-center px-3 py-2">
-                <span className="text-sm font-medium leading-5 text-foreground-secondary">
-                  Color Mode
-                </span>
-              </div>
-
-              {colorModes.map(
-                (item) => {
-                  const isSelected =
-                    colorMode ===
-                    item.name;
-
-                  return (
-                    <button
-                      key={
-                        item.name
-                      }
-                      type="button"
-                      onClick={() => {
-                        setColorMode(
-                          item.name as ColorMode,
-                        );
-
-                        setActiveMenu(
-                          null,
-                        );
-                      }}
-                      className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${isSelected
-                        ? "bg-(--accent-color) text-(--accent-foreground)"
-                        : "text-foreground hover:bg-surface-secondary"
-                        }`}
-                    >
-                      <span
-                        className="h-4 w-4 shrink-0 rounded-xs"
-                        style={{
-                          backgroundColor:
-                            item.color,
-                        }}
-                      />
-
-                      <span className="min-w-0 flex-1 truncate text-left text-sm font-normal">
-                        {
-                          item.name
-                        }
-                      </span>
-
-                      {isSelected && (
-                        <Check
-                          size={16}
-                          strokeWidth={2}
-                        />
-                      )}
-                    </button>
-                  );
-                },
-              )}
+              }`}
+          >
+            <div className="flex h-9 items-center px-3 py-2">
+              <span className="text-sm font-medium leading-5 text-foreground-secondary">
+                Color Mode
+              </span>
             </div>
-          )}
+
+            {colorModes.map((item) => {
+              const isSelected = colorMode === item.name;
+
+              return (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => {
+                    setColorMode(item.name as ColorMode);
+
+                    setActiveMenu(null);
+                  }}
+                  className={`flex h-9 w-full items-center gap-2 rounded-2xl px-3 py-2 transition-colors ${isSelected
+                      ? "bg-(--accent-color) text-(--accent-foreground)"
+                      : "text-foreground hover:bg-surface-secondary"
+                    }`}
+                >
+                  <span
+                    className="h-4 w-4 shrink-0 rounded-xs"
+                    style={{
+                      backgroundColor: item.color,
+                    }}
+                  />
+
+                  <span className="min-w-0 flex-1 truncate text-left text-sm font-normal">
+                    {item.name}
+                  </span>
+
+                  {isSelected && <Check size={16} strokeWidth={2} />}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </aside>
   );

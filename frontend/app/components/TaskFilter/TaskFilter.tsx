@@ -23,10 +23,7 @@ export type FilterCategory =
   | "Labels"
   | "Reporter";
 
-
-export type DueDate =
-  | "Increasing"
-  | "Decreasing";
+export type DueDate = "Increasing" | "Decreasing";
 
 export type FilterState = {
   status: Status[];
@@ -107,112 +104,69 @@ const priorityOptions: {
     },
   ];
 
-const statusOptions: Status[] = [
-  "To Do",
-  "Doing",
-  "Completed",
-  "On Hold",
-];
+const statusOptions: Status[] = ["To Do", "Doing", "Completed", "On Hold"];
 
-const dueDateOptions: DueDate[] = [
-  "Increasing",
-  "Decreasing",
-];
+const dueDateOptions: DueDate[] = ["Increasing", "Decreasing"];
 
-export default function TaskFilter({
-  onChange,
-}: TaskFilterProps) {
+export default function TaskFilter({ onChange }: TaskFilterProps) {
   const [open, setOpen] = useState(false);
 
-  const [
-    activeCategory,
-    setActiveCategory,
-  ] = useState<FilterCategory | null>(
+  const [activeCategory, setActiveCategory] = useState<FilterCategory | null>(
     null,
   );
 
-  const [filters, setFilters] =
-    useState<FilterState>({
-      status: [],
-      priority: [],
-      members: [],
-      dueDate: null,
-      teams: [],
-      labels: [],
-      reporter: [],
-    });
+  const [filters, setFilters] = useState<FilterState>({
+    status: [],
+    priority: [],
+    members: [],
+    dueDate: null,
+    teams: [],
+    labels: [],
+    reporter: [],
+  });
 
-  const containerRef =
-    useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (
-      event: MouseEvent,
-    ) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(
-          event.target as Node,
-        )
+        !containerRef.current.contains(event.target as Node)
       ) {
         setOpen(false);
         setActiveCategory(null);
       }
     };
 
-    const handleEscape = (
-      event: KeyboardEvent,
-    ) => {
+    const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
         setActiveCategory(null);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside,
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
-    document.addEventListener(
-      "keydown",
-      handleEscape,
-    );
+    document.addEventListener("keydown", handleEscape);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside,
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
 
-      document.removeEventListener(
-        "keydown",
-        handleEscape,
-      );
+      document.removeEventListener("keydown", handleEscape);
     };
   }, []);
 
-  const updateFilters = (
-    nextFilters: FilterState,
-  ) => {
+  const updateFilters = (nextFilters: FilterState) => {
     setFilters(nextFilters);
     onChange?.(nextFilters);
   };
 
-  const togglePriority = (
-    priority: Priority,
-  ) => {
-    const exists =
-      filters.priority.includes(priority);
+  const togglePriority = (priority: Priority) => {
+    const exists = filters.priority.includes(priority);
 
     const nextPriority = exists
-      ? filters.priority.filter(
-        (item) => item !== priority,
-      )
-      : [
-        ...filters.priority,
-        priority,
-      ];
+      ? filters.priority.filter((item) => item !== priority)
+      : [...filters.priority, priority];
 
     updateFilters({
       ...filters,
@@ -220,20 +174,12 @@ export default function TaskFilter({
     });
   };
 
-  const toggleStatus = (
-    status: Status,
-  ) => {
-    const exists =
-      filters.status.includes(status);
+  const toggleStatus = (status: Status) => {
+    const exists = filters.status.includes(status);
 
     const nextStatus = exists
-      ? filters.status.filter(
-        (item) => item !== status,
-      )
-      : [
-        ...filters.status,
-        status,
-      ];
+      ? filters.status.filter((item) => item !== status)
+      : [...filters.status, status];
 
     updateFilters({
       ...filters,
@@ -241,15 +187,10 @@ export default function TaskFilter({
     });
   };
 
-  const selectDueDate = (
-    value: DueDate,
-  ) => {
+  const selectDueDate = (value: DueDate) => {
     updateFilters({
       ...filters,
-      dueDate:
-        filters.dueDate === value
-          ? null
-          : value,
+      dueDate: filters.dueDate === value ? null : value,
     });
   };
 
@@ -272,75 +213,60 @@ export default function TaskFilter({
             </span>
           </div>
 
-          {priorityOptions.map(
-            (option) => {
-              const Icon = option.icon;
+          {priorityOptions.map((option) => {
+            const Icon = option.icon;
 
-              const selected =
-                filters.priority.includes(
-                  option.name,
-                );
+            const selected = filters.priority.includes(option.name);
 
-              return (
-                <button
-                  key={option.name}
-                  type="button"
-                  onClick={() =>
-                    togglePriority(
-                      option.name,
-                    )
+            return (
+              <button
+                key={option.name}
+                type="button"
+                onClick={() => togglePriority(option.name)}
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-foreground transition-colors hover:bg-surface-secondary"
+              >
+                <Icon
+                  size={16}
+                  strokeWidth={1.8}
+                  style={
+                    option.color
+                      ? {
+                        color: option.color,
+                      }
+                      : undefined
                   }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-foreground transition-colors hover:bg-surface-secondary"
+                  className={option.color ? "" : "text-foreground"}
+                />
+
+                <span
+                  className={
+                    option.color
+                      ? "text-sm font-normal"
+                      : "text-sm font-normal text-foreground"
+                  }
+                  style={
+                    option.color
+                      ? {
+                        color: option.color,
+                      }
+                      : undefined
+                  }
                 >
-                  <Icon
-                    size={16}
-                    strokeWidth={1.8}
-                    style={
-                      option.color
-                        ? {
-                          color:
-                            option.color,
-                        }
-                        : undefined
-                    }
-                    className={
-                      option.color
-                        ? ""
-                        : "text-foreground"
-                    }
-                  />
+                  {option.name}
+                </span>
 
-                  <span
-                    className={
-                      option.color
-                        ? "text-sm font-normal"
-                        : "text-sm font-normal text-foreground"
-                    }
-                    style={
-                      option.color
-                        ? {
-                          color:
-                            option.color,
-                        }
-                        : undefined
-                    }
-                  >
-                    {option.name}
-                  </span>
-
-                  <span className="ml-auto flex h-4 w-4 items-center justify-center">
-                    {selected && (
-                      <Check
-                        size={16}
-                        strokeWidth={2}
-                        className="text-foreground"
-                      />
-                    )}
-                  </span>
-                </button>
-              );
-            },
-          )}
+                <span className="ml-auto flex h-4 w-4 items-center justify-center">
+                  {selected && (
+                    <Check
+                      size={16}
+                      strokeWidth={2}
+                      className="text-foreground"
+                    />
+                  )}
+                </span>
+              </button>
+            );
+          })}
         </div>
       );
     }
@@ -354,39 +280,24 @@ export default function TaskFilter({
             </span>
           </div>
 
-          {statusOptions.map(
-            (status) => {
-              const selected =
-                filters.status.includes(
-                  status,
-                );
+          {statusOptions.map((status) => {
+            const selected = filters.status.includes(status);
 
-              return (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() =>
-                    toggleStatus(status)
-                  }
-                  className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-foreground transition-colors hover:bg-surface-secondary"
-                >
+            return (
+              <button
+                key={status}
+                type="button"
+                onClick={() => toggleStatus(status)}
+                className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-foreground transition-colors hover:bg-surface-secondary"
+              >
+                <span className="text-sm">{status}</span>
 
-                  <span className="text-sm">
-                    {status}
-                  </span>
-
-                  <span className="flex h-4 w-4 items-center justify-center">
-                    {selected && (
-                      <Check
-                        size={16}
-                        strokeWidth={2}
-                      />
-                    )}
-                  </span>
-                </button>
-              );
-            },
-          )}
+                <span className="flex h-4 w-4 items-center justify-center">
+                  {selected && <Check size={16} strokeWidth={2} />}
+                </span>
+              </button>
+            );
+          })}
         </div>
       );
     }
@@ -400,41 +311,26 @@ export default function TaskFilter({
             </span>
           </div>
 
-          {dueDateOptions.map(
-            (option) => {
-              const selected =
-                filters.dueDate === option;
+          {dueDateOptions.map((option) => {
+            const selected = filters.dueDate === option;
 
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() =>
-                    selectDueDate(option)
-                  }
-                  className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-foreground transition-colors hover:bg-surface-secondary"
-                >
-                  <Calendar
-                    size={16}
-                    strokeWidth={1.8}
-                  />
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => selectDueDate(option)}
+                className="flex h-9 w-full items-center gap-2 rounded-md px-3 text-foreground transition-colors hover:bg-surface-secondary"
+              >
+                <Calendar size={16} strokeWidth={1.8} />
 
-                  <span className="text-sm">
-                    {option}
-                  </span>
+                <span className="text-sm">{option}</span>
 
-                  <span className="ml-auto">
-                    {selected && (
-                      <Check
-                        size={16}
-                        strokeWidth={2}
-                      />
-                    )}
-                  </span>
-                </button>
-              );
-            },
-          )}
+                <span className="ml-auto">
+                  {selected && <Check size={16} strokeWidth={2} />}
+                </span>
+              </button>
+            );
+          })}
         </div>
       );
     }
@@ -443,22 +339,15 @@ export default function TaskFilter({
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="relative"
-    >
+    <div ref={containerRef} className="relative">
       <button
         type="button"
         onClick={() => {
-          setOpen(
-            (value) => !value,
-          );
+          setOpen((value) => !value);
 
           setActiveCategory(null);
         }}
-        className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:bg-surface-secondary ${open
-          ? "bg-surface-secondary"
-          : ""
+        className={`relative flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface text-foreground transition-colors hover:bg-surface-secondary ${open ? "bg-surface-secondary" : ""
           }`}
       >
         <svg
@@ -492,70 +381,49 @@ export default function TaskFilter({
               setActiveCategory(null);
             }}
           >
-            {categories.map(
-              (category) => {
-                const Icon =
-                  category.icon;
+            {categories.map((category) => {
+              const Icon = category.icon;
 
-                const selected =
-                  activeCategory ===
-                  category.name;
+              const selected = activeCategory === category.name;
 
-                const hasSubmenu =
-                  category.name ===
-                  "Priority" ||
-                  category.name ===
-                  "Status" ||
-                  category.name ===
-                  "Due Date";
+              const hasSubmenu =
+                category.name === "Priority" ||
+                category.name === "Status" ||
+                category.name === "Due Date";
 
-                return (
-                  <button
-                    key={category.name}
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
+              return (
+                <button
+                  key={category.name}
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
 
-                      if (
-                        hasSubmenu
-                      ) {
-                        setActiveCategory(
-                          selected
-                            ? null
-                            : category.name,
-                        );
-                      }
-                    }}
-                    className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground transition-colors ${selected
+                    if (hasSubmenu) {
+                      setActiveCategory(selected ? null : category.name);
+                    }
+                  }}
+                  className={`flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-foreground transition-colors ${selected
                       ? "bg-surface-secondary"
                       : "hover:bg-surface-secondary"
-                      }`}
-                  >
-                    <Icon
-                      size={18}
+                    }`}
+                >
+                  <Icon size={18} strokeWidth={1.8} className="shrink-0" />
+
+                  <span className="text-sm font-normal">{category.name}</span>
+
+                  {hasSubmenu && (
+                    <ChevronRight
+                      size={16}
                       strokeWidth={1.8}
-                      className="shrink-0"
+                      className="ml-auto"
                     />
-
-                    <span className="text-sm font-normal">
-                      {category.name}
-                    </span>
-
-                    {hasSubmenu && (
-                      <ChevronRight
-                        size={16}
-                        strokeWidth={1.8}
-                        className="ml-auto"
-                      />
-                    )}
-                  </button>
-                );
-              },
-            )}
+                  )}
+                </button>
+              );
+            })}
           </div>
 
-          {activeCategory &&
-            renderSubmenu()}
+          {activeCategory && renderSubmenu()}
         </div>
       )}
     </div>

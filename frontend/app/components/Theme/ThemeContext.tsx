@@ -26,9 +26,7 @@ type ThemeContextType = {
   setColorMode: (colorMode: ColorMode) => void;
 };
 
-const ThemeContext = createContext<ThemeContextType | undefined>(
-  undefined,
-);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const colorModes: Record<ColorMode, string> = {
   Amber: "#D97706",
@@ -39,14 +37,9 @@ const colorModes: Record<ColorMode, string> = {
   Black: "#171717",
 };
 
-export function ThemeProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
-  const [colorMode, setColorModeState] =
-    useState<ColorMode>("Blue");
+  const [colorMode, setColorModeState] = useState<ColorMode>("Blue");
 
   const applyTheme = useCallback(
     (selectedTheme: Theme, selectedColor: ColorMode) => {
@@ -55,30 +48,22 @@ export function ThemeProvider({
       let resolvedTheme = selectedTheme;
 
       if (selectedTheme === "system") {
-        resolvedTheme = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches
+        resolvedTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
           ? "dark"
           : "light";
       }
 
       root.setAttribute("data-theme", resolvedTheme);
-      root.style.setProperty(
-        "--accent-color",
-        colorModes[selectedColor],
-      );
+      root.style.setProperty("--accent-color", colorModes[selectedColor]);
     },
     [],
   );
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem(
-      "theme",
-    ) as Theme | null;
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
 
-    const savedColor = localStorage.getItem(
-      "colorMode",
-    ) as ColorMode | null;
+    const savedColor = localStorage.getItem("colorMode") as ColorMode | null;
 
     const initialTheme = savedTheme || "light";
     const initialColor = savedColor || "Black";
@@ -119,9 +104,7 @@ export function useTheme() {
   const context = useContext(ThemeContext);
 
   if (!context) {
-    throw new Error(
-      "useTheme must be used inside ThemeProvider",
-    );
+    throw new Error("useTheme must be used inside ThemeProvider");
   }
 
   return context;

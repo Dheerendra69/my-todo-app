@@ -1,29 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { List, Grid2X2, Check } from "lucide-react";
 
 export type ViewMode = "list" | "board";
 
-const FIELD_OPTIONS = [
-  "Priority",
+export const FIELD_OPTIONS = [
   "Members",
   "Due Date",
   "Labels",
   "Status",
   "Reporter",
-];
+] as const;
 
-type SelectedFields = {
-  list: string[];
-  board: string[];
+export type FieldOption = (typeof FIELD_OPTIONS)[number];
+
+export type SelectedFields = {
+  list: FieldOption[];
+  board: FieldOption[];
 };
 
 type FieldsPopoverProps = {
   open: boolean;
   onClose: () => void;
+
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
+
+  selectedFields: SelectedFields;
+
+  onSelectedFieldsChange: (
+    fields: SelectedFields,
+  ) => void;
 };
 
 export default function FieldsPopover({
@@ -31,57 +39,81 @@ export default function FieldsPopover({
   onClose,
   viewMode,
   onViewModeChange,
+  selectedFields,
+  onSelectedFieldsChange,
 }: FieldsPopoverProps) {
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  const [selectedFields, setSelectedFields] =
-    useState<SelectedFields>({
-      list: ["Priority", "Members", "Due Date"],
-      board: ["Members"],
-    });
+  const popoverRef =
+    useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (
+      event: MouseEvent,
+    ) => {
       if (
         popoverRef.current &&
-        !popoverRef.current.contains(event.target as Node)
+        !popoverRef.current.contains(
+          event.target as Node,
+        )
       ) {
         onClose();
       }
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleEscape = (
+      event: KeyboardEvent,
+    ) => {
       if (event.key === "Escape") {
         onClose();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside,
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    );
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside,
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
     };
   }, [open, onClose]);
 
   if (!open) return null;
 
-  const currentFields = selectedFields[viewMode];
+  const currentFields =
+    selectedFields[viewMode];
 
-  const toggleField = (field: string) => {
-    setSelectedFields((previous) => {
-      const current = previous[viewMode];
-      const isSelected = current.includes(field);
+  const toggleField = (
+    field: FieldOption,
+  ) => {
+    const isSelected =
+      currentFields.includes(field);
 
-      return {
-        ...previous,
-        [viewMode]: isSelected
-          ? current.filter((item) => item !== field)
-          : [...current, field],
-      };
+    onSelectedFieldsChange({
+      ...selectedFields,
+
+      [viewMode]: isSelected
+        ? currentFields.filter(
+          (item) => item !== field,
+        )
+        : [
+          ...currentFields,
+          field,
+        ],
     });
   };
 
@@ -99,10 +131,14 @@ export default function FieldsPopover({
       "
     >
       <div className="flex w-full flex-col gap-4">
+        {/* VIEW SWITCHER */}
+
         <div className="flex h-9 w-full">
           <button
             type="button"
-            onClick={() => onViewModeChange("list")}
+            onClick={() =>
+              onViewModeChange("list")
+            }
             className={`
               flex h-9 w-1/2 items-center justify-center
               gap-1 rounded-l-md
@@ -114,13 +150,19 @@ export default function FieldsPopover({
               }
             `}
           >
-            <List size={16} strokeWidth={2} />
+            <List
+              size={16}
+              strokeWidth={2}
+            />
+
             <span>List</span>
           </button>
 
           <button
             type="button"
-            onClick={() => onViewModeChange("board")}
+            onClick={() =>
+              onViewModeChange("board")
+            }
             className={`
               flex h-9 w-1/2 items-center justify-center
               gap-1 rounded-r-md
@@ -132,54 +174,67 @@ export default function FieldsPopover({
               }
             `}
           >
-            <Grid2X2 size={16} strokeWidth={2} />
+            <Grid2X2
+              size={16}
+              strokeWidth={2}
+            />
+
             <span>Board</span>
           </button>
         </div>
 
+        {/* OPTIONAL FIELDS */}
+
         <div className="flex w-full flex-col">
-          {FIELD_OPTIONS.map((field) => {
-            const selected = currentFields.includes(field);
+          {FIELD_OPTIONS.map(
+            (field) => {
+              const selected =
+                currentFields.includes(
+                  field,
+                );
 
-            return (
-              <button
-                key={field}
-                type="button"
-                onClick={() => toggleField(field)}
-                className="
-                  flex h-8 min-h-8 w-full
-                  items-center
-                  rounded-md
-                  text-left
-                  hover:bg-surface-secondary
-                "
-              >
-                <span className="text-sm font-normal leading-4 text-foreground">
-                  {field}
-                </span>
-
-                <span
-                  className={`
-                    ml-auto flex h-4 w-4 shrink-0
-                    items-center justify-center
-                    rounded-sm border
-                    ${selected
-                      ? "border-[#171717] bg-[#171717]"
-                      : "border-[#D4D4D4] bg-[#E5E5E5]"
-                    }
-                  `}
+              return (
+                <button
+                  key={field}
+                  type="button"
+                  onClick={() =>
+                    toggleField(field)
+                  }
+                  className="
+                    flex h-8 min-h-8 w-full
+                    items-center
+                    rounded-md
+                    text-left
+                    hover:bg-surface-secondary
+                  "
                 >
-                  {selected && (
-                    <Check
-                      size={12}
-                      strokeWidth={2.5}
-                      className="text-white"
-                    />
-                  )}
-                </span>
-              </button>
-            );
-          })}
+                  <span className="text-sm font-normal leading-4 text-foreground">
+                    {field}
+                  </span>
+
+                  <span
+                    className={`
+                      ml-auto flex h-4 w-4 shrink-0
+                      items-center justify-center
+                      rounded-sm border
+                      ${selected
+                        ? "border-[#171717] bg-[#171717]"
+                        : "border-[#D4D4D4] bg-[#E5E5E5]"
+                      }
+                    `}
+                  >
+                    {selected && (
+                      <Check
+                        size={12}
+                        strokeWidth={2.5}
+                        className="text-white"
+                      />
+                    )}
+                  </span>
+                </button>
+              );
+            },
+          )}
         </div>
       </div>
     </div>
